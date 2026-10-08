@@ -1,9 +1,9 @@
 {
   "task": "TASK-00",
-  "observed_at": "2026-10-08T21:13:31.827866+08:00",
+  "observed_at": "2026-10-08T21:19:43.690350+08:00",
   "baseline_commit": "a8d5c1f0ace08573c5e5787bf5eef39570405191",
   "branch": "codex/research-product-improvement",
-  "task_status": "IN_PROGRESS",
+  "task_status": "BLOCKED",
   "business_code_changed": false,
   "checks": [
     {
@@ -118,7 +118,194 @@
         "frontend",
         "compose"
       ],
-      "verification": "GitHub public run summary and job success indicators"
+      "verification": "GitHub public run summary and job success indicators",
+      "job_details": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426122/job/113291693525",
+          "name": "backend",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job"
+            },
+            {
+              "conclusion": "success",
+              "name": "Initialize containers"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run astral-sh/setup-uv@v6"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv sync --locked"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv run ruff format --check ."
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv run ruff check ."
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv run mypy src"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv run alembic upgrade head"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv run alembic downgrade base"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv run alembic upgrade head"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv run pytest -q"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run astral-sh/setup-uv@v6"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Stop containers"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job"
+            }
+          ]
+        },
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426122/job/113291693697",
+          "name": "compose",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run cp .env.example .env"
+            },
+            {
+              "conclusion": "success",
+              "name": "Configure ephemeral local authentication"
+            },
+            {
+              "conclusion": "success",
+              "name": "Record actual checkout identity for images"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker compose config --quiet"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker compose up -d --build --wait --wait-timeout 300"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run curl --fail http://127.0.0.1:8000/api/health && curl --fail http://127.0.0.1:8080/ >/dev/null"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run python scripts/smoke.py"
+            },
+            {
+              "conclusion": "success",
+              "name": "Verify lossless ownership migration of existing application volumes"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker compose logs --tail=100 && docker compose down"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job"
+            }
+          ]
+        },
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426122/job/113291693719",
+          "name": "frontend",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-node@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm ci"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run lint"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run check"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run build"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npx playwright install --with-deps chromium"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run test:e2e"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-node@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job"
+            }
+          ]
+        }
+      ]
     },
     {
       "workflow": "Desktop",
@@ -129,7 +316,219 @@
         "windows-desktop",
         "linux-desktop"
       ],
-      "verification": "GitHub public run summary and job success indicators"
+      "verification": "GitHub public run summary and job success indicators",
+      "job_details": [
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426070/job/113291693252",
+          "name": "linux-desktop",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job"
+            },
+            {
+              "conclusion": "success",
+              "name": "Initialize containers"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-node@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run astral-sh/setup-uv@v6"
+            },
+            {
+              "conclusion": "success",
+              "name": "Install Linux desktop dependencies"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/cache@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm ci"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run test:transport"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri && cargo fmt --check"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:check"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:test"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri && cargo clippy --locked -- -D warnings"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:build"
+            },
+            {
+              "conclusion": "success",
+              "name": "Configure ephemeral backend authentication"
+            },
+            {
+              "conclusion": "success",
+              "name": "Start the actual local backend"
+            },
+            {
+              "conclusion": "success",
+              "name": "Verify native loopback connectivity"
+            },
+            {
+              "conclusion": "success",
+              "name": "Start GUI and verify rendered frontend"
+            },
+            {
+              "conclusion": "success",
+              "name": "Stop isolated test processes"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/cache@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run astral-sh/setup-uv@v6"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-node@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Stop containers"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job"
+            }
+          ]
+        },
+        {
+          "conclusion": "success",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426070/job/113291693502",
+          "name": "windows-desktop",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-node@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@v5"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/cache@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Record checkout and build identity"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm ci"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run lint"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run check"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run test:transport"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri; cargo fmt --check"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:check"
+            },
+            {
+              "conclusion": "success",
+              "name": "Test Rust including actual Windows Credential Manager"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri; cargo clippy --locked -- -D warnings"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build actual MSI and NSIS installers"
+            },
+            {
+              "conclusion": "success",
+              "name": "Hash and describe actual artifacts"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/upload-artifact@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/cache@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@v5"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-node@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@v4"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job"
+            }
+          ]
+        }
+      ]
     }
   ],
   "windows_baseline_artifact": {
@@ -141,8 +540,448 @@
     "independently_rehashed_this_task": false,
     "signed": false
   },
-  "task_commit": null,
-  "task_ci": [],
+  "task_commit": "d238275e3e49c392c5907bf218ffda57161b3a13",
+  "task_ci": [
+    {
+      "id": 37782711529,
+      "name": "CI",
+      "event": "push",
+      "head_sha": "d238275e3e49c392c5907bf218ffda57161b3a13",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782711529",
+      "run_attempt": 1
+    },
+    {
+      "id": 37782711558,
+      "name": "Desktop",
+      "event": "push",
+      "head_sha": "d238275e3e49c392c5907bf218ffda57161b3a13",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782711558",
+      "run_attempt": 1
+    },
+    {
+      "id": 37782769354,
+      "name": "CI",
+      "event": "pull_request",
+      "head_sha": "d238275e3e49c392c5907bf218ffda57161b3a13",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782769354",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "compose",
+          "conclusion": "success",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782769354/job/113329775625",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run cp .env.example .env",
+              "conclusion": "success"
+            },
+            {
+              "name": "Configure ephemeral local authentication",
+              "conclusion": "success"
+            },
+            {
+              "name": "Record actual checkout identity for images",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run docker compose config --quiet",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run docker compose up -d --build --wait --wait-timeout 300",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run curl --fail http://127.0.0.1:8000/api/health && curl --fail http://127.0.0.1:8080/ >/dev/null",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run python scripts/smoke.py",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify lossless ownership migration of existing application volumes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run docker compose logs --tail=100 && docker compose down",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "backend",
+          "conclusion": "failure",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782769354/job/113329775925",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run astral-sh/setup-uv@v6",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run uv sync --locked",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run uv run ruff format --check .",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run uv run ruff check .",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run uv run mypy src",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run uv run alembic upgrade head",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run uv run alembic downgrade base",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run uv run alembic upgrade head",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run uv run pytest -q",
+              "conclusion": "failure"
+            },
+            {
+              "name": "Post Run astral-sh/setup-uv@v6",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "frontend",
+          "conclusion": "success",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782769354/job/113329776106",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm ci",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run lint",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run check",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run build",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npx playwright install --with-deps chromium",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run test:e2e",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 37782769337,
+      "name": "Desktop",
+      "event": "pull_request",
+      "head_sha": "d238275e3e49c392c5907bf218ffda57161b3a13",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782769337",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782769337/job/113329775646",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run astral-sh/setup-uv@v6",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install Linux desktop dependencies",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/cache@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm ci",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run test:transport",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run cd src-tauri && cargo fmt --check",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run desktop:check",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run desktop:test",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run cd src-tauri && cargo clippy --locked -- -D warnings",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run desktop:build",
+              "conclusion": "success"
+            },
+            {
+              "name": "Configure ephemeral backend authentication",
+              "conclusion": "success"
+            },
+            {
+              "name": "Start the actual local backend",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify native loopback connectivity",
+              "conclusion": "success"
+            },
+            {
+              "name": "Start GUI and verify rendered frontend",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop isolated test processes",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/cache@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run astral-sh/setup-uv@v6",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success",
+          "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782769337/job/113329775968",
+          "steps": [
+            {
+              "name": "Set up job",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-python@v5",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/cache@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Record checkout and build identity",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm ci",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run lint",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run check",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run test:transport",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run cd src-tauri; cargo fmt --check",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run npm run desktop:check",
+              "conclusion": "success"
+            },
+            {
+              "name": "Test Rust including actual Windows Credential Manager",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run cd src-tauri; cargo clippy --locked -- -D warnings",
+              "conclusion": "success"
+            },
+            {
+              "name": "Build actual MSI and NSIS installers",
+              "conclusion": "success"
+            },
+            {
+              "name": "Hash and describe actual artifacts",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/upload-artifact@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/cache@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-python@v5",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "limitations": {
     "real_provider_research_answer": "NOT EXECUTED",
     "scientific_quality": "NOT MEASURED",
@@ -152,10 +991,36 @@
     "local_desktop_build_this_task": "NOT EXECUTED",
     "local_compose_build_this_task": "NOT EXECUTED"
   },
-  "api_access": "GitHub REST CONNECT 403; public github.com Actions pages accessible; api.github.com domain addition saved as draft only",
+  "api_access": "GitHub REST/GraphQL and PR creation succeeded after initial CONNECT 403. Failure logs and artifact storage remain denied. Source change was verified documentation-only; flaky-test or repository-defect attribution is not established.",
   "log_hashes": {
     "backend.log": "df67e4291c0ca92a9d505eb6ba46c035003d7ab7b523591feb6562c76779fdc1",
     "frontend.log": "2094d72666de43a0cba4c2f231d2d76d4bbd2135e1996d913e06e9f2154cb5ca",
     "pytest.xml": "d56b5f5cf23d5f6540f1aef9ce02a16855afeadea5806c99aabb0e586f3e332d"
+  },
+  "pull_request": "https://github.com/maczhouyi-del/RAGSystem/pull/1",
+  "blocker": {
+    "type": "unexplained_required_ci_failure_and_log_access_denial",
+    "run_id": 37782769354,
+    "job_id": 113329775925,
+    "failed_step": "Run uv run pytest -q",
+    "exact_failed_test": "UNKNOWN: logs inaccessible",
+    "log_download_attempts": [
+      "gh run view 37782769354 --log-failed",
+      "gh api repos/maczhouyi-del/RAGSystem/actions/jobs/113329775925/logs",
+      "public GitHub step-log URL (404)"
+    ],
+    "denied_log_hosts": [
+      "results-receiver.actions.githubusercontent.com",
+      "productionresultssa17.blob.core.windows.net"
+    ],
+    "artifact_denied_host": "productionresultssa19.blob.core.windows.net",
+    "network_domains_saved_in_draft": [
+      "api.github.com",
+      "results-receiver.actions.githubusercontent.com",
+      "productionresultssa17.blob.core.windows.net",
+      "productionresultssa19.blob.core.windows.net"
+    ],
+    "runtime_access_proven": false,
+    "next_action": "Apply saved network changes in environment settings, fetch failed pytest log, diagnose before rerun or code changes. Do not begin TASK-01."
   }
 }

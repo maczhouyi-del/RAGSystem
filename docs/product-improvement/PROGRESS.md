@@ -7,7 +7,7 @@
 
 ## 当前断点
 
-- TASK-00：**IN_PROGRESS**；本地检查通过，等待独立提交、推送和该提交适用 CI。
+- TASK-00：**BLOCKED**；本地检查和 push CI 通过，但 PR CI 后端 pytest 失败，失败日志被网络策略拒绝，原因尚未查明。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
 - 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
 - 下一项 TASK-01 尚未开始；只有 TASK-00 标记 PASSED 后，下次运行才能开始。
@@ -20,7 +20,7 @@
 
 | TASK | 修改目标 | 前置门禁/关键依赖 | 范围与风险边界 | 计划验证 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| TASK-00 | 现有代码与测试基线检查 | 无 | 只审查/文档；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | IN_PROGRESS |
+| TASK-00 | 现有代码与测试基线检查 | 无 | 只审查/文档；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | BLOCKED |
 | TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | NOT_STARTED |
 | TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | NOT_STARTED |
 | TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | NOT_STARTED |
@@ -51,11 +51,12 @@
 - 验证命令：`uv sync --locked`、`uv run ruff format --check .`、`uv run ruff check .`、`uv run mypy src`、隔离库 Alembic upgrade/downgrade/upgrade、`uv run pytest -q --junitxml=/workspace/.rag-task00/pytest.xml`；`npm --prefix frontend ci` 及 `run lint/check/build/test:e2e/test:transport`。
 - 实际结果：Python 604 passed（463 unit / 141 integration，0 skipped/failures/errors）；浏览器 32 passed；transport 10 passed；静态检查/构建/迁移 PASS；详见 evidence 和 BASELINE。
 - 基准 CI：[CI 37771426122](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426122) 与 [Desktop 37771426070](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426070) 均 SUCCESS；已核对基准 SHA，不能代替本任务提交的 CI。
-- 本任务 CI：尚未提交，未触发；UNKNOWN。
-- 最终实现 commit SHA：待 Git 提交生成后记录；不预填或把基准 SHA 当最终提交。
-- Pull Request：未创建。
-- 风险/限制：REST api.github.com 被当前代理 CONNECT 403 拒绝，公开 Actions 页面可读；已保存域名追加草稿，不能视为已应用。真实 provider 科研问答、人工金标质量、Windows 11 人工安装和 macOS 本机验收未执行。
-- 工程状态：IN_PROGRESS。科研质量：NOT MEASURED；Windows 11 人工操作：NOT EXECUTED。
+- 本任务 push [CI 37782711529](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782711529)：SUCCESS；PR [CI 37782769354](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782769354)：FAILURE（backend pytest；frontend/compose SUCCESS）。PR [Desktop 37782769337](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37782769337)：SUCCESS（Windows/Linux）。push Desktop 的最终状态见 evidence；不得用其他运行的绿色覆盖失败。
+- 独立基线实现 commit SHA：`d238275e3e49c392c5907bf218ffda57161b3a13`。其后仅补充本任务 CI/阻塞证据；证据提交自身 SHA 由 Git 历史及交付报告定位。
+- Pull Request：[draft #1](https://github.com/maczhouyi-del/RAGSystem/pull/1)，base=main；未合并。
+- 风险/限制：REST/GraphQL 后续已成功，PR 已创建。失败日志经 results-receiver.actions.githubusercontent.com 或 productionresultssa17.blob.core.windows.net 下载被代理拒绝；artifact 经 productionresultssa19.blob.core.windows.net 也被拒绝。已将这些确切域名及 api.github.com 保存到网络草稿，不能视为运行实例已应用。缺具体失败日志，不能断言 flaky、业务缺陷或文档回归。真实 provider 科研问答、人工金标质量、Windows 11 人工安装和 macOS 本机验收未执行。
+- 工程状态：BLOCKED。科研质量：NOT MEASURED；Windows 11 人工操作：NOT EXECUTED。
+- 恢复步骤：在环境设置应用已保存网络变更（按界面要求保存/发布），重新下载 run 37782769354 的 backend job 113329775925 日志，定位具体用例；先区分环境/原有问题再决定修复或重跑，不能盲目 rerun 洗绿。保留失败证据，核查最新证据提交及 PR 的适用 CI 后才可 PASSED。TASK-01 不得开始。
 
 ## 尚未开始任务的执行记录
 

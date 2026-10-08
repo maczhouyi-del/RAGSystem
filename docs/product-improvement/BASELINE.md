@@ -94,11 +94,11 @@ Tauri `tauri.conf.json` 打包 React dist 和 Rust 桌面 shell，没有 Python 
 | CI | a8d5c1f0ace08573c5e5787bf5eef39570405191 | [37771426122](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426122) | Success；backend/frontend/compose 全部成功 |
 | Desktop | 同上 | [37771426070](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426070) | Success；windows-desktop/linux-desktop 全部成功 |
 
-Desktop 当前基准 artifact `11547938987`：`scientific-ragagent-windows-unsigned-a8d5c1f0ace08573c5e5787bf5eef39570405191`；页面大小 5.22 MB，GitHub 显示 archive digest `65dd9bf49806e01184bafc86c5bc3c1aa52a3c2e8b33e8267d310b5fd2c6413d`。本轮没有下载此 archive，也没有重新计算 MSI/NSIS 逐文件哈希。旧文件 `docs/validation/windows-artifacts-f803d824.json` 属于原仓库旧 commit，不能充当新 artifact 的独立校验。
+Desktop 当前基准 artifact `11547938987`：`scientific-ragagent-windows-unsigned-a8d5c1f0ace08573c5e5787bf5eef39570405191`；页面大小 5.22 MB，GitHub 显示 archive digest `65dd9bf49806e01184bafc86c5bc3c1aa52a3c2e8b33e8267d310b5fd2c6413d`。本轮尝试下载此 archive，但其存储目的地 productionresultssa19.blob.core.windows.net 被代理拒绝；没有完成下载，也没有重新计算 MSI/NSIS 逐文件哈希。旧文件 `docs/validation/windows-artifacts-f803d824.json` 属于原仓库旧 commit，不能充当新 artifact 的独立校验。
 
 工作流内容核查：CI backend 含真实 PG/Redis、migration roundtrip 和 pytest；frontend 含 Playwright；compose 含构建/ready/smoke/旧卷 ownership 验证。Desktop Windows 含 locked check/test/clippy、OS credential store、真实 MSI/NSIS；Linux 含 native build、loopback 和 Xvfb 窗口 smoke。当前没有真实 Windows 11 用户安装/科研流程验收。
 
-`gh api .../actions/runs` 返回代理 CONNECT 403（api.github.com 不在当前运行实例允许域名中）。公开 github.com 页面仍可读取真实 run 状态。已保存只追加 api.github.com 的环境网络草稿；保存不等于运行策略已经生效。新 TASK-00 提交必须另查 CI，不能沿用 main 的绿色状态；结果记录在 PROGRESS/evidence。
+最初 `gh api .../actions/runs` 返回代理 CONNECT 403；先使用公开 github.com 页面读取真实 run 状态，并保存只追加 api.github.com 的环境网络草稿。后续实际 REST/GraphQL 请求已成功，重新核对了基准 jobs/steps，并创建草稿 PR #1。可用性以成功请求为证，不以草稿保存推断。artifact 的独立存储目的地仍被拒绝。新 TASK-00 提交必须另查 CI，不能沿用 main 的绿色状态；结果记录在 PROGRESS/evidence。
 
 ## 7. 科研质量与后续验收边界
 
@@ -109,3 +109,18 @@ Desktop 当前基准 artifact `11547938987`：`scientific-ragagent-windows-unsig
 后续外部条件：经许可且可本地保存/处理的论文、人工核对的逐问金标（版本/页/正确证据）、批准的模型权重与身份/许可证、可用 provider 或本地推理服务及费用授权、真实 Windows 10/11 x64 和 macOS 验证环境。不能因这些条件缺失阻止独立工程框架工作，也不能解除 TASK-17/19 的真实验收门禁。
 
 完整串行任务顺序与依赖见 PROGRESS.md。本轮没有调整用户顺序，没有实现任何后续 TASK。
+
+## 8. TASK-00 提交门禁结果
+
+基线文档提交 `d238275e3e49c392c5907bf218ffda57161b3a13` 已推送，
+草稿 [PR #1](https://github.com/maczhouyi-del/RAGSystem/pull/1) 已创建。
+同一 head 的 push CI 37782711529 SUCCESS；PR CI 37782769354 的 backend
+在 `uv run pytest -q` 步骤 FAILURE，frontend/compose SUCCESS；PR Desktop
+37782769337 Windows/Linux SUCCESS。静态检查及 migration 步骤在失败的 backend
+job 中也通过。精确 job/step 结果保存在 task-00-evidence.json。
+
+日志读取经 gh run view 和标准 REST job logs endpoint 均被存储域名代理拒绝，
+公开 step log 返回 404，因此具体失败用例及原因 UNKNOWN。文档之外的源码与
+基准 Git diff 为空；这不能直接证明失败是偶发或环境原因。未修改测试、跳过
+用例或盲目重跑。TASK-00 为 BLOCKED，不能开始 TASK-01。恢复前置为应用已保存
+网络域名变更并取得失败日志。此结论不抹去本机 604 项通过和远端失败的差异。

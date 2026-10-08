@@ -1012,3 +1012,13 @@ Windows 11 installation and paid-model scientific QA NOT EXECUTED; scientific
 quality and multilingual/RAG-vs-Research gains NOT MEASURED. No new tests were
 needed for a documentation-only audit. TASK-00 commit CI remains pending until
 recorded in the new progress/evidence files.
+
+TASK-00 CI follow-up: baseline commit d238275e3e49c392c5907bf218ffda57161b3a13
+pushed; draft PR https://github.com/maczhouyi-del/RAGSystem/pull/1 created.
+Push CI 37782711529 SUCCESS; PR CI 37782769354 backend pytest FAILURE,
+frontend/compose SUCCESS; PR Desktop 37782769337 Windows/Linux SUCCESS.
+Exact failed test UNKNOWN: gh run log and REST job-log downloads denied by
+results-receiver.actions.githubusercontent.com / productionresultssa17.blob.core.windows.net.
+Required domains saved in environment draft; runtime access not established.
+No speculative flaky-test attribution, no blind rerun, no test/source changes.
+TASK-00 BLOCKED pending log access and diagnosis; TASK-01 remains NOT_STARTED.
