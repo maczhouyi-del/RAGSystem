@@ -7,14 +7,16 @@ inspectable conversation memory and a Tauri desktop entry. It retains the existi
 evidence-grounded knowledge base and Supervisor workflows. MIT licensed; paper and model-weight licenses remain
 independent. No langgraph-supervisor dependency. No fabricated benchmark claims.
 
-The conversation/desktop upgrade is published on
-[`fix/engineering-hardening`](https://github.com/chouytong/RAGAgent/tree/fix/engineering-hardening),
-stacked on the existing `phase-6-evaluation-deployment` RAG/Research baseline.
-Use this review branch until the PRs are reviewed and merged.
+The final reviewed code is on
+[`main`](https://github.com/maczhouyi-del/RAGSystem/tree/main).
+This copy retains the original commit history and MIT license. The
+[original repository](https://github.com/chouytong/RAGAgent) is preserved;
+the migration starts from its `fix/engineering-hardening` commit `df75bdd`.
+Historical CI and installer evidence links still refer to runs in that repository.
 
 ```bash
-git clone --branch fix/engineering-hardening https://github.com/chouytong/RAGAgent.git
-cd RAGAgent
+git clone --branch main https://github.com/maczhouyi-del/RAGSystem.git
+cd RAGSystem
 # First checkout only; preserve an existing runtime .env.
 cp .env.example .env
 # Install/start Desktop first and open Connection authorization.

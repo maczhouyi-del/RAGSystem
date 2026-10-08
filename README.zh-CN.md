@@ -7,14 +7,16 @@ Tauri 桌面入口。它保留了现有的基于证据的知识库和 Supervisor
 项目采用 MIT 许可证；论文和模型权重分别受各自许可证约束。
 不依赖 langgraph-supervisor，不声称未经验证的基准测试成绩。
 
-会话与桌面升级已发布到
-[`fix/engineering-hardening`](https://github.com/chouytong/RAGAgent/tree/fix/engineering-hardening)，
-建立在现有 `phase-6-evaluation-deployment` RAG/Research 基线上。
-在 PR 完成审查和合并之前，请使用这个审查分支。
+最终审查版本位于
+[`main`](https://github.com/maczhouyi-del/RAGSystem/tree/main)。
+此副本保留原始提交历史和 MIT 许可证；
+[原仓库](https://github.com/chouytong/RAGAgent)继续保留。
+迁移基于原仓库 `fix/engineering-hardening` 分支的 `df75bdd` 提交。
+历史 CI 和安装包验证证据仍链接到原仓库中的实际运行记录。
 
 ```bash
-git clone --branch fix/engineering-hardening https://github.com/chouytong/RAGAgent.git
-cd RAGAgent
+git clone --branch main https://github.com/maczhouyi-del/RAGSystem.git
+cd RAGSystem
 # First checkout only; preserve an existing runtime .env.
 cp .env.example .env
 # 先安装并启动 Desktop，打开“连接授权”。

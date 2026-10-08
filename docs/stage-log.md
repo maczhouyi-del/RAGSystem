@@ -945,3 +945,25 @@ a1737fcfeeb05a2b81c80c7d6f3ed91403cbb5bf has identical source tree to head, veri
 using Git; provenance records actual checkout. This is CI build evidence only;
 Windows 11 human install/chat/restart/uninstall and real-model quality remain
 NOT EXECUTED/Not measured. Evidence-only documentation follow-up changes no code.
+
+### Repository migration preparation (2026-10-08 Asia/Shanghai)
+
+Source: chouytong/RAGAgent `fix/engineering-hardening`, commit
+df75bdd011fe81a18c58609792e1a9a3536f5969, tree
+3299629a66baafbe23cddf6bcc2461b2acc727e8. Completed the shallow clone into
+its full 29-commit ancestry; Git object integrity check passed. Prepared a
+separate migration copy for maczhouyi-del/RAGSystem with `main` as
+the final-code branch. Preserved original authors, commits, license and historical
+CI/artifact evidence; changed only both README clone instructions and this log.
+No runtime code, configuration, lockfile or workflow changes; no deployment.
+
+The owner created and supplied the empty public target repository RAGSystem;
+its default branch is `main`. Account metadata reports push/admin permissions,
+but actual Git pushes returned 403 and a contents-API write returned
+`Resource not accessible by integration`. The target account's GitHub App
+installation list is empty. No remote write succeeded; the target remains empty
+pending effective integration authorization. The original repository and its
+main/engineering branch heads were read and remain unchanged. Actual migration
+verification covers Git history/tree integrity and documentation consistency;
+remote equality must be verified after a successful transfer. No new application
+test, CI success or completed migration is claimed in this preparation record.
