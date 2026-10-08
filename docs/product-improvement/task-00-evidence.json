@@ -1,0 +1,161 @@
+{
+  "task": "TASK-00",
+  "observed_at": "2026-10-08T21:13:31.827866+08:00",
+  "baseline_commit": "a8d5c1f0ace08573c5e5787bf5eef39570405191",
+  "branch": "codex/research-product-improvement",
+  "task_status": "IN_PROGRESS",
+  "business_code_changed": false,
+  "checks": [
+    {
+      "name": "locked_install",
+      "command": "uv sync --locked",
+      "result": "PASS",
+      "count": null
+    },
+    {
+      "name": "python_format",
+      "command": "uv run ruff format --check .",
+      "result": "PASS",
+      "count": 180
+    },
+    {
+      "name": "python_lint",
+      "command": "uv run ruff check .",
+      "result": "PASS",
+      "count": null
+    },
+    {
+      "name": "python_types",
+      "command": "uv run mypy src",
+      "result": "PASS",
+      "count": 72
+    },
+    {
+      "name": "migration_roundtrip",
+      "command": "uv run alembic upgrade head && uv run alembic downgrade base && uv run alembic upgrade head",
+      "result": "PASS",
+      "count": null
+    },
+    {
+      "name": "pytest",
+      "command": "uv run pytest -q --junitxml=/workspace/.rag-task00/pytest.xml",
+      "result": "PASS",
+      "count": 604
+    },
+    {
+      "name": "frontend_install",
+      "command": "npm --prefix frontend ci",
+      "result": "PASS",
+      "count": null
+    },
+    {
+      "name": "frontend_lint",
+      "command": "npm --prefix frontend run lint",
+      "result": "PASS",
+      "count": null
+    },
+    {
+      "name": "frontend_types",
+      "command": "npm --prefix frontend run check",
+      "result": "PASS",
+      "count": null
+    },
+    {
+      "name": "frontend_build",
+      "command": "npm --prefix frontend run build",
+      "result": "PASS",
+      "count": null
+    },
+    {
+      "name": "browser",
+      "command": "npm --prefix frontend run test:e2e",
+      "result": "PASS",
+      "count": 32
+    },
+    {
+      "name": "transport",
+      "command": "npm --prefix frontend run test:transport",
+      "result": "PASS",
+      "count": 10
+    }
+  ],
+  "pytest": {
+    "unit_passed": 463,
+    "integration_passed": 141,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 53.57
+  },
+  "browser": {
+    "passed": 32,
+    "seconds": 36.9,
+    "api": "mock fixtures",
+    "browser": "/usr/bin/chromium"
+  },
+  "runtime": {
+    "python": "3.11.16",
+    "uv": "0.12.19",
+    "node": "24.19.0",
+    "npm": "11.9.0",
+    "postgresql": "17.10",
+    "pgvector": "0.8.2",
+    "redis": "7.4.2",
+    "migration_head": "0006",
+    "test_database": "ragagent",
+    "application_database": "ragagent_dev",
+    "test_redis_db": 15,
+    "application_redis_db": 0
+  },
+  "baseline_ci": [
+    {
+      "workflow": "CI",
+      "head_sha": "a8d5c1f0ace08573c5e5787bf5eef39570405191",
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426122",
+      "conclusion": "SUCCESS",
+      "jobs": [
+        "backend",
+        "frontend",
+        "compose"
+      ],
+      "verification": "GitHub public run summary and job success indicators"
+    },
+    {
+      "workflow": "Desktop",
+      "head_sha": "a8d5c1f0ace08573c5e5787bf5eef39570405191",
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37771426070",
+      "conclusion": "SUCCESS",
+      "jobs": [
+        "windows-desktop",
+        "linux-desktop"
+      ],
+      "verification": "GitHub public run summary and job success indicators"
+    }
+  ],
+  "windows_baseline_artifact": {
+    "id": 11547938987,
+    "name": "scientific-ragagent-windows-unsigned-a8d5c1f0ace08573c5e5787bf5eef39570405191",
+    "display_size": "5.22 MB",
+    "github_reported_archive_sha256": "65dd9bf49806e01184bafc86c5bc3c1aa52a3c2e8b33e8267d310b5fd2c6413d",
+    "downloaded_this_task": false,
+    "independently_rehashed_this_task": false,
+    "signed": false
+  },
+  "task_commit": null,
+  "task_ci": [],
+  "limitations": {
+    "real_provider_research_answer": "NOT EXECUTED",
+    "scientific_quality": "NOT MEASURED",
+    "human_gold_benchmark": "NOT MEASURED",
+    "windows11_manual_installation": "NOT EXECUTED",
+    "macos_execution": "NOT EXECUTED",
+    "local_desktop_build_this_task": "NOT EXECUTED",
+    "local_compose_build_this_task": "NOT EXECUTED"
+  },
+  "api_access": "GitHub REST CONNECT 403; public github.com Actions pages accessible; api.github.com domain addition saved as draft only",
+  "log_hashes": {
+    "backend.log": "df67e4291c0ca92a9d505eb6ba46c035003d7ab7b523591feb6562c76779fdc1",
+    "frontend.log": "2094d72666de43a0cba4c2f231d2d76d4bbd2135e1996d913e06e9f2154cb5ca",
+    "pytest.xml": "d56b5f5cf23d5f6540f1aef9ce02a16855afeadea5806c99aabb0e586f3e332d"
+  }
+}

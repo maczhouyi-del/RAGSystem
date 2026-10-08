@@ -987,3 +987,28 @@ df75bdd011fe81a18c58609792e1a9a3536f5969 were rechecked. No PR was merged and
 no deployment was performed. New-repository CI 37771216180 and Desktop
 37771216216 were triggered and were still running at this record; their success
 is not claimed. Historical CI/installers remain linked to the original runs.
+
+
+## Product improvement TASK-00 — baseline audit (2026-10-08 Asia/Shanghai)
+
+Started from fetched RAGSystem/main a8d5c1f0ace08573c5e5787bf5eef39570405191
+on codex/research-product-improvement. Documentation/evidence only; no business,
+test, dependency, migration or workflow changes. Added
+`docs/product-improvement/BASELINE.md`, `PROGRESS.md`, `task-00-evidence.json`
+and this stage entry. All TASK-01–19 remain NOT_STARTED.
+
+Fresh locked install, Ruff format/check, mypy (72 sources), isolated migration
+upgrade/downgrade/upgrade and pytest: 604 passed (463 unit, 141 integration;
+zero skipped/failures/errors), one upstream Alembic warning. Frontend npm ci,
+lint/check/build passed; Playwright 32 and transport 10 passed. Database is
+dedicated test ragagent, separate from application ragagent_dev; Redis tests
+use DB 15. No application data downgrade/reset.
+
+Live public GitHub summaries for baseline SHA confirm CI 37771426122
+(backend/frontend/compose) and Desktop 37771426070 (Windows/Linux) SUCCESS.
+Current Windows artifact 11547938987 exists, unsigned; GitHub-reported archive
+digest recorded, not independently downloaded/rehashed in this task. Real
+Windows 11 installation and paid-model scientific QA NOT EXECUTED; scientific
+quality and multilingual/RAG-vs-Research gains NOT MEASURED. No new tests were
+needed for a documentation-only audit. TASK-00 commit CI remains pending until
+recorded in the new progress/evidence files.
