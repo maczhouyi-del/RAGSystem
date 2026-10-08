@@ -958,12 +958,32 @@ CI/artifact evidence; changed only both README clone instructions and this log.
 No runtime code, configuration, lockfile or workflow changes; no deployment.
 
 The owner created and supplied the empty public target repository RAGSystem;
-its default branch is `main`. Account metadata reports push/admin permissions,
-but actual Git pushes returned 403 and a contents-API write returned
+its default branch is `main`. At preparation time, account metadata reported
+push/admin permissions, but actual Git pushes returned 403 and a contents-API write returned
 `Resource not accessible by integration`. The target account's GitHub App
-installation list is empty. No remote write succeeded; the target remains empty
+installation list was empty. No remote write had succeeded; the target was empty
 pending effective integration authorization. The original repository and its
-main/engineering branch heads were read and remain unchanged. Actual migration
-verification covers Git history/tree integrity and documentation consistency;
-remote equality must be verified after a successful transfer. No new application
-test, CI success or completed migration is claimed in this preparation record.
+main/engineering branch heads were read and remained unchanged. Verification
+at that stage covered Git history/tree integrity and documentation consistency;
+remote equality still required a successful transfer. No new application test,
+CI success or completed migration was claimed in that preparation record.
+
+### Repository migration completed (2026-10-08 19:37 Asia/Shanghai)
+
+After the owner installed/authorized the GitHub App for maczhouyi-del, Git push
+to RAGSystem/main succeeded. Initial published commit
+3796cf0e06d2dcaef242b08d124878d28b74eef9 / tree
+3fcf7b6cfc354c835f2c76b981c8ecbe628dacab was independently cloned from GitHub.
+Full Git integrity checks passed; all 29 original source commits, IDs, authors,
+messages and ancestry were preserved in native Git history. Remote commit/tree
+matched the prepared local copy. Runtime code, configuration, dependency locks
+and workflows match source df75bdd exactly; only bilingual README clone links
+and this migration log differ. This completion record is a documentation-only
+follow-up; English and Simplified Chinese README editions are retained.
+
+The original chouytong/RAGAgent repository remains unchanged: remote main
+616d93b9124de353206bd25766d7031c28c4a92d and fix/engineering-hardening
+df75bdd011fe81a18c58609792e1a9a3536f5969 were rechecked. No PR was merged and
+no deployment was performed. New-repository CI 37771216180 and Desktop
+37771216216 were triggered and were still running at this record; their success
+is not claimed. Historical CI/installers remain linked to the original runs.
