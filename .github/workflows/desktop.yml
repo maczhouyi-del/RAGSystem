@@ -17,6 +17,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Execute Windows diagnostics and independent offline failures
+        working-directory: .
+        run: |
+          python tests/unit/test_environment_diagnostics.py
+          python scripts/test_diagnostic_launchers.py
       - run: rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy
       - uses: actions/cache@v4
         with:

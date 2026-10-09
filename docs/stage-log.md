@@ -1046,3 +1046,9 @@ TASK-00 PASSED; TASK-01 remains NOT_STARTED. This evidence-only follow-up
 preserves the earlier 603-pass/1-failure log diagnosis and the deterministic
 red/green and negative-control checks. Scientific quality NOT MEASURED;
 Windows 11 manual installation NOT EXECUTED. No production or dependency changes.
+
+## TASK-01 环境检查与启动诊断（2026-10-09）
+
+- 修改：跨平台只读脚本、标准库诊断/离线测试/可执行平台 smoke、既有 diagnostics 的知识库与依赖状态、Windows/Linux CI 步骤、README/诊断说明/进度和证据。没有 .env、数据库迁移、依赖锁或模型下载修改。
+- 验证：Ruff format/check、mypy 72 文件通过；614 项 pytest（0 skipped）通过；Linux 合成 launcher 与真实 API/PG/Redis/三个 RQ worker 诊断通过；配置哈希未变，模型调用为 0。完整记录见 task-01-evidence.json。
+- 待办：本任务 push/PR CI 与 Windows 两种 PowerShell 实际执行；不能在此门禁前开始 TASK-02。缺主机 Python/授权时给出具体恢复建议；真实科研质量和 Win11 人工安装未测。

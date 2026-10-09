@@ -2,6 +2,10 @@
 
 **English | [简体中文](README.zh-CN.md)**
 
+Startup problems? Run `./scripts/diagnose.sh` (Linux) or
+`powershell -NoProfile -File .\scripts\diagnose.ps1` (Windows).
+See [read-only environment diagnostics](docs/environment-diagnostics.md) for prerequisites and repairs.
+
 A local scientific literature assistant with persistent RAG/Research chats,
 inspectable conversation memory and a Tauri desktop entry. It retains the existing
 evidence-grounded knowledge base and Supervisor workflows. MIT licensed; paper and model-weight licenses remain

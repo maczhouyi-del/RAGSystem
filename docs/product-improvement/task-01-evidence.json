@@ -1,0 +1,59 @@
+{
+  "task": "TASK-01",
+  "status": "IN_PROGRESS",
+  "start_commit": "38fec46fab33b6dd4395d93cd64fd0c4e0c099e9",
+  "local": {
+    "ruff_format": "PASS: 186 files",
+    "ruff_check": "PASS",
+    "mypy": "PASS: 72 source files",
+    "pytest": {
+      "passed": 614,
+      "skipped": 0,
+      "seconds": 30.21,
+      "warning": "upstream Alembic path_separator deprecation"
+    },
+    "offline_diagnostic_cases": 10,
+    "linux_launcher": "PASS: synthetic API and stopped backend"
+  },
+  "live_linux": {
+    "platform": "Linux",
+    "real_services": true,
+    "checks": {
+      "python": "available",
+      "docker": "available",
+      "docker_daemon": "available",
+      "compose": "available",
+      "environment_file": "missing",
+      "disk": "available",
+      "backend_port": "occupied",
+      "web_port": "occupied",
+      "backend": "available",
+      "local_auth": "initialized",
+      "diagnostic_access": "available",
+      "database": "available",
+      "redis": "available",
+      "worker_interactive": "available",
+      "worker_ingestion": "available",
+      "worker_evaluation": "available",
+      "models": "not_configured",
+      "docling": "missing",
+      "local_models": "missing",
+      "inference_supervisor": "not_tested",
+      "corpus": "empty"
+    },
+    "configuration_bytes_unchanged": true,
+    "paid_model_calls": 0
+  },
+  "windows_executable": "PENDING actual CI (PowerShell 7 and Windows PowerShell)",
+  "real_model_inference": "NOT EXECUTED",
+  "scientific_quality": "NOT MEASURED",
+  "windows11_human_install": "NOT EXECUTED",
+  "ci": [],
+  "safety": {
+    "configuration_bytes_unchanged": true,
+    "paid_model_calls": 0,
+    "database_reset_by_diagnostic": false,
+    "raw_service_errors_echoed": false
+  },
+  "dependency_lock_changes": false
+}

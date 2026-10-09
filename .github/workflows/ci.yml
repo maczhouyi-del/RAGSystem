@@ -38,6 +38,8 @@ jobs:
       - run: uv run alembic downgrade base
       - run: uv run alembic upgrade head
       - run: uv run pytest -q
+      - name: Execute Linux diagnostic launcher
+        run: uv run python scripts/test_diagnostic_launchers.py
   frontend:
     runs-on: ubuntu-latest
     defaults:

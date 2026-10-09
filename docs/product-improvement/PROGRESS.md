@@ -1,6 +1,7 @@
 # 科研产品改造进度
 
-本轮仅 TASK-00。后续运行必须先读取本文件、AGENTS.md 和基线报告，再确认 Git/CI 状态。
+用户于 2026-10-09 授权从 TASK-01 开始，完成每项后自动串行推进，无需等待回复。
+后续运行必须先读取本文件、AGENTS.md 和基线报告，再确认 Git/CI 状态。
 只允许一个 TASK 修改中；任何必需测试/适用 CI 未通过都不能进入下一项。
 任务状态仅使用 `NOT_STARTED / IN_PROGRESS / PASSED / BLOCKED / FAILED`。
 `NOT MEASURED` / `NOT EXECUTED` 仅用于真实效果或平台测量字段，不替代任务状态。
@@ -10,7 +11,7 @@
 - TASK-00：**PASSED**；日志已恢复，引用 UUID 误判已修复；固定 ID 回归、负向控制、604 项完整测试及修复提交 push/PR CI、Windows/Linux Desktop 均通过。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
 - 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
-- 下一项 TASK-01 尚未开始；下一次运行可从 TASK-01 开始。
+- TASK-01：IN_PROGRESS；已实现只读跨平台诊断，完成本地验证，等待本任务提交与实际 CI；未开始 TASK-02。
 - [基线报告](BASELINE.md)；[实际验证记录](task-00-evidence.json)。
 
 ## 串行计划与依赖
@@ -21,7 +22,7 @@
 | TASK | 修改目标 | 前置门禁/关键依赖 | 范围与风险边界 | 计划验证 | 状态 |
 | --- | --- | --- | --- | --- | --- |
 | TASK-00 | 现有代码与测试基线检查 | 无 | 审查/文档及基线测试误判修复；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | PASSED |
-| TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | NOT_STARTED |
+| TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | IN_PROGRESS |
 | TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | NOT_STARTED |
 | TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | NOT_STARTED |
 | TASK-04 | 文献搜索、排序和分页 | 03 | 保留旧 /api/papers；已有分页需扩展 | 至少 200 篇 fixture，搜索/筛选/稳定排序/总数/兼容 | NOT_STARTED |
@@ -79,11 +80,14 @@
 
 ### TASK-01：环境检查与启动诊断
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
-- 修改目标、依赖、验收计划：见上表 TASK-01；前置门禁 00。
-- 风险与已知限制：复用 Diagnostics；不改 .env/数据库。
+- 状态：IN_PROGRESS；开始 commit：`38fec46fab33b6dd4395d93cd64fd0c4e0c099e9`；最终 commit：待提交。
+- 最小实现：PowerShell/Bash 入口共用标准库 Python 只读诊断；Docker/Compose、端口、磁盘、授权、DB/Redis/三个 worker、模型配置、可选 supervisor 真实调用、可用知识库和运行时依赖分开显示，均附修复建议。
+- 涉及文件：`scripts/diagnose.py/.ps1/.sh`、`scripts/test_diagnostic_launchers.py`、`src/ragagent/api/diagnostics.py`、`tests/unit/test_environment_diagnostics.py`、`tests/integration/test_api.py`、两个 CI 工作流、`README.md`、`docs/environment-diagnostics.md`、本进度/evidence/stage log。
+- 新增验证：10 个离线决策场景；PG/Redis 集成验证 corpus 对 indexed/chunk/withdrawn/retracted/queued 的判定；真实 Linux API/PG/Redis/RQ smoke；Linux 合成 API 启动入口；Windows CI 执行 PowerShell 7 与 Windows PowerShell 入口。
+- 实际本地结果：Ruff format/check PASS（186 文件）；mypy PASS（72 文件）；pytest 614 passed、0 skipped、1 上游 warning，30.21s；Linux launcher PASS；真实基础服务 smoke PASS，配置字节未变，模型调用 0。
+- CI：待本任务 commit push 后核对完整 SHA 和必需检查；Windows 本机人工操作 NOT EXECUTED。
+- 限制：诊断需要 Python 3.11+；缺少时明确提示，退出 2；授权不足显示 unknown，不能据此判定正常；worker 注册不代表工作执行成功；依赖安装不等于模型加载；未调用付费 API；真实科研质量 NOT MEASURED。
+- 前置门禁 00 已通过；下一项 02 必须等待本任务适用 CI 通过。
 
 ### TASK-02：首次使用引导界面
 

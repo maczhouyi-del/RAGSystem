@@ -17,7 +17,7 @@ from ragagent.api.app import app
 from ragagent.api.dependencies import get_db
 from ragagent.api.queue import RQQueue, get_queue
 from ragagent.db.dispatch import JobDispatch
-from ragagent.db.models import ExecutionEvent, Run
+from ragagent.db.models import Chunk, ExecutionEvent, Paper, Run, Section, new_id
 from ragagent.errors import ApplicationError
 from ragagent.providers.chat import LiteLLMProvider
 from ragagent.providers.config import AgentModel
@@ -87,6 +87,7 @@ async def test_provider_credentials_never_escape_run_sse_or_logs(
 @pytest.mark.integration
 def test_diagnostics_separates_real_infrastructure_from_untested_models(
     client: TestClient,
+    empty_db: Session,
     redis_connection: Redis,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -100,6 +101,54 @@ def test_diagnostics_separates_real_infrastructure_from_untested_models(
     assert set(result["queues"]) == {"interactive", "ingestion", "evaluation"}
     assert result["inference"] == result["retrieval_configuration"]["model_loading"] == "not_tested"
     assert "ragagent_test:ragagent_test" not in response.text
+    assert result["corpus"] == {"state": "empty", "usable_papers": 0}
+    paper = Paper(
+        id=new_id(),
+        title="SYNTHETIC DIAGNOSTIC FIXTURE",
+        sha256="0" * 64,
+        original_path="fixture.pdf",
+        status="indexed",
+        source_status="active",
+    )
+    empty_db.add(paper)
+    empty_db.flush()
+    assert client.get("/api/diagnostics").json()["corpus"]["state"] == "empty"
+    section = Section(
+        id=new_id(),
+        paper_id=paper.id,
+        title="Fixture",
+        path="Fixture",
+        ordinal=0,
+    )
+    empty_db.add(section)
+    empty_db.flush()
+    empty_db.add(
+        Chunk(
+            paper_id=paper.id,
+            section_id=section.id,
+            section_path="Fixture",
+            page_start=1,
+            page_end=1,
+            element_type="text",
+            content="SYNTHETIC FIXTURE",
+            token_count=2,
+            ordinal=0,
+            embedding=[0.0] * get_settings().embedding_dimension,
+        )
+    )
+    empty_db.flush()
+    assert client.get("/api/diagnostics").json()["corpus"] == {
+        "state": "available",
+        "usable_papers": 1,
+    }
+    for excluded in ("withdrawn", "retracted"):
+        paper.source_status = excluded
+        empty_db.flush()
+        assert client.get("/api/diagnostics").json()["corpus"]["state"] == "empty"
+    paper.source_status = "active"
+    paper.status = "queued"
+    empty_db.flush()
+    assert client.get("/api/diagnostics").json()["corpus"]["state"] == "empty"
 
 
 @pytest.fixture
