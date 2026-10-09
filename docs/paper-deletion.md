@@ -25,6 +25,8 @@ worker 的检索使用短事务持久化 Evidence，随后释放 FK/advisory loc
 
 历史 Run 的结构化来源 quote/content/source_context/source_spans、金标原文及相关事件脱敏，
 标记 `source_availability=unavailable`、`source_unavailable_reason=source_deleted`。
+消息 metadata 根级同样标记失效，兼容没有 compact presentation 的旧消息；来源更新推进
+Message.updated_at（即使时钟回退也单调增加），让客户端丢弃迟到的旧快照，不能复活已失效引用。
 历史作业状态保留真实执行结果，当前 `citation_validation.valid` 失效，相关支持关系移除；
 会话消息与回答正文保留，并加来源不可用提示。因此回答正文、用户问题、会话摘要仍可能含原文
 或论文事实，本接口不承诺全部文字抹除。其他来源的结构化原文保持不变。

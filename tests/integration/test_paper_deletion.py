@@ -2,6 +2,7 @@
 
 import json
 from contextlib import contextmanager
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -134,6 +135,50 @@ def test_preview_confirmation_and_stale_version_do_not_remove_data(
     assert response.status_code == 409
     assert response.json()["error_code"] == "paper_metadata_conflict"
     assert empty_db.scalar(select(func.count()).select_from(PaperDeletion)) == 0
+
+
+def test_legacy_message_without_presentation_gets_newer_unavailable_snapshot(
+    client: TestClient, empty_db: Session
+) -> None:
+    first = upload(client)
+    conversation = Conversation(mode="rag")
+    empty_db.add(conversation)
+    empty_db.flush()
+    run = Run(
+        kind="rag",
+        status="completed",
+        conversation_id=conversation.id,
+        request={"query": "Historical DEMO"},
+        result={"paper_id": first["id"], "quote": "PRIVATE_LEGACY_SOURCE"},
+    )
+    empty_db.add(run)
+    empty_db.flush()
+    # Clock rollback must not let a late pre-deletion snapshot look newer.
+    old_time = datetime.now(UTC) + timedelta(days=1)
+    message = Message(
+        conversation_id=conversation.id,
+        run_id=run.id,
+        role="assistant",
+        ordinal=0,
+        status="completed",
+        content="Historical prose stays",
+        metadata_json={},
+        updated_at=old_time,
+    )
+    empty_db.add(message)
+    empty_db.commit()
+    message_id = message.id
+    assert (
+        client.request(
+            "DELETE", f"/api/papers/{first['id']}", json=confirmation(first["id"])
+        ).status_code
+        == 202
+    )
+    updated = client.get(f"/api/conversations/{conversation.id}/messages/{message_id}").json()
+    assert updated["metadata"]["source_availability"] == "unavailable"
+    assert updated["metadata"]["source_unavailable_reason"] == "source_deleted"
+    assert datetime.fromisoformat(updated["updated_at"].replace("Z", "+00:00")) > old_time
+    assert updated["content"] == "Historical prose stays" and updated["status"] == "completed"
 
 
 async def test_atomic_removal_redacts_history_preserves_other_sources_and_cleans_files(
@@ -288,6 +333,7 @@ async def test_atomic_removal_redacts_history_preserves_other_sources_and_cleans
     protected_file = directory / "user-notes.md"
     protected_file.write_text("KEEP_USER_FILE", encoding="utf-8")
     empty_db.commit()
+    old_message_time, old_legacy_time = message.updated_at, legacy_message.updated_at
     chunk_id, section_id, other_id, message_id, conv_id, historical_id, eval_id, unaffected_id = (
         chunk.id,
         chunk.section_id,
@@ -317,6 +363,7 @@ async def test_atomic_removal_redacts_history_preserves_other_sources_and_cleans
     )
     assert empty_db.get(ChunkEntity, (other_chunk.id, entity.id)) is not None
     assert empty_db.get(Entity, orphan_id) is None
+    assert legacy_message.updated_at > old_legacy_time
     assert (
         legacy_message.metadata_json["presentation"]["citation_refs"][0]["source_availability"]
         == "unavailable"
@@ -339,6 +386,8 @@ async def test_atomic_removal_redacts_history_preserves_other_sources_and_cleans
     assert preserved is not None and preserved.result == unaffected.result
     retained_message = empty_db.get(Message, message_id)
     assert retained_message is not None and retained_message.content == "Historical answer stays."
+    assert retained_message.updated_at > old_message_time
+    assert retained_message.metadata_json["source_availability"] == "unavailable"
     assert (
         retained_message.metadata_json["presentation"]["citation_refs"][0]["source_availability"]
         == "unavailable"

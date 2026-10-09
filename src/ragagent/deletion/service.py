@@ -2,6 +2,7 @@
 
 import uuid
 from collections.abc import Callable
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -201,7 +202,16 @@ def retire(session: Session, paper_id: str, request: PaperDeleteRequest) -> Pape
             event.payload = redact(event.payload, ids)
     for message in messages:
         if message.run_id in affected or source_ids(message.metadata_json).intersects(ids):
-            message.metadata_json = redact(message.metadata_json, ids)
+            redacted_metadata = redact(message.metadata_json, ids)
+            redacted_metadata["source_availability"] = "unavailable"
+            redacted_metadata["source_unavailable_reason"] = "source_deleted"
+            if redacted_metadata != message.metadata_json:
+                message.metadata_json = redacted_metadata
+                # Clients reject snapshots older than updated_at. Source-only
+                # changes must advance that clock too, even without a Run.
+                message.updated_at = max(
+                    datetime.now(UTC), message.updated_at + timedelta(microseconds=1)
+                )
     settings = get_settings()
     original = Path(paper.original_path)
     files = [

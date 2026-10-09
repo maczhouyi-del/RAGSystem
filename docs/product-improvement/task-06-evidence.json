@@ -1,8 +1,8 @@
 {
   "task": "TASK-06",
-  "status": "PASSED",
+  "status": "IN_PROGRESS",
   "start_commit": "ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f",
-  "implementation_commit": "da9ba0d24404ca7a72d1712bf32bca03c18caacc",
+  "implementation_commit": null,
   "scope": "Backend only: confirmed current-library removal, source retirement, history redaction and durable file/Redis cleanup. No frontend/Rust/lock changes.",
   "scientific_quality": "NOT MEASURED",
   "windows_11_human_acceptance": "NOT EXECUTED",
@@ -20,13 +20,13 @@
   ],
   "tests": {
     "added_unit": 15,
-    "added_integration": 15,
-    "total": 717,
+    "added_integration": 16,
+    "total": 718,
     "unit": 511,
-    "integration": 206,
+    "integration": 207,
     "failures": 0,
     "skipped": 0,
-    "seconds": 48.334,
+    "seconds": 43.27,
     "upstream_warnings": 1,
     "focused_with_existing_migration": {
       "passed": 31,
@@ -83,7 +83,7 @@
       "models_called": false,
       "protected_local_smoke": "NOT EXECUTED: detached-process runtime credential inaccessible; protected tests run locally via TestClient and in CI."
     },
-    "pytest_junit_sha256": "a6e6c0cffdd55a5094d74408cd74a0a5f7a48331829f335ee08a1b9a3886341c",
+    "pytest_junit_sha256": "c9349f891f20476a7d25dbd452ed98d159e4d342abfa3aa67ec3bea63365ec79",
     "native_desktop_ci": "PASS: actual Rust check/test/clippy; Windows MSI/NSIS and Linux native GUI smoke on exact implementation SHA. Not human Windows 11 acceptance."
   },
   "gate": {
@@ -95,15 +95,15 @@
       37895509171
     ],
     "prior_doc_ci_status": "All completed/SUCCESS with matching exact SHA",
-    "current_ci": "PASSED: all four actual implementation workflows completed/SUCCESS, matching full SHA and all ten jobs.",
-    "next_task": "TASK-07 authorized to start after saving TASK-06 acceptance commit.",
+    "current_ci": "Pending follow-up implementation; original implementation and acceptance-doc commits passed all four actual workflows.",
+    "next_task": "TASK-07 remains NOT_STARTED; no frontend code changed before follow-up CI gate.",
     "workflow_ids": [
       37914217426,
       37914219092,
       37914222359,
       37914222404
     ],
-    "workflows": [
+    "previous_workflows": [
       {
         "conclusion": "success",
         "event": "push",
@@ -225,5 +225,16 @@
     "Actual scientific quality, real paid models/gold, human Win11 GUI not measured."
   ],
   "pr": "https://github.com/maczhouyi-del/RAGSystem/pull/1",
-  "review_state": "draft, unmerged"
+  "review_state": "draft, unmerged",
+  "previous_implementation_commit": "da9ba0d24404ca7a72d1712bf32bca03c18caacc",
+  "followup": {
+    "start_commit": "769e10026379da246283fadb5e88b113d6d2aa78",
+    "cause": "Source-only Message metadata changed without updated_at; a late client snapshot could overwrite the new unavailable marker.",
+    "change": "Root-level source availability for legacy messages without presentation; strict monotonic updated_at on source metadata changes including clock rollback.",
+    "local_checks": "718 passed, 511 unit / 207 integration, zero skips/failures, 43.27s; Ruff format/check, mypy 82 files PASS.",
+    "new_test": "Real PG API with old message lacking presentation and future old timestamp; two existing message timestamp assertions.",
+    "frontend_changes": false,
+    "implementation_commit": null,
+    "ci": "NOT EXECUTED"
+  }
 }
