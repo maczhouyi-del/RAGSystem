@@ -1,8 +1,8 @@
 {
   "task": "TASK-07",
-  "status": "IN_PROGRESS",
+  "status": "PASSED",
   "start_commit": "f00374859eb629a445e55102cf3c71e978b742e6",
-  "implementation_commit": null,
+  "implementation_commit": "d7807ef695faf525100ee9489fea5c15e0267df1",
   "changed_files": [
     "frontend/src/api.ts",
     "frontend/src/Knowledge.tsx",
@@ -57,7 +57,7 @@
     "transport": "PASS, 12/0 failed/skipped",
     "rustfmt": "PASS, verified Rust 1.90 formatter, bridge file",
     "cargo_local": "NOT EXECUTED: native compile/test/clippy run by actual Desktop CI; local cargo not installed.",
-    "native_ci": "NOT EXECUTED: await implementation workflows.",
+    "native_ci": "PASS: actual Rust format/check/test/clippy, Windows MSI/NSIS builds, Linux native connectivity and GUI smoke on exact implementation workflows; not human Win11 acceptance.",
     "backend_local": "No new Python execution required: backend unchanged; previous accepted 723/516 unit/207 integration and current CI will revalidate.",
     "visual_review": "PASS: inspected confirmation and completed-status screenshots; footer remains visible.",
     "git_diff_check": "PASS"
@@ -183,8 +183,120 @@
       }
     ],
     "prior_acceptance_ci_status": "All four exact-SHA workflows and ten jobs completed/SUCCESS.",
-    "current_ci": "NOT EXECUTED",
-    "next_task": "TASK-08 NOT_STARTED pending TASK-07 actual CI gate."
+    "current_ci": "All four exact-SHA workflows and ten jobs completed/SUCCESS.",
+    "next_task": "TASK-08 may start after recording acceptance.",
+    "workflows": [
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "d7807ef695faf525100ee9489fea5c15e0267df1",
+        "id": 37919693641,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113784367573,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919693641/job/113784367573"
+          },
+          {
+            "conclusion": "success",
+            "id": 113784367666,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919693641/job/113784367666"
+          },
+          {
+            "conclusion": "success",
+            "id": 113784367725,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919693641/job/113784367725"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919693641"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "d7807ef695faf525100ee9489fea5c15e0267df1",
+        "id": 37919686500,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113784343029,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919686500/job/113784343029"
+          },
+          {
+            "conclusion": "success",
+            "id": 113784343151,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919686500/job/113784343151"
+          },
+          {
+            "conclusion": "success",
+            "id": 113784343354,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919686500/job/113784343354"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919686500"
+      },
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "d7807ef695faf525100ee9489fea5c15e0267df1",
+        "id": 37919693605,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113784367543,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919693605/job/113784367543"
+          },
+          {
+            "conclusion": "success",
+            "id": 113784367906,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919693605/job/113784367906"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919693605"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "d7807ef695faf525100ee9489fea5c15e0267df1",
+        "id": 37919686626,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113784343527,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919686626/job/113784343527"
+          },
+          {
+            "conclusion": "success",
+            "id": 113784343927,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919686626/job/113784343927"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37919686626"
+      }
+    ]
   },
   "limitations": [
     "Independent caches/downloads/backups/provider retention and historical prose require user management; not all-copy erasure.",

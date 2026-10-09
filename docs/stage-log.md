@@ -1121,3 +1121,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 实际验证：npm ci/lint/check/build PASS，最终 61 Playwright PASS（0 fail/skip，58.9s）、12 transport PASS；已校验官方 Rust 1.90 rustfmt/--check PASS。先专项 13 PASS、完整 58 PASS、扩展专项 14 PASS/完整 61 PASS，截图揭示长内容 footer 需滚动，改固定可见操作区并加 viewport 断言后最终 61 PASS；没有靠跳过或重跑失败洗绿。CLI prettier 首次错误 cwd 不匹配文件，修正 cwd 后 lint 全量 PASS。
 - 限制：浏览器是明确 MOCK HTTP 契约，真实检索/DB/RQ/文件保护由 TASK-06 实际验证；存储禁用/清空/换客户端/超过二十时不保证提示自动恢复，服务器账本不受影响；不周期性全历史同步；独立缓存/备份与历史正文需自行管理。本地 Cargo 未安装，实际 native 编译/测试/clippy/安装包/smoke 必须由新提交 CI 证明。科研质量 NOT MEASURED、人工 Win11 GUI NOT EXECUTED。
 - 状态：IN_PROGRESS；实现尚未提交、实际 CI NOT EXECUTED。TASK-08 NOT_STARTED。
+
+- TASK-07 验收：`d7807ef695faf525100ee9489fea5c15e0267df1` 的 push CI 37919686500 / Desktop 37919686626、PR CI 37919693641 / Desktop 37919693605 全部 completed/SUCCESS；完整 head SHA、四个 workflow、十个 job 已核对。实际 backend/frontend/Compose、Rust format/check/test/clippy、Windows MSI/NSIS 和 Linux native GUI smoke PASS。最终本地 61 browser/12 transport PASS；TASK-07 工程 PASSED，验收记录后自动进入 TASK-08。浏览器是 MOCK HTTP；科学质量 NOT MEASURED、Win11 人工 GUI NOT EXECUTED。
