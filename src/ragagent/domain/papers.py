@@ -3,9 +3,22 @@
 from typing import Literal
 from unicodedata import category
 
-from pydantic import AwareDatetime, ConfigDict, Field, field_validator
+from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StrictBool, field_validator
 
 from ragagent.domain.privacy import SensitiveInput
+
+
+class UploadReceipt(BaseModel):
+    """Source identity and byte-deduplication outcome, separate from indexing completion."""
+
+    paper_id: str
+    reused_existing: StrictBool
+
+
+class PaperIngestionReference(BaseModel):
+    """Read-only pointer to the latest existing ingestion Run, not a second job state."""
+
+    latest_ingestion_run_id: str | None = None
 
 
 class PaperSearchQuery(SensitiveInput):

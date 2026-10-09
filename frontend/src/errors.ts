@@ -1,5 +1,8 @@
 /** Recovery guidance. Unrecognized remote text is never echoed. */
 const guidance: Record<string, string> = {
+  invalid_pdf: "文件没有有效的 PDF 标识，请重新选择 PDF。",
+  pdf_too_large: "PDF 超过允许的大小，请拆分文件或核对后端上传限制。",
+  paper_not_retryable: "论文正在处理或已完成，请先读取最新状态，勿重复索引。",
   source_deleted: "来源已删除，当前不可验证。历史回答正文仍可能保留来源内容。",
   paper_not_found: "论文已不存在，请刷新文献列表。",
   paper_deletion_not_found:

@@ -700,3 +700,12 @@ footer {
   padding: 2px 6px;
   border-radius: 4px;
 }
+.pdf-drop-zone {
+  border: 2px dashed #b4c7d1;
+  border-radius: 6px;
+  padding: 12px;
+}
+.pdf-drop-zone.dragging {
+  background: #e8f0f4;
+  border-color: #165674;
+}

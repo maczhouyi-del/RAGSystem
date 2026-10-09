@@ -232,6 +232,8 @@ def test_upload_dedup_metadata_invalid_pdf(client: TestClient) -> None:
     )
     assert result.status_code == 202 and result.headers["x-request-id"]
     paper_id = client.get("/api/papers").json()[0]["id"]
+    assert result.json()["paper_id"] == paper_id
+    assert result.json()["reused_existing"] is False
     paper = client.get("/api/papers/" + paper_id).json()
     assert paper["authors"] == ["Alice", "Bob"] and paper["status"] == "queued"
     pdf = client.get(f"/api/papers/{paper_id}/pdf")
@@ -244,6 +246,9 @@ def test_upload_dedup_metadata_invalid_pdf(client: TestClient) -> None:
         "/api/papers/upload", files={"file": ("paper.pdf", b"%PDF-1.4 fixture", "application/pdf")}
     )
     assert duplicate.json()["id"] == result.json()["id"]
+    assert duplicate.json()["paper_id"] == paper_id
+    assert duplicate.json()["reused_existing"] is True
+    assert client.get("/api/papers/" + paper_id).json()["authors"] == ["Carol"]
     assert (
         client.post("/api/papers/upload", files={"file": ("not.pdf", b"not pdf")}).status_code
         == 422

@@ -32,7 +32,10 @@ def upload(client: TestClient) -> dict:
         },
     )
     assert response.status_code == 202
-    return client.get("/api/papers").json()[0]
+    receipt = response.json()
+    paper = client.get(f"/api/papers/{receipt['paper_id']}").json()
+    assert paper["latest_ingestion_run_id"] == receipt["id"]
+    return paper
 
 
 def test_edit_persists_separately_from_original_and_preserves_pdf_and_chunks(

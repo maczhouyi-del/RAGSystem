@@ -3,7 +3,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from ragagent.domain.papers import OriginalPaperMetadata
+from ragagent.domain.papers import OriginalPaperMetadata, PaperIngestionReference, UploadReceipt
 from ragagent.domain.privacy import SensitiveInput
 from ragagent.domain.research import MetadataFilter, SearchResult
 from ragagent.ingestion.arxiv import ARXIV_ID
@@ -39,7 +39,11 @@ class RunResponse(BaseModel):
     created_at: datetime
 
 
-class PaperResponse(BaseModel):
+class UploadRunResponse(RunResponse, UploadReceipt):
+    pass
+
+
+class PaperResponse(PaperIngestionReference):
     id: str
     title: str
     authors: list[str]

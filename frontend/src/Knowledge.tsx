@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Paper, PaperPage, Run, api } from "./api";
 import type { SourceStatus } from "./api";
+import { PdfImports } from "./PdfImports";
 import { isDesktop, openPaperPdf } from "./transport";
 import { SourceProvenance, sourceStatusLabels } from "./components";
 import {
@@ -107,22 +108,6 @@ export function Knowledge() {
       controller.abort();
     };
   }, [query]);
-  async function upload(form: HTMLFormElement) {
-    setBusy(true);
-    setError("");
-    try {
-      const data = new FormData(form);
-      if (!data.get("year")) data.delete("year");
-      const r = await api("/api/papers/upload", Run, data);
-      setTask(r.id);
-      if (offset) setOffset(0);
-      else await refresh();
-    } catch (e) {
-      setError(String(e));
-    } finally {
-      setBusy(false);
-    }
-  }
   async function importArxiv() {
     setBusy(true);
     setError("");
@@ -170,36 +155,12 @@ export function Knowledge() {
   return (
     <section>
       <h2>Knowledge Base</h2>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          void upload(e.currentTarget);
+      <PdfImports
+        onAccepted={() => {
+          if (offset) setOffset(0);
+          else void refresh();
         }}
-      >
-        <label>
-          PDF
-          <input name="file" type="file" accept="application/pdf" required />
-        </label>
-        <div className="grid">
-          <label>
-            标题
-            <input name="title" />
-          </label>
-          <label>
-            作者（分号分隔）
-            <input name="authors" />
-          </label>
-          <label>
-            年份
-            <input name="year" type="number" min="1000" max="2100" />
-          </label>
-          <label>
-            会议 / 期刊
-            <input name="venue" />
-          </label>
-        </div>
-        <button disabled={busy}>上传并建立索引</button>
-      </form>
+      />
       <div className="inline">
         <input
           aria-label="arXiv ID"

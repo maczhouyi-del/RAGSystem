@@ -42,6 +42,7 @@ export const Paper = z.object({
   original_metadata: OriginalPaperMetadata.nullable().default(null),
   metadata_version: z.number().int().positive().default(1),
   overridden_fields: z.array(z.string()).default([]),
+  latest_ingestion_run_id: z.string().nullable().default(null),
 });
 export const PaperPage = z.object({
   items: z.array(Paper),
@@ -156,6 +157,11 @@ export const Run = z.object({
   result: Result.nullable(),
 });
 export type Run = z.infer<typeof Run>;
+export const UploadReceipt = Run.extend({
+  paper_id: z.string(),
+  reused_existing: z.boolean(),
+});
+export type UploadReceipt = z.infer<typeof UploadReceipt>;
 /** Lightweight list/turn state. Scientific evidence stays in the Run detail API. */
 export const RunSummary = Run.omit({ result: true });
 export type RunSummary = z.infer<typeof RunSummary>;

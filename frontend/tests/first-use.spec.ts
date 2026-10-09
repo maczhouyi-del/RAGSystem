@@ -126,8 +126,34 @@ async function setupGuide(page: Page, existing = false) {
   );
   await page.route("**/api/papers/upload", (route) => {
     fixture.papers = [paper("queued")];
-    return route.fulfill({ status: 202, json: { ...run, kind: "ingestion" } });
+    return route.fulfill({
+      status: 202,
+      json: {
+        ...run,
+        kind: "ingestion",
+        paper_id: "MOCK-paper",
+        reused_existing: false,
+      },
+    });
   });
+  await page.route("**/api/papers/MOCK-paper", (route) =>
+    route.fulfill({
+      json: {
+        ...paper(fixture.indexed ? "indexed" : "queued"),
+        latest_ingestion_run_id: run.id,
+      },
+    }),
+  );
+  await page.route(`**/api/runs/${run.id}`, (route) =>
+    route.fulfill({
+      json: {
+        ...run,
+        kind: "ingestion",
+        status: fixture.indexed ? "completed" : "queued",
+        result: fixture.indexed ? { paper_id: "MOCK-paper" } : null,
+      },
+    }),
+  );
   return { fixture, token, chat };
 }
 function paper(status: string) {
@@ -181,7 +207,9 @@ test("blank user follows authorization, model check, upload, index and first que
     buffer: Buffer.from("%PDF-1.4 MOCK UI upload only"),
   });
   await page.getByRole("button", { name: "上传并建立索引" }).click();
-  await expect(page.locator("tbody")).toContainText("queued");
+  await expect(page.getByRole("table").last().locator("tbody")).toContainText(
+    "queued",
+  );
   await expect(
     guide.getByRole("button", { name: "打开首次问答" }),
   ).toBeDisabled();

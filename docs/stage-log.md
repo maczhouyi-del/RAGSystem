@@ -1123,3 +1123,10 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 状态：IN_PROGRESS；实现尚未提交、实际 CI NOT EXECUTED。TASK-08 NOT_STARTED。
 
 - TASK-07 验收：`d7807ef695faf525100ee9489fea5c15e0267df1` 的 push CI 37919686500 / Desktop 37919686626、PR CI 37919693641 / Desktop 37919693605 全部 completed/SUCCESS；完整 head SHA、四个 workflow、十个 job 已核对。实际 backend/frontend/Compose、Rust format/check/test/clippy、Windows MSI/NSIS 和 Linux native GUI smoke PASS。最终本地 61 browser/12 transport PASS；TASK-07 工程 PASSED，验收记录后自动进入 TASK-08。浏览器是 MOCK HTTP；科学质量 NOT MEASURED、Win11 人工 GUI NOT EXECUTED。
+
+## TASK-08 批量 PDF 导入（2026-10-09）
+
+- 修改：domain/API 回执、详情最新 Run 指针和 pending Run 重试复用；PdfImports/Knowledge/API/error/style，9 项 MOCK 浏览器与真实 PG 并发/回执断言，旧单篇 fixture，文档/进度/证据。无依赖锁、迁移、Rust 或新任务系统修改。
+- 验证：uv locked sync 109 包，Ruff format/check、mypy 82、npm ci/lint/check/build PASS；724 pytest（516 unit /208 integration，0 skipped，67.72s），70 browser（0 skipped，报告 1.2m）/12 transport PASS；截图 PASS。真实 PostgreSQL，未使用 SQLite。
+- 修复：14 全响应比较失败来自 list/detail 新指针差异，统一详情 fixture 并核对真实回执 ID，保留完整字段保护断言；恢复行 generation undefined/0 导致 1 browser 失败，统一默认值后完整 PASS。平台认证短暂 401，后续 API/Git 读取恢复，无凭据提取或绕代理。
+- 边界：浏览器 scripted 完成不证明模型/解析质量；历史查询性能、峰值内存、科研质量 NOT MEASURED，Win11 人工 GUI NOT EXECUTED。TASK-08 实现 CI 待实际提交检查，TASK-09 NOT_STARTED。

@@ -17,6 +17,7 @@ from ragagent.api.schemas import (
     PaperPatch,
     PaperResponse,
     RunResponse,
+    UploadRunResponse,
 )
 from ragagent.db.dispatch import JobDispatch
 from ragagent.db.models import (
@@ -54,14 +55,19 @@ def enqueue(session: Session, queue: JobQueue, kind: str, request: dict[str, obj
     return run
 
 
-def ingestion_run(session: Session, queue: JobQueue, paper_id: str) -> RunResponse:
+def ingestion_run(session: Session, queue: JobQueue, paper_id: str) -> UploadRunResponse:
     run = session.scalar(
         select(Run)
         .where(Run.kind == "ingestion", Run.request["paper_id"].as_string() == paper_id)
         .order_by(Run.created_at.desc())
     )
-    return RunResponse.model_validate(
+    existing = (
         run if run is not None else enqueue(session, queue, "ingestion", {"paper_id": paper_id})
+    )
+    return UploadRunResponse(
+        **RunResponse.model_validate(existing).model_dump(),
+        paper_id=paper_id,
+        reused_existing=True,
     )
 
 
@@ -85,7 +91,15 @@ def author_ids(session: Session, names: list[str]) -> dict[str, str]:
 
 
 def paper_response(session: Session, paper: Paper) -> PaperResponse:
-    return paper_responses(session, [paper])[0]
+    latest = session.scalar(
+        select(Run.id)
+        .where(Run.kind == "ingestion", Run.request["paper_id"].as_string() == paper.id)
+        .order_by(Run.created_at.desc(), Run.id)
+        .limit(1)
+    )
+    return paper_responses(session, [paper])[0].model_copy(
+        update={"latest_ingestion_run_id": latest}
+    )
 
 
 def paper_responses(session: Session, items: list[Paper]) -> list[PaperResponse]:
@@ -141,7 +155,7 @@ async def upload(
     authors: Annotated[str, Form(max_length=4000)] = "",
     year: Annotated[int | None, Form(ge=1000, le=2100)] = None,
     venue: Annotated[str | None, Form(max_length=256)] = None,
-) -> RunResponse:
+) -> UploadRunResponse:
     try:
         reject_credentials([title, authors, venue])
     except ValueError:
@@ -220,7 +234,13 @@ async def upload(
         for position, name in enumerate(names):
             db.add(PaperAuthor(paper_id=paper_id, author_id=ids[name], position=position))
         # Paper, author links, Run and dispatch intent become visible together.
-        return RunResponse.model_validate(enqueue(db, queue, "ingestion", {"paper_id": paper_id}))
+        return UploadRunResponse(
+            **RunResponse.model_validate(
+                enqueue(db, queue, "ingestion", {"paper_id": paper_id})
+            ).model_dump(),
+            paper_id=paper_id,
+            reused_existing=False,
+        )
     except Exception:
         db.rollback()
         # Keep the original if the paper transaction was committed (e.g. queue outage).
@@ -398,6 +418,21 @@ def retry_ingestion(paper_id: str, db: DB, queue: QueueDep) -> RunResponse:
         missing_paper(db, paper_id)
     if paper.status not in {"failed", "queued"}:
         raise HTTPException(409, "paper_not_retryable")
+    pending = db.scalar(
+        select(Run)
+        .where(
+            Run.kind == "ingestion",
+            Run.request["paper_id"].as_string() == paper.id,
+            Run.status.in_(("queued", "running")),
+        )
+        .order_by(Run.created_at.desc(), Run.id)
+        .limit(1)
+    )
+    if pending is not None:
+        db.commit()
+        if pending.status == "queued":
+            dispatch_run(db, queue, pending.id)
+        return RunResponse.model_validate(pending)
     paper.status, paper.error_code = "queued", None
     return RunResponse.model_validate(enqueue(db, queue, "ingestion", {"paper_id": paper.id}))
 
