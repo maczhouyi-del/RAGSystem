@@ -1083,3 +1083,10 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 限制：跨请求集合变化会移动 offset；大库普通索引迁移需维护窗口/磁盘/扩展权限；共享 pg_trgm 降级保留；实际大库性能/科研质量 NOT MEASURED，Win11 人工 GUI NOT EXECUTED。本提交 Rust 编译/原生 smoke/安装包由实际 CI 验证，待通过前不进入 TASK-05。
 
 - TASK-04 验收：`5e59f1bd8851da0551b2c5b31bb004b93bc6fc9f` 的 push CI 37892156284 / Desktop 37892156271、PR CI 37892160891 / Desktop 37892160910 四个 workflow 全部 completed/SUCCESS，完整 SHA 与所有 job 已核对；Rust check/test/clippy、Windows MSI/NSIS、Linux 原生 GUI smoke PASS。uv locked sync 109 包 PASS；本任务工程 PASSED，自动进入 TASK-05；科研质量/真实大库性能/Win11 人工 GUI 未测。TASK-03 文档验收提交 bdefa45 的四个 workflow 同样已全部 SUCCESS。
+
+## TASK-05 文献元数据修改（2026-10-09）
+
+- 修改：domain 初始来源契约、Paper 原始元数据/乐观版本/人工维护字段、0008 迁移与有损降级保护、既有 PATCH 原子版本核对和只更新变更字段、上传/Atom 字段捕获、独立编辑窗口/来源展示/失败草稿保留/冲突重载、PG/API/来源/迁移/浏览器覆盖和文档/进度/证据。未改依赖锁、Rust bridge、原始 PDF、chunk/section/vector 或模型调用流程。
+- 实际验证：uv locked sync 109、Ruff format/check、mypy 75、npm ci/lint/check/build PASS；687 pytest（496 unit / 191 integration、0 skipped、39.59s）、47 Playwright（0 skipped、47.4s）和 11 transport PASS；真实迁移/模型检查/有损降级拒绝与回滚 PASS；截图已检查。两个真实 PG session 同版本编辑仅一个成功，另一个 409。
+- 修正记录：初次 mypy 持久化字典需 domain 验证；两段长 SQL 字面量拆行；显式未知 origin 存为 JSON null 的只读探针揭示错误降级阻塞，改 none_as_null=True 并加入 SQL NULL 断言，完整回归通过。没有删断言。
+- 边界：旧来源未知，不伪造官方值；upload 源为用户输入，Atom 测试响应是 scripted，不是联网验真；旧无版本 PATCH 不具备陈旧意图保护，新 UI 全部带版本；数据保护降级不能绕过。科学质量/Win11 人工 GUI/付费模型未测。实际实现 CI 待核对，TASK-06 未开始。TASK-04 仅验收文档 736d3a7 的四个 workflow 已全部 completed/SUCCESS。

@@ -19,6 +19,16 @@ unique; distinct versions may have the same PDF checksum. Uploaded PDFs retain
 a partial unique checksum constraint. Legacy unversioned IDs keep null version;
 the migration does not invent the old PDF's historical version.
 
+Migration 0008 adds immutable application-captured `original_metadata` (JSONB;
+SQL NULL for unknown legacy origins), positive `metadata_version` and
+`overridden_fields`. Upload origins describe user-filled values; arXiv origins
+record fetched Atom fields and pinned identity/byte checksum. Current Paper
+fields/author links can be corrected separately. New PATCH clients provide the
+expected version, checked under a row lock before atomic updates; unchanged
+updates do not increment it. Legacy unchecked PATCH remains compatible.
+PDF bytes, source version and chunk/section/vector associations are untouched.
+Downgrade rejects non-pristine provenance/edit records to prevent silent loss.
+
 Chunk records UUID, paper/section, complete section path,
 pages, element type, exact text, ordinal, lexical token count, JSON metadata,
 configured-dimensional vector and a generated English tsvector with GIN index.

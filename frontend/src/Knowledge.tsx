@@ -4,6 +4,11 @@ import { Paper, PaperPage, Run, api } from "./api";
 import type { SourceStatus } from "./api";
 import { isDesktop, openPaperPdf } from "./transport";
 import { SourceProvenance, sourceStatusLabels } from "./components";
+import {
+  MetadataOverrides,
+  OriginalMetadata,
+  PaperMetadataEditor,
+} from "./PaperMetadataEditor";
 const pageSize = 50;
 const initialFilters = {
   title: "",
@@ -27,6 +32,9 @@ export function Knowledge() {
     [sourceEdits, setSourceEdits] = useState<Record<string, SourceStatus>>({}),
     [savingPaper, setSavingPaper] = useState<string | null>(null),
     [sourceNotice, setSourceNotice] = useState("");
+  const [editingPaper, setEditingPaper] = useState<z.infer<
+    typeof Paper
+  > | null>(null);
   const requestSequence = useRef(0);
   const offset = query.offset;
   const hasNext = total !== null && offset + pageSize < total;
@@ -116,7 +124,10 @@ export function Knowledge() {
       const updated = await api(
         `/api/papers/${paper.id}`,
         Paper,
-        { source_status: sourceEdits[paper.id] ?? paper.source_status },
+        {
+          source_status: sourceEdits[paper.id] ?? paper.source_status,
+          expected_metadata_version: paper.metadata_version,
+        },
         "PATCH",
       );
       setPapers((items) =>
@@ -320,6 +331,21 @@ export function Knowledge() {
               : `共 ${total} 篇 · 第 ${offset / pageSize + 1} / ${Math.max(1, Math.ceil(total / pageSize))} 页`}
         </p>
       </div>
+      {editingPaper && (
+        <PaperMetadataEditor
+          key={editingPaper.id}
+          paper={editingPaper}
+          onClose={() => setEditingPaper(null)}
+          onSaved={(updated) => {
+            setPapers((items) =>
+              items.map((item) => (item.id === updated.id ? updated : item)),
+            );
+            setEditingPaper(null);
+            setSourceNotice(`${updated.title}：元数据已保存`);
+            void refresh();
+          }}
+        />
+      )}
       <table aria-busy={loading}>
         <thead>
           <tr>
@@ -352,6 +378,15 @@ export function Knowledge() {
                 {p.authors.join("; ")}
                 <br />
                 {p.year} · {p.venue}
+                <MetadataOverrides paper={p} />
+                <OriginalMetadata paper={p} />
+                <button
+                  aria-label={`编辑 ${p.title} 元数据`}
+                  disabled={editingPaper !== null}
+                  onClick={() => setEditingPaper(p)}
+                >
+                  编辑元数据
+                </button>
                 <label>
                   来源状态（人工核对）
                   <select

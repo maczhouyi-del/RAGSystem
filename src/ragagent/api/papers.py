@@ -1,4 +1,5 @@
 import hashlib
+from datetime import UTC, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
@@ -31,7 +32,7 @@ from ragagent.db.models import (
     Run,
     new_id,
 )
-from ragagent.domain.papers import PaperSearchQuery
+from ragagent.domain.papers import OriginalPaperMetadata, PaperMetadataValues, PaperSearchQuery
 from ragagent.domain.privacy import reject_credentials
 from ragagent.jobs import dispatch_run
 from ragagent.settings import get_settings
@@ -119,6 +120,11 @@ def paper_responses(session: Session, items: list[Paper]) -> list[PaperResponse]
             error_code=paper.error_code,
             chunk_count=counts.get(paper.id, 0),
             created_at=paper.created_at,
+            original_metadata=OriginalPaperMetadata.model_validate(paper.original_metadata)
+            if paper.original_metadata is not None
+            else None,
+            metadata_version=paper.metadata_version,
+            overridden_fields=paper.overridden_fields,
         )
         for paper in items
     ]
@@ -173,14 +179,28 @@ async def upload(
         if existing:
             path.unlink(missing_ok=True)
             return ingestion_run(db, queue, existing.id)
+        names = list(dict.fromkeys(x.strip() for x in authors.split(";") if x.strip()))
+        initial_title = (title.strip() or (file.filename or "").strip() or "Untitled")[:1000]
+        try:
+            original = OriginalPaperMetadata(
+                kind="upload_user",
+                captured_at=datetime.now(UTC),
+                values=PaperMetadataValues(
+                    title=initial_title, authors=names, year=year, venue=venue
+                ),
+                pdf_sha256=sha,
+            ).model_dump(mode="json")
+        except ValueError:
+            raise HTTPException(422, "invalid_metadata") from None
         paper_id = db.scalar(
             insert(Paper)
             .values(
-                title=(title or file.filename or "Untitled")[:1000],
+                title=initial_title,
                 year=year,
                 venue=venue,
                 sha256=sha,
                 original_path=str(path),
+                original_metadata=original,
             )
             .on_conflict_do_nothing(
                 index_elements=[Paper.sha256], index_where=Paper.arxiv_id.is_(None)
@@ -193,7 +213,6 @@ async def upload(
                 raise HTTPException(409, "paper_changed_retry")
             path.unlink(missing_ok=True)
             return ingestion_run(db, queue, existing.id)
-        names = list(dict.fromkeys(x.strip() for x in authors.split(";") if x.strip()))
         ids = author_ids(db, names)
         for position, name in enumerate(names):
             db.add(PaperAuthor(paper_id=paper_id, author_id=ids[name], position=position))
@@ -385,20 +404,43 @@ def update_metadata(paper_id: str, request: PaperPatch, db: DB) -> PaperResponse
     )
     if paper is None:
         raise HTTPException(404, "paper_not_found")
+    if request.expected_metadata_version is not None and (
+        request.expected_metadata_version != paper.metadata_version
+    ):
+        raise HTTPException(409, "paper_metadata_conflict")
     if "title" in request.model_fields_set and request.title is None:
         raise HTTPException(422, "title_cannot_be_null")
     if "source_status" in request.model_fields_set and request.source_status is None:
         raise HTTPException(422, "source_status_cannot_be_null")
+    changed: set[str] = set()
     for field in ["title", "year", "venue", "source_status"]:
         if field in request.model_fields_set:
-            setattr(paper, field, getattr(request, field))
+            value = getattr(request, field)
+            if value != getattr(paper, field):
+                changed.add(field)
+                setattr(paper, field, value)
     if "authors" in request.model_fields_set:
         names = list(dict.fromkeys(n.strip() for n in request.authors or []))
         if any(not n or len(n) > 256 for n in names):
             raise HTTPException(422, "invalid_author_name")
-        db.execute(delete(PaperAuthor).where(PaperAuthor.paper_id == paper.id))
-        ids = author_ids(db, names)
-        for position, name in enumerate(names):
-            db.add(PaperAuthor(paper_id=paper.id, author_id=ids[name], position=position))
+        current = list(
+            db.scalars(
+                select(Author.name)
+                .join(PaperAuthor)
+                .where(PaperAuthor.paper_id == paper.id)
+                .order_by(PaperAuthor.position)
+            )
+        )
+        if names != current:
+            changed.add("authors")
+            db.execute(delete(PaperAuthor).where(PaperAuthor.paper_id == paper.id))
+            ids = author_ids(db, names)
+            for position, name in enumerate(names):
+                db.add(PaperAuthor(paper_id=paper.id, author_id=ids[name], position=position))
+    if changed:
+        paper.metadata_version += 1
+        paper.overridden_fields = sorted(
+            set(paper.overridden_fields) | (changed - {"source_status"})
+        )
     db.commit()
     return paper_response(db, paper)

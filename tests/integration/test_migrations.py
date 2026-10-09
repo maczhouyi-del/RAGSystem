@@ -103,6 +103,31 @@ def test_legacy_upgrade_and_lossless_downgrade() -> None:
         alembic("upgrade", "head")
         alembic("check")
         with probe.begin() as connection:
+            assert (
+                connection.scalar(
+                    text("SELECT original_metadata FROM papers WHERE id='legacy-paper'")
+                )
+                is None
+            )
+            connection.execute(
+                text(
+                    'UPDATE papers SET original_metadata=\'{"fixture":"SYNTHETIC ONLY"}\'::jsonb '
+                    "WHERE id='legacy-paper'"
+                )
+            )
+        failure = alembic("downgrade", "0007", succeeds=False)
+        assert "metadata_provenance_downgrade_requires_pristine_records" in failure
+        with probe.begin() as connection:
+            assert (
+                connection.scalar(text("SELECT version_num FROM alembic_version")) == current_head
+            )
+            assert connection.scalar(
+                text("SELECT original_metadata FROM papers WHERE id='legacy-paper'")
+            ) == {"fixture": "SYNTHETIC ONLY"}
+            connection.execute(
+                text("UPDATE papers SET original_metadata=NULL WHERE id='legacy-paper'")
+            )
+        with probe.begin() as connection:
             assert connection.execute(
                 text(
                     "SELECT arxiv_family_id,arxiv_version,source_status "

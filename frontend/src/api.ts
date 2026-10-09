@@ -14,6 +14,20 @@ export const SourceMetadata = z.object({
   arxiv_version: z.number().int().positive().nullable().default(null),
   source_status: SourceStatus.default("unknown"),
 });
+export const OriginalPaperMetadata = SourceMetadata.omit({
+  source_status: true,
+}).extend({
+  kind: z.enum(["upload_user", "arxiv_atom"]),
+  captured_at: z.string(),
+  values: z.object({
+    title: z.string(),
+    authors: z.array(z.string()),
+    year: z.number().nullable(),
+    venue: z.string().nullable(),
+  }),
+  pdf_sha256: z.string(),
+  source_url: z.string().nullable(),
+});
 export const Paper = z.object({
   ...SourceMetadata.shape,
   id: z.string(),
@@ -25,6 +39,9 @@ export const Paper = z.object({
   error_code: z.string().nullable(),
   chunk_count: z.number(),
   created_at: z.string().nullable().default(null),
+  original_metadata: OriginalPaperMetadata.nullable().default(null),
+  metadata_version: z.number().int().positive().default(1),
+  overridden_fields: z.array(z.string()).default([]),
 });
 export const PaperPage = z.object({
   items: z.array(Paper),

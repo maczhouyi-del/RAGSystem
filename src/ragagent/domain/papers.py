@@ -3,7 +3,7 @@
 from typing import Literal
 from unicodedata import category
 
-from pydantic import ConfigDict, Field, field_validator
+from pydantic import AwareDatetime, ConfigDict, Field, field_validator
 
 from ragagent.domain.privacy import SensitiveInput
 
@@ -30,3 +30,25 @@ class PaperSearchQuery(SensitiveInput):
             if not value:
                 raise ValueError("invalid_search_text")
         return value
+
+
+class PaperMetadataValues(SensitiveInput):
+    model_config = ConfigDict(extra="forbid")
+    title: str
+    authors: list[str]
+    year: int | None
+    venue: str | None
+
+
+class OriginalPaperMetadata(SensitiveInput):
+    """Captured import fields, never a fabricated original for legacy records."""
+
+    model_config = ConfigDict(extra="forbid")
+    kind: Literal["upload_user", "arxiv_atom"]
+    captured_at: AwareDatetime
+    values: PaperMetadataValues
+    pdf_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    arxiv_id: str | None = None
+    arxiv_family_id: str | None = None
+    arxiv_version: int | None = None
+    source_url: str | None = None

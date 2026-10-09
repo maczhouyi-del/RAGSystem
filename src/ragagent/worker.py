@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import hashlib
 import logging
+from datetime import UTC, datetime
 from typing import Any, TypeVar
 
 from fastapi.encoders import jsonable_encoder
@@ -16,6 +17,7 @@ from sqlalchemy.orm import Session
 from ragagent.conversations.service import context_config, prepare_context
 from ragagent.db.models import Author, ExecutionEvent, Paper, PaperAuthor, Run, new_id
 from ragagent.db.session import session_factory
+from ragagent.domain.papers import OriginalPaperMetadata, PaperMetadataValues
 from ragagent.errors import ApplicationError
 from ragagent.graphs.rag import build_rag
 from ragagent.graphs.research import build_research
@@ -126,6 +128,19 @@ async def arxiv_ingestion(session: Session, run: Run) -> Paper:
         metadata = await download_arxiv(arxiv_id, path, settings.max_upload_bytes)
         sha = hashlib.sha256(path.read_bytes()).hexdigest()
         ensure_running(session, run)
+        names = list(dict.fromkeys(n.strip() for n in metadata.authors if n.strip()))
+        original = OriginalPaperMetadata(
+            kind="arxiv_atom",
+            captured_at=datetime.now(UTC),
+            values=PaperMetadataValues(
+                title=metadata.title, authors=names, year=metadata.year, venue=None
+            ),
+            pdf_sha256=sha,
+            arxiv_id=metadata.arxiv_id,
+            arxiv_family_id=metadata.arxiv_family_id,
+            arxiv_version=metadata.arxiv_version,
+            source_url=metadata.source_url,
+        ).model_dump(mode="json")
         # Let the database arbitrate concurrent imports of the same version.
         # Hash equality alone never assigns a new version to an older source.
         paper_id = session.scalar(
@@ -141,6 +156,7 @@ async def arxiv_ingestion(session: Session, run: Run) -> Paper:
                 sha256=sha,
                 original_path=str(path),
                 status="queued",
+                original_metadata=original,
             )
             .on_conflict_do_nothing()
             .returning(Paper.id)
@@ -151,7 +167,6 @@ async def arxiv_ingestion(session: Session, run: Run) -> Paper:
                 raise ApplicationError("paper_changed_retry")
             path.unlink(missing_ok=True)
             return existing
-        names = list(dict.fromkeys(n.strip() for n in metadata.authors if n.strip()))
         author_ids = {}
         for name in sorted(names):
             author_id = session.scalar(

@@ -1,5 +1,7 @@
 /** Recovery guidance. Unrecognized remote text is never echoed. */
 const guidance: Record<string, string> = {
+  paper_metadata_conflict:
+    "论文元数据已有更新。草稿已保留，请载入最新内容后核对并重新编辑。",
   local_auth_required: "需要本机授权，请打开连接授权。",
   local_auth_not_initialized: "后端尚未配对，请配置授权哈希并重启后端。",
   local_secure_storage_unavailable: "系统凭据库不可用，请检查系统钥匙串。",

@@ -35,6 +35,7 @@ class Base(DeclarativeBase):
 class Paper(Base):
     __tablename__ = "papers"
     __table_args__ = (
+        CheckConstraint("metadata_version >= 1", name="ck_papers_metadata_version"),
         CheckConstraint(
             "source_status IN ('unknown', 'active', 'withdrawn', 'retracted')",
             name="ck_papers_source_status",
@@ -74,6 +75,11 @@ class Paper(Base):
     embedding_model: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+    original_metadata: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
+    metadata_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    overridden_fields: Mapped[list[str]] = mapped_column(
+        JSONB, default=list, server_default=text("'[]'::jsonb")
     )
 
 

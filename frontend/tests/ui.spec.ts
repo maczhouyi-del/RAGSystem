@@ -353,7 +353,9 @@ test("knowledge source status can be manually saved without changing ingestion s
   await row
     .getByRole("button", { name: "保存 MOCK versioned paper 来源状态" })
     .click();
-  await expect.poll(() => submitted).toEqual({ source_status: "withdrawn" });
+  await expect
+    .poll(() => submitted)
+    .toEqual({ source_status: "withdrawn", expected_metadata_version: 1 });
   await expect(
     page.getByText("MOCK versioned paper：来源状态已保存", { exact: true }),
   ).toBeVisible();

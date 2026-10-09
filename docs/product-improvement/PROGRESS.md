@@ -11,7 +11,7 @@
 - TASK-00：**PASSED**；日志已恢复，引用 UUID 误判已修复；固定 ID 回归、负向控制、604 项完整测试及修复提交 push/PR CI、Windows/Linux Desktop 均通过。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
 - 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
-- TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；TASK-02：PASSED；本地 39 项浏览器/10 项 transport 验证及实现提交 `088e8be` 的 push/PR CI、Windows/Linux Desktop 四个 workflow 全部 SUCCESS；TASK-03：PASSED；645 项后端测试及实现提交四个实际 workflow 全部 SUCCESS；真实科研质量 NOT MEASURED；TASK-04：PASSED，672 项后端/43 项浏览器/11 transport 与四个实现 workflow 全部通过。
+- TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；TASK-02：PASSED；本地 39 项浏览器/10 项 transport 验证及实现提交 `088e8be` 的 push/PR CI、Windows/Linux Desktop 四个 workflow 全部 SUCCESS；TASK-03：PASSED；645 项后端测试及实现提交四个实际 workflow 全部 SUCCESS；真实科研质量 NOT MEASURED；TASK-04：PASSED，672 项后端/43 项浏览器/11 transport 与四个实现 workflow 全部通过；TASK-05：IN_PROGRESS，来源保护/编辑和本地回归通过，待实际 CI。
 - [基线报告](BASELINE.md)；[实际验证记录](task-00-evidence.json)。
 
 ## 串行计划与依赖
@@ -26,7 +26,7 @@
 | TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | PASSED |
 | TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | PASSED |
 | TASK-04 | 文献搜索、排序和分页 | 03 | 保留旧 /api/papers；已有分页需扩展 | 至少 200 篇 fixture，搜索/筛选/稳定排序/总数/兼容 | PASSED |
-| TASK-05 | 文献元数据修改 | 04 | 复用 PATCH；保护原始来源并检测陈旧编辑 | UI 保存/刷新/冲突/原 PDF 与 chunk 不变 | NOT_STARTED |
+| TASK-05 | 文献元数据修改 | 04 | 复用 PATCH；保护原始来源并检测陈旧编辑 | UI 保存/刷新/冲突/原 PDF 与 chunk 不变 | IN_PROGRESS |
 | TASK-06 | 安全删除文献后端 | 05 | 先定义 PDF/派生数据/历史证据/缓存/备份生命周期 | PG 事务、文件补偿、迟到 worker、检索排除与历史引用失效 | NOT_STARTED |
 | TASK-07 | 文献删除 UI | 06 | 仅消费已验收删除协议 | Playwright 确认/取消/失败/列表与其他数据隔离 | NOT_STARTED |
 | TASK-08 | 批量 PDF 导入 | 07 | 复用单篇 API/ingestion/outbox，限制并发 | 重复/失败/断网/重试/刷新/并发；上传与索引状态分离 | NOT_STARTED |
@@ -132,11 +132,16 @@
 
 ### TASK-05：文献元数据修改
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
-- 修改目标、依赖、验收计划：见上表 TASK-05；前置门禁 04。
-- 风险与已知限制：复用 PATCH；保护原始来源并检测陈旧编辑。
+- 状态：IN_PROGRESS；开始 commit：`736d3a7358d5bc118311abd599ef6becc33cd365`；最终实现待提交。
+- 分析/范围：复用 PATCH；保存 import 来源元数据与乐观版本，Paper/author 当前字段可校正，PDF/来源版本不可 PATCH；旧原始来源保持未知；新上传为用户填写值，arXiv 为实际 Atom 字段；编辑失败保留草稿、显式加载冲突版本，仅提交变化字段。
+- 涉及文件：domain/papers、API papers/schemas、db/models、worker arXiv 捕获、0008 迁移、PaperMetadataEditor/Knowledge/api/errors、PG/API/来源/迁移/浏览器测试、文档/进度/证据。
+- 新增验证：15 项真实 PG/API 测试（PDF bytes/hash、chunk/section/vector 不变、当前/初始值隔离、不可编辑字段、陈旧版本/真实双 session 并发、无变化与 legacy）；扩展来源重导入/迁移保护；4 项浏览器保存/刷新、失败保留/筛选、冲突重载、旧来源/取消。
+- 实际结果：uv locked sync 109 包、Ruff format/check、mypy 75、npm ci/lint/check/build PASS；687 pytest（496 unit / 191 integration、0 skipped、39.59s，1 已有 Alembic warning）；47 Playwright（0 skipped、47.4s）、11 transport（0 skipped）PASS；真实迁移、Alembic check 与有损降级拒绝/回滚 PASS；截图已检查。
+- 复核修正：初次 mypy 持久化字典未显式转换 domain 契约，补验证后 PASS；显式未知 origin 的 SQL NULL 探针原为 false，设置 none_as_null 并加入 PG 断言，完整回归通过；长 SQL 字面量拆行后 Ruff PASS。没有删除断言。
+- 影响：当前元数据校正持久化，原来源/版本/PDF/chunk 不变；只发送变化字段，没有自动模型/Embedding/重索引调用；依赖锁/桌面 bridge 未改；原上传/arXiv/搜索/来源状态回归通过。
+- Git/PR/CI：独立实现待提交，draft #1 未合并；本任务实际 CI 待实现提交，未通过前不进入 TASK-06。
+- 兼容/限制：旧 PATCH 可不带 expected_metadata_version，无法检测旧客户端陈旧意图；新 UI 的元数据与来源状态保存始终携带版本，陈旧请求 409；有来源快照/编辑记录时禁止有损 0008 降级；科学质量未测。
+- 前置 TASK-04 实现四个 workflow 与平台检查已通过；仅本任务修改中，TASK-06 未开始。
 
 ### TASK-06：安全删除文献后端
 

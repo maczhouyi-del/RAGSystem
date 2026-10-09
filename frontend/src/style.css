@@ -653,3 +653,6 @@ footer {
   margin: 0;
   font-weight: 500;
 }
+.paper-original-metadata code {
+  overflow-wrap: anywhere;
+}
