@@ -1139,3 +1139,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 验证：locked sync 109、Ruff format/check、mypy 84、npm ci/lint/check/build、官方 rustfmt、真实升级/模型 check/有损降级拒绝/重升 PASS；749 pytest（525 unit /224 PG、0 skipped、63.65s）、82 browser（报告 1.2m、0 skipped）/13 transport PASS；最终截图检查。
 - 保留失败：首轮 browser 5/6、第二轮 3/8；pending checkbox 与旧发送 locator 修正，实际 api bodyless PUT/DELETE 被改 GET 的错误修复，服务器读回确认断言保留。Ruff SQL 长行/局部导入组修复。没有跳过或移除测试。
 - 边界：当前检索快照成员范围，名称版本不冻结关联数；大库性能/真实模型科研质量未测，Win11 人工 GUI 未执行；MOCK HTTP 不证明真实科研表现。本任务实际 CI 待提交；TASK-10 未开始。
+
+- TASK-09 验收：48e89dd8fa24d4e458d188292fd5ab660252e370 的 push CI 37925725221 / Desktop 37925725238、PR CI 37925731577 / Desktop 37925731446 四个实际 workflow/十个 job completed/SUCCESS，完整 SHA 核对。Rust/Windows MSI/NSIS/Linux GUI smoke PASS；749 后端、82 MOCK 浏览器、13 transport 本地 PASS。工程 PASSED，自动进入 TASK-10。TASK-17 真实评测资源经用户确认未备妥，科学质量和 Win11 人工验收仍未测。

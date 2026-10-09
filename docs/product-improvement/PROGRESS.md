@@ -30,7 +30,7 @@
 | TASK-06 | 安全删除文献后端 | 05 | 先定义 PDF/派生数据/历史证据/缓存/备份生命周期 | PG 事务、文件补偿、迟到 worker、检索排除与历史引用失效 | PASSED |
 | TASK-07 | 文献删除 UI | 06 | 仅消费已验收删除协议 | Playwright 确认/取消/失败/列表与其他数据隔离 | PASSED |
 | TASK-08 | 批量 PDF 导入 | 07 | 复用单篇 API/ingestion/outbox，限制并发 | 重复/失败/断网/重试/刷新/并发；上传与索引状态分离 | PASSED |
-| TASK-09 | 论文分组与标签 | 08 | 后端检索范围；不复制 PDF/Embedding | 关系迁移/CRUD/删除分组不删论文/RAG 与 Research 过滤 | IN_PROGRESS |
+| TASK-09 | 论文分组与标签 | 08 | 后端检索范围；不复制 PDF/Embedding | 关系迁移/CRUD/删除分组不删论文/RAG 与 Research 过滤 | PASSED |
 | TASK-10 | 实体标注状态可视化 | 09 | 区分未标注与不存在；严格过滤不等于全文搜索 | 部分标注语料、来源片段、状态/警示与过滤语义 | NOT_STARTED |
 | TASK-11 | 实体提取与人工校正 | 10 | 保守带来源提取；费用显式、重试幂等、同名消歧 | 证据关联/校正持久化/严格过滤/重复导入；实际质量独立测量 | NOT_STARTED |
 | TASK-12 | 更精确 PDF 来源定位 | 11 | 保留 stable Evidence ID；旧索引兼容；不可伪造 bbox | 文本/表格/公式 PDF、无坐标降级、迁移兼容 | NOT_STARTED |
@@ -181,12 +181,12 @@
 
 ### TASK-09：论文分组与标签
 
-- 状态：IN_PROGRESS；开始 commit：`5e1d3046f3e9a52c82f80d473667cd071614dc94`；最终实现 commit：待独立提交。
+- 状态：PASSED；开始 commit：`5e1d3046f3e9a52c82f80d473667cd071614dc94`；最终实现 commit：`48e89dd8fa24d4e458d188292fd5ab660252e370`。
 - 修改：规范化共享分组/标签目录、多对多关系与 0010 迁移；安全名称、乐观版本 CRUD、幂等单关系、删除确认/读取恢复；dense/lexical 真实 OR/AND 范围与列表筛选，未知/已删除 ID 返回空范围；Knowledge 管理/单篇关联、RAG/Research 多选、桌面固定 UUID 白名单。未复制 PDF/向量或修改 Evidence，无新任务系统/依赖锁。
 - 涉及文件、测试和命令：[完整证据](task-09-evidence.json)、[使用与边界](../paper-organization.md)。新增 9 unit /16 integration（真实 PG 迁移、并发、检索、证据保留）、12 browser /1 transport /1 Rust 契约。
 - 验证：uv sync --locked、Ruff format/check、mypy 84、npm ci/lint/check/build、真实迁移升级/check/保护降级/重升、官方 rustfmt PASS；749 pytest（525 unit /224 integration、0 skipped、63.65s）、82 Playwright（0 skipped、报告 1.2m）/13 transport PASS；最终截图已检查。
 - 保留失败：浏览器首轮 5 failed/6 passed，处理 pending 状态与正确既有 locator；第二轮 3 failed/8 passed 揭示 api 把无 body PUT/DELETE 变成 GET，修复显式方法后全量 PASS。Ruff 三条 SQL 长行和导入分组已修复，无断言降低。
-- CI：前置验收 5e1d304 的 push 37923273144/37923273151、PR 37923277366/37923277373 四个 workflow/十个 job 全部 completed/SUCCESS；本任务实现 CI 尚未执行，不能进入 TASK-10。
+- CI：前置验收 5e1d304 的 push 37923273144/37923273151、PR 37923277366/37923277373 四个 workflow/十个 job 全部 completed/SUCCESS；实现 48e89dd 的 push CI 37925725221 / Desktop 37925725238、PR CI 37925731577 / Desktop 37925731446 全部 completed/SUCCESS；四个完整 head SHA、十个 job 已核对，实际 Windows 安装包与 Linux GUI smoke PASS。
 - 风险：关系按当次查询快照，名称版本不冻结成员；大库性能未测量。科学质量 NOT MEASURED、Win11 人工 GUI NOT EXECUTED。
 
 ### TASK-10：实体标注状态可视化
@@ -278,3 +278,5 @@
 后续运行先 `git status`、fetch 并查看本分支已有 commits/PR；保留其他人的工作。
 已有 TASK 不重复实现。若上次被 GitHub 权限/网络或测试阻塞，先重试该具体门禁，不能越过。
 真实金标、模型授权或 Windows GUI 缺失分别记录，不能用 mock/CI 构建冒充科学/人工验收。
+
+- 用户已确认 TASK-17 真实语料、人工金标、获准模型与预算尚未备妥，授权先继续工程任务；真实科研质量仍 NOT MEASURED，不使用合成夹具冒充评测。
