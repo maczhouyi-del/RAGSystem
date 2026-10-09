@@ -1052,3 +1052,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 修改：跨平台只读脚本、标准库诊断/离线测试/可执行平台 smoke、既有 diagnostics 的知识库与依赖状态、Windows/Linux CI 步骤、README/诊断说明/进度和证据。没有 .env、数据库迁移、依赖锁或模型下载修改。
 - 验证：Ruff format/check、mypy 72 文件通过；614 项 pytest（0 skipped）通过；Linux 合成 launcher 与真实 API/PG/Redis/三个 RQ worker 诊断通过；配置哈希未变，模型调用为 0。完整记录见 task-01-evidence.json。
 - 待办：本任务 push/PR CI 与 Windows 两种 PowerShell 实际执行；不能在此门禁前开始 TASK-02。缺主机 Python/授权时给出具体恢复建议；真实科研质量和 Win11 人工安装未测。
+
+- TASK-01 平台验证：`238403a6438c1d838e7e4f99afb35c440fe1d3d2` 的全部十个 CI check run 和四个 workflow 的全部 job SUCCESS；Windows 两种 PowerShell、MSI/NSIS 及 Linux 原生 smoke 均成功；uv locked sync 109 包通过。PR CI run 37884520894 汇总仍 in_progress，与已结束成功的三个 job 不一致；如实保留状态，不重新运行洗绿，暂不开始 TASK-02。证据提交仅记录实际验证与差异。

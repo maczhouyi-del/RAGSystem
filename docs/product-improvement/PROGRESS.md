@@ -80,14 +80,15 @@
 
 ### TASK-01：环境检查与启动诊断
 
-- 状态：IN_PROGRESS；开始 commit：`38fec46fab33b6dd4395d93cd64fd0c4e0c099e9`；最终 commit：待提交。
+- 状态：IN_PROGRESS；开始 commit：`38fec46fab33b6dd4395d93cd64fd0c4e0c099e9`；最终实现 commit：`238403a6438c1d838e7e4f99afb35c440fe1d3d2`。
 - 最小实现：PowerShell/Bash 入口共用标准库 Python 只读诊断；Docker/Compose、端口、磁盘、授权、DB/Redis/三个 worker、模型配置、可选 supervisor 真实调用、可用知识库和运行时依赖分开显示，均附修复建议。
 - 涉及文件：`scripts/diagnose.py/.ps1/.sh`、`scripts/test_diagnostic_launchers.py`、`src/ragagent/api/diagnostics.py`、`tests/unit/test_environment_diagnostics.py`、`tests/integration/test_api.py`、两个 CI 工作流、`README.md`、`docs/environment-diagnostics.md`、本进度/evidence/stage log。
 - 新增验证：10 个离线决策场景；PG/Redis 集成验证 corpus 对 indexed/chunk/withdrawn/retracted/queued 的判定；真实 Linux API/PG/Redis/RQ smoke；Linux 合成 API 启动入口；Windows CI 执行 PowerShell 7 与 Windows PowerShell 入口。
 - 实际本地结果：Ruff format/check PASS（186 文件）；mypy PASS（72 文件）；pytest 614 passed、0 skipped、1 上游 warning，30.21s；Linux launcher PASS；真实基础服务 smoke PASS，配置字节未变，模型调用 0。
-- CI：待本任务 commit push 后核对完整 SHA 和必需检查；Windows 本机人工操作 NOT EXECUTED。
+- 实际 CI：实现提交 push [CI 37884515678](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884515678)、[Desktop 37884515709](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884515709) 及 PR [Desktop 37884520899](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884520899) 全部 SUCCESS；PR [CI 37884520894](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884520894) 的三个 job 和完整 SHA 上十个 check run 都 SUCCESS，但 workflow/check suite 汇总仍 in_progress/conclusion=null。保留原始差异，不猜测完成，不盲目 rerun。Windows 实际执行两种 PowerShell 和 10 个离线场景；MSI/NSIS 与 Linux 原生 smoke 成功，Win11 人工安装 NOT EXECUTED。
 - 限制：诊断需要 Python 3.11+；缺少时明确提示，退出 2；授权不足显示 unknown，不能据此判定正常；worker 注册不代表工作执行成功；依赖安装不等于模型加载；未调用付费 API；真实科研质量 NOT MEASURED。
-- 前置门禁 00 已通过；下一项 02 必须等待本任务适用 CI 通过。
+- `uv sync --locked` PASS（109 包）；[实际证据](task-01-evidence.json)。
+- 前置门禁 00 已通过；下一项 02 等待本任务 CI 汇总完成。
 
 ### TASK-02：首次使用引导界面
 
