@@ -33,7 +33,7 @@
 | TASK-09 | 论文分组与标签 | 08 | 后端检索范围；不复制 PDF/Embedding | 关系迁移/CRUD/删除分组不删论文/RAG 与 Research 过滤 | PASSED |
 | TASK-10 | 实体标注状态可视化 | 09 | 区分未标注与不存在；严格过滤不等于全文搜索 | 部分标注语料、来源片段、状态/警示与过滤语义 | PASSED |
 | TASK-11 | 实体提取与人工校正 | 10 | 保守带来源提取；费用显式、重试幂等、同名消歧 | 证据关联/校正持久化/严格过滤/重复导入；实际质量独立测量 | PASSED |
-| TASK-12 | 更精确 PDF 来源定位 | 11 | 保留 stable Evidence ID；旧索引兼容；不可伪造 bbox | 文本/表格/公式 PDF、无坐标降级、迁移兼容 | IN_PROGRESS |
+| TASK-12 | 更精确 PDF 来源定位 | 11 | 保留 stable Evidence ID；旧索引兼容；不可伪造 bbox | 文本/表格/公式 PDF、无坐标降级、迁移兼容 | PASSED |
 | TASK-13 | 引用与 PDF 阅读 | 12 | 复用 source metadata/受限 bridge；新增依赖先许可证审查 | 正确论文/页/多引用/表格/缺坐标降级，Web/Desktop | NOT_STARTED |
 | TASK-14 | 结构化研究报告生成 | 13；03 提供评测基础 | 扩展确定性 synthesis；保留 Reviewer、单位/实验条件边界 | 多论文/矛盾/不充分证据/重试；人工案例与 mock 分开 | NOT_STARTED |
 | TASK-15 | 报告与比较结果导出 | 14；05 元数据；13 来源 | Markdown/CSV/BibTeX/引用清单，安全文件名与下载 | 旧会话/数字/条件/Evidence ID/缺字段/中文/特殊字符 | NOT_STARTED |
@@ -211,13 +211,13 @@
 
 ### TASK-12：更精确 PDF 来源定位
 
-- 状态：IN_PROGRESS；开始 commit：`1e505d499fbf65834d6504a7087d324e5662812a`；最终 commit：待产生。
+- 状态：PASSED；开始 commit：`1e505d499fbf65834d6504a7087d324e5662812a`；初始实现：`3449f8e6ed03ccd534338ae6f32663ef3c0d7b2c`；最终实现/修正 commit：`c55c15867ab5e3647ace294527ab28dade0c7cdc`。
 - 前置 TASK-11：实现25f4ff0四个 workflow/十个 job 全部 completed/SUCCESS，实际原生步骤核对并单独提交验收证据。
 - 调研：现有 Element/Chunk/Evidence 已有原文字符跨度和 Docling source_id、论文版本，但没有可靠 PDF 区域元数据；解析器无 prov 时跳过全部文字。将增量保存原始来源位置，禁止用 Markdown 表格跨度伪造字符高亮，旧 JSON 缺字段明确 unavailable。
 - 方案：先核查锁定的上游 Docling/core 坐标和 charspan 语义及许可证，再扩展兼容域契约与 Chunk JSON 元数据；不改变 Evidence UUID5 输入、不伪造坐标、不新增用户费用或默认模型调用。
 - 实现：Element/SourceSpan/SourceContext/Evidence 可选来源区域与 page_location，Chunk JSON 增量保存；维持 Evidence UUID5、论文版本和原文关系。无 prov 的有效文字保留；缺失/无效区域 unavailable，不能冒充精确结论高亮。来源退役清除新增位置。前端损坏历史坐标安全降级。
 - 文件：域 locations/documents/research/annotations、parser/chunker/ingestion/retrieval/source API/retirement、frontend api 与元数据显示 prop、24 unit/3 PG integration/2 MOCK browser、PDF fixture/验证脚本、来源说明及本证据文档。
-- 实际验证：824 Python（573 unit/251 PostgreSQL integration、0 skipped/failed、75.53s）；locked sync/Ruff/mypy92/Alembic check0012/npm ci/lint/check/build/transport15/官方 rustfmt PASS。两页自有真实 PDF 通过锁定 Docling NativePdfPipeline：12 elements/3 chunks/0 模型调用，渲染页已检查。完整97项 MOCK browser PASS（1.4m，0 skipped/failed）；初始实现3449f8e push CI 37945304885 有1个误判（823 passed）；PR CI及push Desktop SUCCESS，PR Desktop SUCCESS。新 PDF 哈希随机含500被既有科研文本断言误判，已用固定含500哈希双模式重现并修复测试 oracle；15专项及科学错误负向控制 PASS，修正后完整824后端 PASS（0 skipped/failed）；新提交 CI 待完成，TASK-13 不得开始。
+- 实际验证：824 Python（573 unit/251 PostgreSQL integration、0 skipped/failed、75.53s）；locked sync/Ruff/mypy92/Alembic check0012/npm ci/lint/check/build/transport15/官方 rustfmt PASS。两页自有真实 PDF 通过锁定 Docling NativePdfPipeline：12 elements/3 chunks/0 模型调用，渲染页已检查。完整97项 MOCK browser PASS（1.4m，0 skipped/failed）；初始实现3449f8e push CI 37945304885 有1个误判（823 passed）；PR CI及push Desktop SUCCESS，PR Desktop SUCCESS。新 PDF 哈希随机含500被既有科研文本断言误判，已用固定含500哈希双模式重现并修复测试 oracle；15专项及科学错误负向控制 PASS，修正后完整824后端 PASS（0 skipped/failed）；修正实现四个精确 SHA workflow/十个 job completed/SUCCESS：push CI37946282912 / Desktop37946282951、PR CI37946292019 / Desktop37946292211。实际 Rust/Windows MSI/NSIS/Linux GUI均PASS，云服务ready/旧开发Run保留/0模型调用。工程PASSED，自动进入TASK-13。
 - 上游 wheel SHA256/坐标和 charspan 语义/许可证已核对；无数据库 DDL、无全量原文回填，无新默认模型调用。完整 Docling 布局/OCR 正确率和科研质量 NOT MEASURED，Win11 人工 NOT EXECUTED。
 
 ### TASK-13：引用与 PDF 阅读

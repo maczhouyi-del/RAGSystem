@@ -1176,3 +1176,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-12 初始实现3449f8e 的 push CI37945304885：823 passed/1 failed（Research比较追问）。原 fixture把整个证据JSON中的500当错误人数；新PDF provenance SHA256随机含500而误判。固定含500的两个论文digest使RAG/Research原断言均确定性失败，修正只排除经64hex校验的pdf_sha256，保留所有其他科学/元数据字段，生产digest仍完整保留。相关15 integration PASS；独立负向控制确认错误500原文/标题与伪造digest被拒绝。完整后端正在重跑，不重跑旧失败CI洗绿，TASK-13门禁保持关闭。
 
 - TASK-12 修正后完整后端824 passed，0 skipped/failed，67.78s；Ruff/mypy92/locked sync PASS，前端实现未变，既有97 browser/15 transport结果继续适用。初始四个 workflow已completed：push CI1失败、其余3 SUCCESS，9/10 job成功，原生步骤实际成功；全部保留，修正提交将重新触发完整门禁。
+
+- TASK-12 验收：c55c15867ab5e3647ace294527ab28dade0c7cdc push CI37946282912 / Desktop37946282951、PR CI37946292019 / Desktop37946292211四个 workflow/十个 job completed/SUCCESS，完整SHA与native实际步骤已核对。824后端/97 MOCK browser/15 transport本地PASS，真实生成两页PDF来源链验证成功、0模型调用。原失败及固定含500 digest复现/科学错误负向控制保留；旧开发Run及schema0012不变。工程PASSED，自动进入TASK-13；实际布局/OCR/科研质量NOT MEASURED，Win11人工NOT EXECUTED。
