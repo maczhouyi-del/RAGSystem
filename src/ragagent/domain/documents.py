@@ -1,7 +1,9 @@
 from pydantic import BaseModel, Field, model_validator
 
+from ragagent.domain.locations import LocatedSource, PageLocation
 
-class Element(BaseModel):
+
+class Element(LocatedSource):
     source_id: str | None = None
     # Docling caption references remain distinct sources, rather than appended text.
     related_source_ids: list[str] = Field(default_factory=list)
@@ -10,6 +12,7 @@ class Element(BaseModel):
     section_ids: list[str] = Field(default_factory=list)
     page_start: int = Field(ge=1)
     page_end: int = Field(ge=1)
+    page_location: PageLocation = "available"
     element_type: str
     content: str
 
@@ -35,7 +38,7 @@ class ParsedDocument(BaseModel):
         return self
 
 
-class SourceContext(BaseModel):
+class SourceContext(LocatedSource):
     """An original auxiliary excerpt with its own source and character offsets."""
 
     source_id: str
@@ -43,6 +46,7 @@ class SourceContext(BaseModel):
     section_path: list[str] = Field(min_length=1)
     page_start: int = Field(ge=1)
     page_end: int = Field(ge=1)
+    page_location: PageLocation = "available"
     # content is only this original excerpt, never the whole table duplicated per row.
     content: str
     quote: str
@@ -62,7 +66,7 @@ class SourceContext(BaseModel):
         return self
 
 
-class SourceSpan(BaseModel):
+class SourceSpan(LocatedSource):
     source_id: str
     span_start: int = Field(ge=0)
     span_end: int = Field(gt=0)

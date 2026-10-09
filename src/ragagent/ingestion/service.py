@@ -87,6 +87,9 @@ async def ingest(
                     "section_ids": draft.section_ids,
                     "source_spans": [span.model_dump() for span in draft.source_spans],
                     "source_context": [context.model_dump() for context in draft.source_context],
+                    "pdf_regions": [region.model_dump() for region in draft.pdf_regions],
+                    "page_location": draft.page_location,
+                    "source_location_version": 1,
                 },
             )
         )

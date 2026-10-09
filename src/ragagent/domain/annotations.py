@@ -4,6 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from ragagent.domain.locations import LocatedSource, PageLocation
 from ragagent.domain.privacy import SensitiveInput
 from ragagent.domain.research import MetadataFilter
 
@@ -76,12 +77,13 @@ class PaperAnnotations(BaseModel):
     offset: int
 
 
-class AnnotationSource(BaseModel):
+class AnnotationSource(LocatedSource):
     paper_id: str
     chunk_id: str
     section_id: str
     section_path: str
     page_start: int
     page_end: int
+    page_location: PageLocation = "available"
     content: str
     content_sha256: str

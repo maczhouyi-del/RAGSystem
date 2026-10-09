@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field, FiniteFloat, field_validator, model_valid
 
 from ragagent.domain.collections import collection_ids
 from ragagent.domain.documents import SourceContext, SourceSpan
+from ragagent.domain.locations import LocatedSource, PageLocation
 
 
 class MetadataFilter(BaseModel):
@@ -52,9 +53,10 @@ class PaperMetadata(BaseModel):
     arxiv_family_id: str | None = None
     arxiv_version: int | None = None
     source_status: Literal["unknown", "active", "withdrawn", "retracted"] = "unknown"
+    pdf_sha256: str | None = None
 
 
-class EvidenceRecord(BaseModel):
+class EvidenceRecord(LocatedSource):
     evidence_id: str
     paper: PaperMetadata
     chunk_id: str
@@ -62,6 +64,7 @@ class EvidenceRecord(BaseModel):
     section_path: str
     page_start: int
     page_end: int
+    page_location: PageLocation = "available"
     content: str
     quote: str
     span_start: int

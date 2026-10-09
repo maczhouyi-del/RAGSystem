@@ -1164,3 +1164,11 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-11 最终本地：797 后端（549 unit /248 real PG、0 skipped/failed）、95 MOCK browser（1.4m、0 skipped/failed）/15 transport 全部 PASS。实际 Redis/RQ worker 与两个独立数据库连接并发、0012 迁移兼容/有损降级拒绝/重升/模型 check PASS；Ruff/mypy91/locked sync/npm ci/lint/check/build/官方 rustfmt PASS。独立提交后须四个精确 SHA workflow/十个 job SUCCESS；科研模型质量仍 NOT MEASURED。
 
 - TASK-11 验收：25f4ff06398638cf179ba7727b4a9ee48a5fe237 的 push CI 37940255984 / Desktop 37940255892、PR CI 37940261144 / Desktop 37940261151 四个 workflow/十个 job completed/SUCCESS、完整 SHA 和实际 native 步骤已核对。797 后端/95 MOCK browser/15 transport 本地 PASS；实际 Windows MSI/NSIS/Linux GUI PASS。云 schema0012、API/Web/三 worker ready，旧开发 Run 保留，无付费/模型调用。工程 PASSED，自动进入 TASK-12；真实模型抽取质量及科研质量 NOT MEASURED，Win11 人工验收 NOT EXECUTED。
+
+## TASK-12 更精确 PDF 来源定位（2026-10-09）
+
+- 开始1e505d4；前置TASK-11精确实现SHA四个workflow/十个job全部SUCCESS。检查Docling锁定上游的provenance/bbox/charspan语义，计划兼容保存Element→Chunk→Evidence原始区域和缺失降级，Evidence ID不变。调研中，尚未实现与验证；不调用付费模型。
+
+- TASK-12 本地后端：824 passed（573 unit/251 PG、0 skipped/failed，75.53s），新增24 unit/3 PG；保持稳定 Evidence ID 与真实向量/全文过滤隔离。Ruff/mypy92/locked sync/Alembic check0012/npm ci/lint/check/build/transport15/官方 rustfmt PASS。实际生成两页 PDF，锁定 Docling NativePdfPipeline 产出12来源元素/3块，0模型调用、未下载模型，PDF原页已渲染检查。几何只为元素导航提示；旧 JSON/无 provenance 有效文本仍可读。完整浏览器和精确实现 CI 待完成，状态 IN_PROGRESS；上游许可证/坐标语义/wheel SHA256 已核对，真实布局/OCR/科研质量 NOT MEASURED。
+
+- TASK-12 完整前端：97 MOCK browser PASS（1.4m），含2个旧 Run 可选坐标损坏回归。修复前正确定位的2个负向控制均失败，修复后全量成功；原始错误定位运行单独保留，不作产品缺陷证据。静态检查/构建/15 transport PASS，待精确实现 SHA CI。

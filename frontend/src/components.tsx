@@ -14,7 +14,10 @@ export const sourceStatusLabels: Record<SourceStatus, string> = {
 export function SourceProvenance({
   source,
 }: {
-  source: Evidence["paper"] | Omit<Evidence["paper"], "paper_id">;
+  source: Pick<
+    Evidence["paper"],
+    "source_status" | "arxiv_id" | "arxiv_version"
+  >;
 }) {
   const status = source.source_status;
   return (

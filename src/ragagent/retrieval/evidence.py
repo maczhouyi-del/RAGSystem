@@ -46,7 +46,13 @@ def exact_span(evidence: EvidenceRecord) -> bool:
 def evidence_payload(evidence: EvidenceRecord) -> dict[str, Any]:
     """Send exact quotes and provenance once; keep raw text local for span validation."""
     payload = evidence.model_dump(
-        exclude={"content": True, "source_context": {"__all__": {"content"}}}
+        exclude={
+            "content": True,
+            "pdf_regions": True,
+            "pdf_location": True,
+            "source_context": {"__all__": {"content", "pdf_regions", "pdf_location"}},
+            "source_spans": {"__all__": {"pdf_regions", "pdf_location"}},
+        }
     )
     seen: set[str] = set()
     auxiliary = []

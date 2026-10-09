@@ -213,6 +213,8 @@ def source(paper_id: UUID, chunk_id: UUID, db: DB) -> AnnotationSource:
         section_path=chunk.section_path,
         page_start=chunk.page_start,
         page_end=chunk.page_end,
+        page_location=(chunk.metadata_json or {}).get("page_location", "available"),
+        pdf_regions=(chunk.metadata_json or {}).get("pdf_regions", []),
         content=chunk.content,
         content_sha256=source_hash(chunk.content),
     )

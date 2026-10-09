@@ -2,6 +2,7 @@ import re
 from dataclasses import dataclass
 
 from ragagent.domain.documents import ChunkDraft, Element, ParsedDocument, SourceContext, SourceSpan
+from ragagent.domain.locations import PdfRegion
 
 # Reproducible lexical tokens; not the tokenization of any chat/embedding model.
 TOKEN = re.compile(
@@ -10,6 +11,18 @@ TOKEN = re.compile(
     re.UNICODE,
 )
 TABLE_CAPTION = re.compile(r"^\s*(?:table\b|表\s*\d)", re.IGNORECASE)
+
+
+def regions_for(element: Element, start: int, end: int) -> list[PdfRegion]:
+    selected = [
+        region
+        for region in element.pdf_regions
+        if region.source_start is None
+        or region.source_end is None
+        or (region.source_start < end and region.source_end > start)
+    ]
+    # Represent the unmapped source explicitly in mixed chunks, even for legacy fixtures.
+    return selected or [PdfRegion(source_id=element.source_id or "unavailable")]
 
 
 def context_excerpt(element: Element, start: int = 0, end: int | None = None) -> SourceContext:
@@ -26,6 +39,8 @@ def context_excerpt(element: Element, start: int = 0, end: int | None = None) ->
         span_start=0,
         span_end=len(content),
         source_offset=start,
+        pdf_regions=regions_for(element, start, start + len(content)),
+        page_location=element.page_location,
     )
 
 
@@ -70,7 +85,10 @@ class StructureChunker:
     def _atomic(element: Element, ordinal: int) -> ChunkDraft:
         assert element.source_id is not None
         return ChunkDraft(
-            **element.model_dump(),
+            **{
+                **element.model_dump(),
+                "pdf_regions": regions_for(element, 0, len(element.content)),
+            },
             token_count=len(list(TOKEN.finditer(element.content))),
             ordinal=ordinal,
             source_spans=[
@@ -80,6 +98,7 @@ class StructureChunker:
                     span_end=len(element.content),
                     chunk_start=0,
                     chunk_end=len(element.content),
+                    pdf_regions=regions_for(element, 0, len(element.content)),
                 )
             ],
         )
@@ -163,7 +182,11 @@ class StructureChunker:
             content = table.content[start:end]
             chunks.append(
                 ChunkDraft(
-                    **{**table.model_dump(), "content": content},
+                    **{
+                        **table.model_dump(),
+                        "content": content,
+                        "pdf_regions": regions_for(table, start, end),
+                    },
                     token_count=len(list(TOKEN.finditer(content))),
                     ordinal=ordinal + len(chunks),
                     source_context=contexts,
@@ -174,6 +197,7 @@ class StructureChunker:
                             span_end=end,
                             chunk_start=0,
                             chunk_end=len(content),
+                            pdf_regions=regions_for(table, start, end),
                         )
                     ],
                 )
@@ -212,6 +236,7 @@ class StructureChunker:
                             span_end=high - left,
                             chunk_start=low - a,
                             chunk_end=high - a,
+                            pdf_regions=regions_for(element, low - left, high - left),
                         )
                     )
             chunks.append(
@@ -220,6 +245,16 @@ class StructureChunker:
                     section_ids=elements[0].section_ids,
                     page_start=min(e.page_start for e in covered),
                     page_end=max(e.page_end for e in covered),
+                    page_location="available"
+                    if all(e.page_location == "available" for e in covered)
+                    else "unavailable",
+                    pdf_regions=list(
+                        {
+                            region.model_dump_json(): region
+                            for span in source_spans
+                            for region in span.pdf_regions
+                        }.values()
+                    ),
                     element_type=elements[0].element_type,
                     content=content[a:b],
                     token_count=end - start,

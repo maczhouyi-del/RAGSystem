@@ -93,7 +93,61 @@ export const PaperDeletion = z.object({
   retained_managed_files: z.array(z.string()),
 });
 export type PaperDeletion = z.infer<typeof PaperDeletion>;
+export const PdfBox = z
+  .object({
+    left: z.number().nonnegative(),
+    top: z.number().nonnegative(),
+    right: z.number().positive(),
+    bottom: z.number().nonnegative(),
+    page_width: z.number().positive(),
+    page_height: z.number().positive(),
+    coord_origin: z.enum(["TOPLEFT", "BOTTOMLEFT"]),
+    units: z.literal("page_units"),
+  })
+  .refine(
+    (box) =>
+      box.left < box.right &&
+      box.right <= box.page_width &&
+      Math.max(box.top, box.bottom) <= box.page_height &&
+      (box.coord_origin === "TOPLEFT"
+        ? box.top < box.bottom
+        : box.bottom < box.top),
+  );
+export const PdfRegion = z.object({
+  source_id: z.string(),
+  page_no: z.number().int().positive().nullable(),
+  bbox: PdfBox.nullable(),
+  parser_charspan: z.tuple([z.number().int(), z.number().int()]).nullable(),
+  source_start: z.number().int().nonnegative().nullable(),
+  source_end: z.number().int().positive().nullable(),
+  scope: z.literal("element"),
+  status: z.enum(["available", "unavailable"]),
+  text_mapping: z.enum(["parsed_element", "unavailable"]),
+  unavailable_reason: z.string().nullable(),
+});
+export const PdfLocation = {
+  // Optional cached navigation metadata must never suppress valid source text.
+  pdf_regions: z
+    .array(z.unknown())
+    .default([])
+    .catch([])
+    .transform((values) =>
+      values.flatMap((value) => {
+        const parsed = PdfRegion.safeParse(value);
+        return parsed.success ? [parsed.data] : [];
+      }),
+    ),
+  pdf_location: z
+    .enum(["available", "partial", "unavailable"])
+    .default("unavailable")
+    .catch("unavailable"),
+  page_location: z
+    .enum(["available", "unavailable"])
+    .default("available")
+    .catch("unavailable"),
+};
 export const SourceContext = z.object({
+  ...PdfLocation,
   source_id: z.string(),
   element_type: z.string(),
   section_path: z.array(z.string()),
@@ -106,6 +160,7 @@ export const SourceContext = z.object({
   source_offset: z.number().default(0),
 });
 export const SourceSpan = z.object({
+  ...PdfLocation,
   source_id: z.string(),
   span_start: z.number(),
   span_end: z.number(),
@@ -113,12 +168,14 @@ export const SourceSpan = z.object({
   chunk_end: z.number(),
 });
 export const Evidence = z.object({
+  ...PdfLocation,
   ...SourceAvailability.shape,
   evidence_id: z.string(),
   paper: SourceMetadata.extend({
     ...SourceAvailability.shape,
     paper_id: z.string(),
     title: z.string(),
+    pdf_sha256: z.string().nullable().default(null),
   }),
   chunk_id: z.string(),
   section_id: z.string().optional(),

@@ -77,9 +77,19 @@ def redact(value: Any, deleted: SourceIds) -> Any:
         for key in ("quote", "content", "expected_answer"):
             if key in result:
                 result[key] = ""
-        for key in ("source_context", "source_spans", "required_aspects", "numeric_targets"):
+        for key in (
+            "source_context",
+            "source_spans",
+            "pdf_regions",
+            "required_aspects",
+            "numeric_targets",
+        ):
             if key in result:
                 result[key] = []
+        if "pdf_location" in result:
+            result["pdf_location"] = "unavailable"
+        if "page_location" in result:
+            result["page_location"] = "unavailable"
         result["source_availability"] = "unavailable"
         result["source_unavailable_reason"] = "source_deleted"
     if source_ids(value).intersects(deleted):
