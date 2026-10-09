@@ -306,3 +306,49 @@ test("desktop annotation reads and coverage use fixed paths without inference", 
   }
   assert.ok(!JSON.stringify(commands).includes("Authorization"));
 });
+
+test("desktop entity decisions retain source hash, Unicode offsets and explicit acknowledgement", async () => {
+  const id = "b27e97ba-0c6b-4ac2-8b1d-0ef2f6a8ef7f";
+  const body = {
+    action: "correct",
+    entity_type: "dataset",
+    span_start: 2,
+    span_end: 7,
+    expected_version: 3,
+    expected_content_sha256: "d".repeat(64),
+  };
+  for (const [path, method, payload] of [
+    [`/api/papers/${id}/entity-mentions/${id}`, "PATCH", body],
+    [
+      `/api/papers/${id}/chunks/${id}/annotation-review`,
+      "POST",
+      {
+        expected_content_sha256: "d".repeat(64),
+        acknowledge_all_three_types_reviewed: true,
+      },
+    ],
+    [
+      `/api/papers/${id}/chunks/${id}/entities/${id}`,
+      "DELETE",
+      {
+        expected_content_sha256: "d".repeat(64),
+        acknowledge_remove_link: true,
+      },
+    ],
+  ] as const) {
+    await request(path, {
+      method,
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+    });
+    const actual = commands.at(-1)!.args.request as {
+      path: string;
+      method: string;
+      body: string;
+    };
+    assert.equal(actual.path, path);
+    assert.equal(actual.method, method);
+    assert.deepEqual(JSON.parse(atob(actual.body)), payload);
+  }
+  assert.ok(!JSON.stringify(commands).includes("Authorization"));
+});

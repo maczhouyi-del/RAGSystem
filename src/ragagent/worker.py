@@ -248,6 +248,15 @@ async def execute_async(run_id: str) -> None:
                 from ragagent.api.queue import RQQueue
 
                 clean(session, run, RQQueue().cancel)
+            elif run.kind == "entity_annotation":
+                from ragagent.ingestion.entity_service import extract_paper
+
+                result = extract_paper(session, run)
+                # Candidate batches commit; reload expired attributes before the
+                # proposed terminal state so later kind reads cannot autoflush it.
+                session.refresh(run)
+                run.result = result
+                run.status = "completed"
             elif run.kind in {"ingestion", "arxiv"}:
                 paper = (
                     await arxiv_ingestion(session, run)

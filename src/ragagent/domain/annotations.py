@@ -11,7 +11,7 @@ AnnotationStatus = Literal["unprocessed", "processing", "partial", "completed", 
 
 
 def annotation_status(
-    total: int, completed: int, active: int, failed: int, linked: int
+    total: int, completed: int, active: int, failed: int, linked: int, needs_review: int = 0
 ) -> AnnotationStatus:
     if active:
         return "processing"
@@ -19,7 +19,7 @@ def annotation_status(
         return "failed"
     if total > 0 and completed == total:
         return "completed"
-    if completed or linked:
+    if completed or linked or needs_review:
         return "partial"
     return "unprocessed"
 
@@ -40,6 +40,7 @@ class AnnotationCoverage(BaseModel):
     linked_chunks: int
     active_chunks: int
     failed_chunks: int
+    needs_review_chunks: int = 0
     matching_chunks: int
     strict: bool
     complete: bool
@@ -63,6 +64,12 @@ class PaperAnnotations(BaseModel):
     linked_chunks: int
     active_chunks: int
     failed_chunks: int
+    needs_review_chunks: int = 0
+    latest_annotation_run_id: str | None = None
+    latest_annotation_run_status: str | None = None
+    latest_annotation_run_error_code: str | None = None
+    active_run_id: str | None = None
+    active_run_status: Literal["queued", "running"] | None = None
     items: list[EntityOccurrence]
     total_occurrences: int
     limit: int
@@ -77,3 +84,4 @@ class AnnotationSource(BaseModel):
     page_start: int
     page_end: int
     content: str
+    content_sha256: str

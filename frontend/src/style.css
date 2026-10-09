@@ -736,3 +736,17 @@ footer {
   max-height: 24rem;
   overflow: auto;
 }
+
+.entity-source {
+  width: 100%;
+  min-height: 12rem;
+  resize: vertical;
+}
+.entity-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.entity-check input[type="checkbox"] {
+  width: auto;
+}

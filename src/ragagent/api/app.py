@@ -19,6 +19,7 @@ from ragagent.api import (
     conversations,
     deletions,
     diagnostics,
+    entities,
     evaluations,
     papers,
     providers,
@@ -57,6 +58,7 @@ app.include_router(diagnostics.router)
 app.include_router(papers.router)
 app.include_router(collections.router)
 app.include_router(annotations.router)
+app.include_router(entities.router)
 app.include_router(deletions.router)
 app.include_router(runs.router)
 app.include_router(providers.router)

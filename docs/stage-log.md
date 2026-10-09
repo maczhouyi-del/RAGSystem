@@ -1152,3 +1152,13 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-10 最终本地后端：768 passed（534 unit /234 integration、0 skipped/failed、54.90s），Ruff format/check 与 mypy 86 PASS；退役来源 410 和审阅 CASCADE 实际验证。最终前端 91 MOCK browser/14 transport PASS，构建/格式/type PASS，官方 rustfmt PASS。状态 IN_PROGRESS，等待新实现四个实际 workflow/十个 job 门禁。
 
 - TASK-10 验收：57bb3b5c979e5cf90264ed9ae8b2ad7a1022e7a0 的 push CI 37930288053 / Desktop 37930288107、PR CI 37930293477 / Desktop 37930293482 四个实际 workflow/十个 job completed/SUCCESS、完整 SHA 与实际 native 步骤核对。768 后端/91 MOCK browser/14 transport 本地 PASS；实际 Windows MSI/NSIS/Linux GUI smoke PASS。工程 PASSED，自动进入 TASK-11。真实科研/模型抽取质量和 Win11 人工验收仍未测；用户确认 TASK-17 真实资源未备妥。
+
+## TASK-11 实体提取与人工校正（2026-10-09）
+
+- 开始 09233791235a586592942d28b7c281a2f838c461；TASK-10 实现 57bb3b5 四个精确 SHA workflow/十个 job 全部 SUCCESS。采用本地来源标签规则产生候选、精确跨度和人工确认；严格链接仅在确认后写入，不全局改名其他论文，复用 Run/outbox/ingestion 队列，零模型 API 调用。分析中，功能和验证尚未实现；实际模型质量 NOT MEASURED。
+
+- TASK-11 后端初稿：0012 候选/版本/精确来源/待审阅，offline extractor 协议与 worker 分批来源锁/既有 Run 路由，确认/拒绝/校正/明确全类型审阅及 legacy source 校验；前端/native 尚未实现。单位 15 PASS、真实 PG 专项 8 PASS，mypy 91/后端 Ruff 初步 PASS，非完整验收。首轮 worker 2 FAIL 因过期属性导致待终态自动 flush，发布前 refresh 修复后 2 PASS；扩展 6 PASS/2 FAIL 是 fixture 未提交导致 API rollback 移除未提交来源，正确持久化测试准备后 8 PASS。原文/Embedding/Evidence 不修改，来源同名校正不全局改名、源删除取消 annotation Run，无模型调用。
+
+- TASK-11 完整后端：797 passed（549 unit /248 PG、0 skipped/failed、116.39s），真实两个连接并发只创建一个 Run/outbox 与实际 Redis/RQ worker 零模型执行；原文 Unicode 跨度、别名分别确认、严格 dense/lexical、局部旧链接移除/审阅重复安全、退役取消/级联/迟到保护和 0012 兼容迁移 PASS。前端初次完整88 PASS/7 FAIL：旧 summary 匹配嵌套面板六项、删除说明新增实体提取一项，修正具体定位/说明并保留原行为断言。专项模拟事件3/1后用 mouseup4 PASS；专项命令目录笔误记录并校正。当前完整浏览器复验及实际 CI 未完成，IN_PROGRESS。
+
+- TASK-11 最终本地：797 后端（549 unit /248 real PG、0 skipped/failed）、95 MOCK browser（1.4m、0 skipped/failed）/15 transport 全部 PASS。实际 Redis/RQ worker 与两个独立数据库连接并发、0012 迁移兼容/有损降级拒绝/重升/模型 check PASS；Ruff/mypy91/locked sync/npm ci/lint/check/build/官方 rustfmt PASS。独立提交后须四个精确 SHA workflow/十个 job SUCCESS；科研模型质量仍 NOT MEASURED。

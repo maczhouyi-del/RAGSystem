@@ -123,12 +123,14 @@ for (const [status, label] of [
         hasText: "MOCK annotation paper 实体标注",
       }),
     });
-    await expect(panel.locator("summary")).toContainText("状态未读取");
+    await expect(panel.locator(":scope > summary")).toContainText("状态未读取");
     expect(state.seen.some((path) => path.endsWith("/annotations"))).toBe(
       false,
     );
-    await panel.locator("summary").click();
-    await expect(panel.locator("summary")).toContainText(`实体标注：${label}`);
+    await panel.locator(":scope > summary").click();
+    await expect(panel.locator(":scope > summary")).toContainText(
+      `实体标注：${label}`,
+    );
     await expect(panel).toContainText(
       status === "completed"
         ? "审阅覆盖完成不代表提取准确"
@@ -162,12 +164,12 @@ test("MOCK failed status read is unknown and explicitly refreshable", async ({
       hasText: "MOCK annotation paper 实体标注",
     }),
   });
-  await panel.locator("summary").click();
+  await panel.locator(":scope > summary").click();
   await expect(panel.getByRole("alert")).toContainText("状态未知");
-  await expect(panel.locator("summary")).toContainText("状态未读取");
+  await expect(panel.locator(":scope > summary")).toContainText("状态未读取");
   state.fail = false;
   await panel.getByRole("button", { name: "刷新实体标注" }).click();
-  await expect(panel.locator("summary")).toContainText("部分完成");
+  await expect(panel.locator(":scope > summary")).toContainText("部分完成");
 });
 
 test("MOCK strict filter warns about partial corpus and does not relax constraints", async ({
@@ -226,7 +228,7 @@ test("MOCK unavailable source shows no cached original fragment", async ({
       hasText: "MOCK annotation paper 实体标注",
     }),
   });
-  await panel.locator("summary").click();
+  await panel.locator(":scope > summary").click();
   await panel
     .getByRole("button", { name: "查看 DEMO dataset 来源片段" })
     .click();

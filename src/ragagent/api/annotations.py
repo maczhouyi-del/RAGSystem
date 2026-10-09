@@ -1,6 +1,6 @@
 """Read-only annotation coverage and original source; no model calls or writes."""
 
-from typing import Annotated
+from typing import Annotated, Literal, cast
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, Request
@@ -8,7 +8,7 @@ from sqlalchemy import and_, func, select
 from sqlalchemy.sql.selectable import CTE
 
 from ragagent.api.papers import DB, missing_paper
-from ragagent.db.models import Chunk, ChunkAnnotationReview, ChunkEntity, Entity, Paper
+from ragagent.db.models import Chunk, ChunkAnnotationReview, ChunkEntity, Entity, Paper, Run
 from ragagent.deletion.guards import lifecycle_lock
 from ragagent.domain.annotations import (
     AnnotationCoverage,
@@ -39,6 +39,7 @@ def coverage_rows(filters: MetadataFilter) -> CTE:
                 "active"
             ),
             and_(current, ChunkAnnotationReview.status == "failed").label("failed"),
+            and_(current, ChunkAnnotationReview.status == "needs_review").label("needs_review"),
             linked.label("linked"),
         )
         .join(Paper, Paper.id == Chunk.paper_id)
@@ -57,6 +58,7 @@ def counts(rows: CTE, db: DB) -> dict[str, int]:
                 func.count().filter(rows.c.linked).label("linked_chunks"),
                 func.count().filter(rows.c.active).label("active_chunks"),
                 func.count().filter(rows.c.failed).label("failed_chunks"),
+                func.count().filter(rows.c.needs_review).label("needs_review_chunks"),
             ).select_from(rows)
         )
         .mappings()
@@ -82,6 +84,7 @@ def filter_coverage(request: AnnotationCoverageRequest, db: DB) -> AnnotationCov
                 func.count().filter(rows.c.linked).label("linked_chunks"),
                 func.count().filter(rows.c.active).label("active_chunks"),
                 func.count().filter(rows.c.failed).label("failed_chunks"),
+                func.count().filter(rows.c.needs_review).label("needs_review_chunks"),
                 select(func.count())
                 .select_from(matched)
                 .scalar_subquery()
@@ -124,6 +127,7 @@ def paper_annotations(
                 "active"
             ),
             and_(current, ChunkAnnotationReview.status == "failed").label("failed"),
+            and_(current, ChunkAnnotationReview.status == "needs_review").label("needs_review"),
             linked.label("linked"),
         )
         .outerjoin(ChunkAnnotationReview, ChunkAnnotationReview.chunk_id == Chunk.id)
@@ -157,15 +161,33 @@ def paper_annotations(
         .mappings()
         .all()
     )
+    latest_run = db.scalar(
+        select(Run)
+        .where(Run.kind == "entity_annotation", Run.request["paper_id"].as_string() == pid)
+        .order_by(Run.created_at.desc(), Run.id)
+        .limit(1)
+    )
+    active_run = latest_run if latest_run and latest_run.status in {"queued", "running"} else None
+    current_status = annotation_status(
+        summary["total_chunks"],
+        summary["reviewed_chunks"],
+        summary["active_chunks"],
+        summary["failed_chunks"],
+        summary["linked_chunks"],
+        summary["needs_review_chunks"],
+    )
+    if latest_run and latest_run.status == "failed" and current_status != "completed":
+        current_status = "failed"
     return PaperAnnotations(
+        active_run_id=active_run.id if active_run else None,
+        active_run_status=cast(Literal["queued", "running"], active_run.status)
+        if active_run
+        else None,
         paper_id=pid,
-        status=annotation_status(
-            summary["total_chunks"],
-            summary["reviewed_chunks"],
-            summary["active_chunks"],
-            summary["failed_chunks"],
-            summary["linked_chunks"],
-        ),
+        latest_annotation_run_id=latest_run.id if latest_run else None,
+        latest_annotation_run_status=latest_run.status if latest_run else None,
+        latest_annotation_run_error_code=latest_run.error_code if latest_run else None,
+        status="processing" if active_run else current_status,
         **summary,
         items=[EntityOccurrence.model_validate(item) for item in items],
         total_occurrences=total,
@@ -175,6 +197,8 @@ def paper_annotations(
 
 @router.get("/api/papers/{paper_id}/chunks/{chunk_id}/source")
 def source(paper_id: UUID, chunk_id: UUID, db: DB) -> AnnotationSource:
+    from ragagent.ingestion.entity_service import source_hash
+
     lifecycle_lock(db)
     pid = str(paper_id)
     if db.get(Paper, pid) is None:
@@ -190,4 +214,5 @@ def source(paper_id: UUID, chunk_id: UUID, db: DB) -> AnnotationSource:
         page_start=chunk.page_start,
         page_end=chunk.page_end,
         content=chunk.content,
+        content_sha256=source_hash(chunk.content),
     )

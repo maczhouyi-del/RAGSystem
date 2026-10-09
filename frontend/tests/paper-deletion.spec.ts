@@ -223,7 +223,9 @@ test("deletion requires preview and explicit acknowledgement; cancel and Escape 
     .getByRole("button", { name: "删除 MOCK target paper", exact: true })
     .click();
   const dialog = page.getByRole("dialog", { name: "确认删除文献" });
-  await expect(dialog).toContainText("2 个文本块、1 条证据、1 个未完成导入");
+  await expect(dialog).toContainText(
+    "2 个文本块、1 条证据、1 个未完成来源处理任务（含导入与实体提取）",
+  );
   await expect(dialog).toContainText("备份与同步副本");
   await expect(dialog).toContainText("历史回答、问题和摘要正文");
   await expect(

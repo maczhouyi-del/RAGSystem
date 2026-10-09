@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
+import { EntityReview } from "./EntityReview";
 import { api } from "./api";
 import type { Filters } from "./components";
 
@@ -9,6 +10,7 @@ const Coverage = z.object({
   linked_chunks: z.number().int().nonnegative(),
   active_chunks: z.number().int().nonnegative(),
   failed_chunks: z.number().int().nonnegative(),
+  needs_review_chunks: z.number().int().nonnegative().default(0),
   matching_chunks: z.number().int().nonnegative(),
   strict: z.boolean(),
   complete: z.boolean(),
@@ -232,6 +234,7 @@ export function PaperAnnotations({
   return (
     <details
       onToggle={(event) => {
+        if (event.target !== event.currentTarget) return;
         const expanded = event.currentTarget.open;
         setOpen(expanded);
         if (expanded) void load();
@@ -256,13 +259,14 @@ export function PaperAnnotations({
           </button>
           {busy && <p role="status">正在读取实体标注…</p>}
           {error && <p role="alert">{error}</p>}
+          <EntityReview paperId={paperId} onChanged={() => void load()} />
           {data && (
             <>
               <p>
                 实体标注：{labels[data.status]} · 明确审阅{" "}
                 {data.reviewed_chunks} / {data.total_chunks} 片段 · 有实体链接{" "}
                 {data.linked_chunks} · 处理中 {data.active_chunks} · 失败{" "}
-                {data.failed_chunks}
+                {data.failed_chunks} · 待人工审阅 {data.needs_review_chunks}
               </p>
               <p>
                 {data.status === "completed"
@@ -312,7 +316,7 @@ export function PaperAnnotations({
               </p>
               <pre className="annotation-source">{source.content}</pre>
               <p>
-                这是关联的原始片段；历史人工链接没有精确实体跨度，不代表该名称已在此核验。
+                这是关联的原始片段。请在人工校正面板核对精确跨度；旧关联没有跨度时，不能据名称推断已核验。
               </p>
               <button onClick={() => setSource(null)}>关闭来源片段</button>
             </div>

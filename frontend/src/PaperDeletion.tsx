@@ -440,7 +440,7 @@ export function PaperDeletionDialog({
         <small>{paper.id}</small>
         <SourceProvenance source={latest} />
         <p>
-          将移除论文与索引、结构化证据和实体关联，并停止相关导入。历史回答正文保留，引用标记为来源不可用。此操作不能撤销；重新导入会创建新的来源身份。
+          将移除论文与索引、结构化证据和实体关联，并停止相关导入和实体提取任务。历史回答正文保留，引用标记为来源不可用。此操作不能撤销；重新导入会创建新的来源身份。
         </p>
         {loading && <p role="status">正在读取删除范围…</p>}
         {preview && (
@@ -448,7 +448,7 @@ export function PaperDeletionDialog({
             <p>
               元数据版本：{preview.metadata_version}；涉及 {preview.chunks}{" "}
               个文本块、{preview.evidence} 条证据、{preview.pending_imports}{" "}
-              个未完成导入。
+              个未完成来源处理任务（含导入与实体提取）。
             </p>
             <RetainedCopies copies={preview.retained_copies} />
             <label className="deletion-acknowledgement">

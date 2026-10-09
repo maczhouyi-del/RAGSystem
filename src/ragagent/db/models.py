@@ -184,7 +184,7 @@ class ChunkAnnotationReview(Base):
     __tablename__ = "chunk_annotation_reviews"
     __table_args__ = (
         CheckConstraint(
-            "status IN ('queued', 'processing', 'completed', 'failed')",
+            "status IN ('queued', 'processing', 'needs_review', 'completed', 'failed')",
             name="ck_annotation_review_status",
         ),
         CheckConstraint("content_sha256 ~ '^[0-9a-f]{64}$'", name="ck_annotation_review_hash"),
@@ -195,6 +195,7 @@ class ChunkAnnotationReview(Base):
     content_sha256: Mapped[str] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String(16))
     run_id: Mapped[str | None] = mapped_column(ForeignKey("runs.id", ondelete="SET NULL"))
+    extractor_version: Mapped[str | None] = mapped_column(String(64))
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )
@@ -214,6 +215,50 @@ class ChunkEntity(Base):
         ForeignKey("chunks.id", ondelete="CASCADE"), primary_key=True
     )
     entity_id: Mapped[str] = mapped_column(ForeignKey("entities.id"), primary_key=True)
+
+
+class EntityMention(Base):
+    """A local source occurrence; correction never renames a shared Entity."""
+
+    __tablename__ = "entity_mentions"
+    __table_args__ = (
+        CheckConstraint(
+            "entity_type IN ('dataset', 'method', 'metric')", name="ck_entity_mentions_type"
+        ),
+        CheckConstraint(
+            "state IN ('proposed', 'confirmed', 'rejected')", name="ck_entity_mentions_state"
+        ),
+        CheckConstraint(
+            "span_start >= 0 AND span_end > span_start", name="ck_entity_mentions_span"
+        ),
+        CheckConstraint("version >= 1", name="ck_entity_mentions_version"),
+        CheckConstraint("content_sha256 ~ '^[0-9a-f]{64}$'", name="ck_entity_mentions_hash"),
+        UniqueConstraint(
+            "chunk_id",
+            "entity_type",
+            "name",
+            "span_start",
+            "span_end",
+            "content_sha256",
+            name="uq_entity_mentions_occurrence",
+        ),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    chunk_id: Mapped[str] = mapped_column(ForeignKey("chunks.id", ondelete="CASCADE"), index=True)
+    entity_id: Mapped[str | None] = mapped_column(ForeignKey("entities.id"))
+    name: Mapped[str] = mapped_column(String(256))
+    entity_type: Mapped[str] = mapped_column(String(16))
+    span_start: Mapped[int] = mapped_column(Integer)
+    span_end: Mapped[int] = mapped_column(Integer)
+    content_sha256: Mapped[str] = mapped_column(String(64))
+    state: Mapped[str] = mapped_column(String(16), default="proposed")
+    origin: Mapped[str] = mapped_column(String(64))
+    alias_group: Mapped[str | None] = mapped_column(String(36))
+    owns_link: Mapped[bool] = mapped_column(Boolean, default=False)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
 
 
 class EntityRelation(Base):

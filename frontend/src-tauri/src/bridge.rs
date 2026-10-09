@@ -204,7 +204,11 @@ fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
         return Err("invalid_local_path".into());
     }
     if let Some(query) = query {
-        if route == "/api/collections" || route.ends_with("/annotations") {
+        if route == "/api/collections"
+            || route.ends_with("/annotations")
+            || route.ends_with("/annotation-chunks")
+            || route.ends_with("/entity-mentions")
+        {
             let mut names = Vec::new();
             let valid = !query.is_empty()
                 && query.split('&').all(|entry| {
@@ -215,6 +219,9 @@ fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
                         return false;
                     }
                     names.push(key);
+                    if key == "chunk_id" && route.ends_with("/entity-mentions") {
+                        return uuid(value) && value.bytes().all(|b| !b.is_ascii_uppercase());
+                    }
                     !value.is_empty()
                         && value.bytes().all(|b| b.is_ascii_digit())
                         && value.parse::<u32>().is_ok_and(|n| match key {
@@ -232,6 +239,12 @@ fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
         if route.split('/').any(|part| part == "collections")
             || route.ends_with("/source")
             || route == "/api/annotations/coverage"
+            || route.split('/').any(|part| {
+                matches!(
+                    part,
+                    "entity-mentions" | "annotation-runs" | "annotation-review" | "entities"
+                )
+            })
         {
             return Err("invalid_local_query".into());
         }
@@ -295,14 +308,32 @@ pub fn validate_request(path: &str, method: &str) -> Result<(), String> {
         ["api", "papers", id] if uuid(id) => matches!(method, "GET" | "PATCH" | "DELETE"),
         ["api", "papers", id, "deletion-preview" | "deletion"] if uuid(id) => method == "GET",
         ["api", "papers", id, "deletion", "retry"] if uuid(id) => method == "POST",
-        ["api", "papers", id, "chunks" | "annotations"] if uuid(id) => method == "GET",
+        ["api", "papers", id, "chunks" | "annotations" | "annotation-chunks" | "entity-mentions"]
+            if uuid(id) =>
+        {
+            method == "GET"
+        }
+        ["api", "papers", id, "annotation-runs"] if uuid(id) => method == "POST",
+        ["api", "papers", id, "entity-mentions", mention] if uuid(id) && uuid(mention) => {
+            method == "PATCH"
+        }
+        ["api", "papers", id, "chunks", chunk, "entity-mentions" | "annotation-review"]
+            if uuid(id) && uuid(chunk) =>
+        {
+            method == "POST"
+        }
+        ["api", "papers", id, "chunks", chunk, "entities", entity]
+            if uuid(id) && uuid(chunk) && uuid(entity) =>
+        {
+            method == "DELETE"
+        }
         ["api", "annotations", "coverage"] => method == "POST",
         ["api", "papers", id, "chunks", chunk, "source"] if uuid(id) && uuid(chunk) => {
             method == "GET"
         }
         ["api", "papers", id, "retry"] if uuid(id) => method == "POST",
         ["api", "papers", id, "chunks", chunk, "entities"] if uuid(id) && uuid(chunk) => {
-            method == "POST"
+            matches!(method, "GET" | "POST")
         }
         ["api", "runs" | "rag" | "research", id] if uuid(id) => method == "GET",
         ["api", "runs", id, "cancel"] if uuid(id) => method == "POST",
@@ -661,6 +692,42 @@ mod tests {
             "GET"
         )
         .is_err());
+    }
+
+    #[test]
+    fn entity_review_routes_preserve_resource_and_query_boundaries() {
+        let root = format!("/api/papers/{ID}");
+        for (path, method) in [
+            (format!("{root}/annotation-runs"), "POST"),
+            (format!("{root}/annotation-chunks?limit=50&offset=0"), "GET"),
+            (
+                format!("{root}/entity-mentions?chunk_id={ID}&limit=50&offset=0"),
+                "GET",
+            ),
+            (format!("{root}/entity-mentions/{ID}"), "PATCH"),
+            (format!("{root}/chunks/{ID}/entity-mentions"), "POST"),
+            (format!("{root}/chunks/{ID}/annotation-review"), "POST"),
+            (format!("{root}/chunks/{ID}/entities"), "GET"),
+            (format!("{root}/chunks/{ID}/entities/{ID}"), "DELETE"),
+        ] {
+            assert!(validate_request(&path, method).is_ok(), "{path}");
+        }
+        for path in [
+            format!("{root}/annotation-runs?offset=0"),
+            format!("{root}/annotation-chunks?chunk_id={ID}"),
+            format!("{root}/entity-mentions?chunk_id=invalid"),
+            format!("{root}/entity-mentions?chunk_id={ID}&chunk_id={ID}"),
+            format!("{root}/entity-mentions?after=0"),
+            format!("{root}/entity-mentions/{ID}?limit=1"),
+            format!("{root}/chunks/{ID}/entities?limit=1"),
+            format!("{root}/entity-mentions/invalid"),
+        ] {
+            for method in ["GET", "POST", "PATCH", "DELETE"] {
+                assert!(validate_request(&path, method).is_err(), "{path} {method}");
+            }
+        }
+        assert!(validate_request(&format!("{root}/entity-mentions/{ID}"), "DELETE").is_err());
+        assert!(validate_request(&format!("{root}/annotation-runs"), "GET").is_err());
     }
 
     #[test]

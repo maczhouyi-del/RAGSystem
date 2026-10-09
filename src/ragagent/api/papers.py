@@ -1,6 +1,6 @@
 import hashlib
 from datetime import UTC, datetime
-from typing import Annotated, NoReturn
+from typing import Annotated, NoReturn, cast
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse
@@ -24,10 +24,7 @@ from ragagent.db.models import (
     Author,
     Chunk,
     ChunkEntity,
-    Dataset,
     Entity,
-    Method,
-    Metric,
     Paper,
     PaperAuthor,
     PaperCollection,
@@ -394,29 +391,81 @@ def chunks(paper_id: str, db: DB, offset: int = 0, limit: int = 50) -> list[dict
 def annotate(
     paper_id: str, chunk_id: str, request: list[EntityAnnotation], db: DB
 ) -> dict[str, str]:
-    lifecycle_lock(db)
-    chunk = db.get(Chunk, chunk_id)
-    if not chunk or chunk.paper_id != paper_id:
-        raise HTTPException(404, "chunk_not_found")
-    for annotation in request:
-        entity = db.scalar(
-            select(Entity).where(
-                Entity.name == annotation.name, Entity.entity_type == annotation.entity_type
-            )
-        )
-        if entity is None:
-            entity = Entity(name=annotation.name, entity_type=annotation.entity_type)
-            db.add(entity)
-            db.flush()
-            subtype = {"dataset": Dataset, "method": Method, "metric": Metric}.get(
-                annotation.entity_type
-            )
-            if subtype:
-                db.add(subtype(entity_id=entity.id))
-        if db.get(ChunkEntity, (chunk_id, entity.id)) is None:
-            db.add(ChunkEntity(chunk_id=chunk_id, entity_id=entity.id))
-    db.commit()
-    return {"status": "annotated"}
+    from ragagent.domain.entities import EntityKind, MentionCreate, MentionPatch
+    from ragagent.errors import ApplicationError
+    from ragagent.ingestion.entity_review import decide, exact_name, locked_source, manual_mention
+    from ragagent.ingestion.entity_service import source_hash
+
+    try:
+        chunk = locked_source(db, paper_id, chunk_id)
+        digest = source_hash(chunk.content)
+        spans = []
+        # Existing manual route is still supported, but names must now occur
+        # literally in this current chunk; never index an absent assertion.
+        for annotation in request:
+            start = chunk.content.find(annotation.name)
+            if start < 0:
+                raise ApplicationError("entity_source_mismatch")
+            end = start + len(annotation.name)
+            exact_name(chunk, start, end, digest)
+            spans.append((annotation, start, end))
+        for annotation, start, end in spans:
+            if annotation.entity_type in {"dataset", "method", "metric"}:
+                value = manual_mention(
+                    db,
+                    chunk,
+                    MentionCreate(
+                        entity_type=cast(EntityKind, annotation.entity_type),
+                        span_start=start,
+                        span_end=end,
+                        expected_content_sha256=digest,
+                    ),
+                )
+                decide(
+                    db,
+                    chunk,
+                    value,
+                    MentionPatch(
+                        action="confirm",
+                        expected_version=value.version,
+                        expected_content_sha256=digest,
+                    ),
+                )
+            else:
+                eid = db.scalar(
+                    insert(Entity)
+                    .values(name=annotation.name, entity_type="other")
+                    .on_conflict_do_nothing(index_elements=[Entity.name, Entity.entity_type])
+                    .returning(Entity.id)
+                )
+                if eid is None:
+                    eid = db.scalar(
+                        select(Entity.id).where(
+                            Entity.name == annotation.name, Entity.entity_type == "other"
+                        )
+                    )
+                if eid is None:
+                    raise ApplicationError("entity_changed_retry")
+                db.execute(
+                    insert(ChunkEntity)
+                    .values(chunk_id=chunk.id, entity_id=eid)
+                    .on_conflict_do_nothing(
+                        index_elements=[ChunkEntity.chunk_id, ChunkEntity.entity_id]
+                    )
+                )
+        db.commit()
+        return {"status": "annotated"}
+    except ApplicationError as exc:
+        db.rollback()
+        code = exc.code
+        raise HTTPException(
+            410
+            if code == "source_deleted"
+            else 404
+            if code in {"paper_not_found", "chunk_not_found"}
+            else 409,
+            code,
+        ) from None
 
 
 @router.post("/{paper_id}/retry", status_code=202)

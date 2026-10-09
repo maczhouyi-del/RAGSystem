@@ -57,7 +57,10 @@ def imports_for(session: Session, paper: Paper) -> list[Run]:
     result = []
     for run in session.scalars(
         select(Run)
-        .where(Run.kind.in_(["ingestion", "arxiv"]), Run.status.in_(["queued", "running"]))
+        .where(
+            Run.kind.in_(["ingestion", "arxiv", "entity_annotation"]),
+            Run.status.in_(["queued", "running"]),
+        )
         .order_by(Run.id)
     ):
         matches = run.request.get("paper_id") == paper.id
