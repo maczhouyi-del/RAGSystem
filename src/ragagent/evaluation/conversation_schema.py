@@ -65,6 +65,7 @@ class ConversationEvaluationDataset(BaseModel):
     dataset_id: str = Field(min_length=1, max_length=200)
     label_source: Literal["human", "synthetic", "unannotated"]
     description: str
+    annotation_format: Literal["legacy", "source_v1"] = "legacy"
     cases: list[ConversationEvaluationCase] = Field(min_length=1, max_length=1000)
 
     @model_validator(mode="after")
@@ -89,6 +90,7 @@ class ConversationEvaluationDataset(BaseModel):
             dataset_id=self.dataset_id,
             label_source=self.label_source,
             description=self.description,
+            annotation_format=self.annotation_format,
             cases=[
                 EvaluationCase.model_validate({**turn.model_dump(), "id": f"{case.id}/{turn.id}"})
                 for case in self.cases

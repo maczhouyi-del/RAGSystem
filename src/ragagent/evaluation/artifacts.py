@@ -3,6 +3,7 @@ import json
 import subprocess
 from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
+from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -14,7 +15,7 @@ from ragagent.build_info import build_info
 from ragagent.db.models import Author, Chunk, ChunkEntity, Entity, Paper, PaperAuthor, Section
 from ragagent.errors import EvaluationError
 from ragagent.evaluation.schema import EvaluationDataset
-from ragagent.providers.chat import ChatProvider, Usage, usage_record
+from ragagent.providers.chat import ChatProvider, LiteLLMProvider, MockProvider, Usage, usage_record
 from ragagent.providers.config import AgentModel
 from ragagent.providers.embedding import normalize_endpoint
 from ragagent.settings import Settings
@@ -240,6 +241,11 @@ def provider_snapshot(provider: ChatProvider) -> dict[str, Any]:
     model = getattr(provider, "model", None)
     return {
         "adapter": type(provider).__name__,
+        "execution_type": "SCRIPTED"
+        if isinstance(provider, MockProvider)
+        else "PROVIDER_ADAPTER"
+        if isinstance(provider, LiteLLMProvider)
+        else "UNKNOWN_ADAPTER",
         "request_timeout_seconds": getattr(provider, "timeout", None),
         "configuration_available": isinstance(model, AgentModel),
         **(model.model_dump(mode="json") if isinstance(model, AgentModel) else {}),
@@ -366,6 +372,25 @@ def verify_corpus_snapshot(session: Session | None, initial: dict[str, Any]) -> 
         raise EvaluationError("corpus_changed_during_evaluation")
 
 
+def annotation_payload(value: dict[str, Any]) -> dict[str, Any]:
+    """Canonical labels, preserving identities of unchanged legacy datasets."""
+    value = deepcopy(value)
+    if value.get("annotation_format", "legacy") == "legacy":
+        value.pop("annotation_format", None)
+        for case in value["cases"]:
+            for label in case.get("turns", [case]):
+                for key in (
+                    "gold_sources",
+                    "reviewed_papers",
+                    "numeric_targets",
+                    "evaluation_dimensions",
+                    "refusal_rationale",
+                ):
+                    if not label.get(key):
+                        label.pop(key, None)
+    return value
+
+
 def manifest(
     dataset: EvaluationDataset,
     settings: Settings,
@@ -374,13 +399,15 @@ def manifest(
     retrieval_configuration: dict[str, Any] | None = None,
     corpus: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    labels = annotation_payload(dataset.model_dump(mode="json"))
     return {
         "git_commit": source_commit(),
         "build": build_info(),
         **source_snapshot(),
-        "dataset_hash": canonical_hash(dataset.model_dump(mode="json")),
+        "dataset_hash": canonical_hash(labels),
         "dataset_id": dataset.dataset_id,
         "label_source": dataset.label_source,
+        "annotation_format": dataset.annotation_format,
         "warning": dataset.warning,
         "timestamp": datetime.now(UTC).isoformat(),
         "model_configuration": model_configuration or {},

@@ -1065,3 +1065,10 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - CI 待对应提交的实际检查；用户已授权通过后自动开始 TASK-03。
 
 - TASK-02 验收：实现 `088e8be7a12b6d1f0fbbb9c33fdabe448e39ac0b` 的 push CI 37886916945 / Desktop 37886916939、PR CI 37886921280 / Desktop 37886921287 四个 workflow 全部 completed/SUCCESS，完整 SHA 与所有 job 已匹配。39 项浏览器/10 transport 本地通过、Linux 原生 GUI smoke 和 Windows MSI/NSIS CI 通过；工程 PASSED。真实科研质量/Win11 人工 GUI 仍未测，按授权自动开始 TASK-03。
+
+## TASK-03 可复现科研验收框架（2026-10-09）
+
+- 修改：复用 Evaluation；新增 domain 金标/审核契约、source_v1 验证、真实 corpus 来源核验、数值 Decimal JSONB 入队、legacy hash 兼容、adapter 分类及离线逐例检查/人工审核/配对比较；新增脚本与 31 项测试、文档/进度/证据。未改依赖锁、迁移、前端或 Rust bridge。
+- 验证：Ruff format/check、mypy 74 文件 PASS；645 pytest（496 unit / 149 integration、0 skipped、30.80s）PASS，1 项已有 Alembic warning；四个 audit CLI 和七份未标注 source_v1 表单 PASS。来源测试使用真实 PG；输出审核/比较是 SYNTHETIC ONLY，不代表科研表现。
+- 保留失败：首轮新增 fixture Claim.statement 与真实 text 契约不符导致 16 failed/93 passed，修正 fixture 后完整回归 PASS，没有删除断言。
+- 边界：物理 PDF 页/语义支持必须人工检查；未知费用为空；原失败保留，未审核不记零；无真实金标/模型请求/Win11 人工 GUI；科学质量 NOT MEASURED。实际实现 CI 待核对，通过前不进入 TASK-04。

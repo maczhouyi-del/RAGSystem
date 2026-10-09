@@ -33,7 +33,7 @@ def submit(kind: str, request: EvaluationRequest, db: DB, queue: QueueDep) -> Ru
         path = get_settings().data_dir / "evaluations" / previous.id / "results.json"
         if not path.is_file():
             raise HTTPException(422, "evaluation_resume_artifact_unavailable")
-    return RunResponse.model_validate(enqueue(db, queue, kind, request.model_dump()))
+    return RunResponse.model_validate(enqueue(db, queue, kind, request.model_dump(mode="json")))
 
 
 @router.post("/retrieval", status_code=202)
@@ -69,7 +69,9 @@ def conversation(request: ConversationEvaluationRequest, db: DB, queue: QueueDep
             raise HTTPException(422, "evaluation_resume_dataset_mismatch")
         if not (get_settings().data_dir / "evaluations" / previous.id / "results.json").is_file():
             raise HTTPException(422, "evaluation_resume_artifact_unavailable")
-    return RunResponse.model_validate(enqueue(db, queue, "eval_conversation", request.model_dump()))
+    return RunResponse.model_validate(
+        enqueue(db, queue, "eval_conversation", request.model_dump(mode="json"))
+    )
 
 
 @router.get("/{run_id}/{filename}")

@@ -18,6 +18,7 @@ from ragagent.domain.conversation_context import ContextConfig, ContextMessage, 
 from ragagent.domain.research import EvidenceRecord, QueryPlan, SearchResult
 from ragagent.errors import ApplicationError
 from ragagent.evaluation.artifacts import (
+    annotation_payload,
     canonical_hash,
     checkpoint_usage,
     corpus_snapshot,
@@ -291,7 +292,7 @@ async def evaluate_conversation(
         retrieval_configuration=retrieval_snapshot(search, settings),
         corpus=corpus,
     )
-    provenance["dataset_hash"] = canonical_hash(dataset.model_dump(mode="json"))
+    provenance["dataset_hash"] = canonical_hash(annotation_payload(dataset.model_dump(mode="json")))
     provenance["judge"] = {
         **provider_snapshot(judge),
         "evaluation_type": "MODEL_BASED",

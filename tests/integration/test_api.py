@@ -151,6 +151,61 @@ def test_diagnostics_separates_real_infrastructure_from_untested_models(
     assert client.get("/api/diagnostics").json()["corpus"]["state"] == "empty"
 
 
+@pytest.mark.integration
+def test_source_gold_numeric_evaluation_enqueues_json_safe_decimal_labels(
+    client: TestClient,
+    empty_db: Session,
+) -> None:
+    from ragagent.domain.evaluation import GoldPaper, GoldSource, NumericTarget
+    from ragagent.evaluation.schema import EvaluationCase, EvaluationDataset
+    from tests.integration.test_retrieval import populate
+
+    pid, cid = populate(empty_db)
+    chunk = empty_db.get(Chunk, cid)
+    assert chunk is not None
+    dataset = EvaluationDataset(
+        dataset_id="SYNTHETIC API serialization",
+        label_source="synthetic",
+        description="NOT A BENCHMARK",
+        annotation_format="source_v1",
+        cases=[
+            EvaluationCase(
+                id="q",
+                query="SYNTHETIC numeric contract",
+                question_type="fact",
+                expected_answer="SYNTHETIC only",
+                required_aspects=["fixture"],
+                relevant_chunk_ids=[cid],
+                relevant_paper_ids=[pid],
+                gold_sources=[
+                    GoldSource(
+                        paper=GoldPaper(paper_id=pid, pdf_sha256="b" * 64, reviewed_pages=[1]),
+                        chunk_id=cid,
+                        page_start=1,
+                        page_end=1,
+                        span_start=0,
+                        span_end=len(chunk.content),
+                        quote=chunk.content,
+                    )
+                ],
+                evaluation_dimensions=["numeric"],
+                numeric_targets=[
+                    NumericTarget(
+                        name="fixture", value="12.50", unit="%", conditions={"split": "SYNTHETIC"}
+                    )
+                ],
+            )
+        ],
+    )
+    response = client.post(
+        "/api/evaluations/rag", json={"dataset": dataset.model_dump(mode="json")}
+    )
+    assert response.status_code == 202
+    stored = empty_db.get(Run, response.json()["id"])
+    assert stored is not None
+    assert stored.request["dataset"]["cases"][0]["numeric_targets"][0]["value"] == "12.50"
+
+
 @pytest.fixture
 def client(
     empty_db: Session, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, auth_headers: Headers
