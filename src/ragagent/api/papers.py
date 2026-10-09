@@ -1,6 +1,6 @@
 import hashlib
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import Annotated, NoReturn
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse
@@ -29,9 +29,11 @@ from ragagent.db.models import (
     Metric,
     Paper,
     PaperAuthor,
+    PaperDeletion,
     Run,
     new_id,
 )
+from ragagent.deletion.guards import lifecycle_lock
 from ragagent.domain.papers import OriginalPaperMetadata, PaperMetadataValues, PaperSearchQuery
 from ragagent.domain.privacy import reject_credentials
 from ragagent.jobs import dispatch_run
@@ -162,6 +164,7 @@ async def upload(
         sha = digest.hexdigest()
         if any(len(name.strip()) > 256 for name in authors.split(";")):
             raise HTTPException(422, "author_name_too_long")
+        lifecycle_lock(db)
         # Distinct pinned arXiv versions can have identical PDF bytes. A plain
         # upload reuses an indexed copy first, then an uploaded/most recent copy.
         duplicate = (
@@ -230,6 +233,7 @@ async def upload(
 
 @router.post("/arxiv", status_code=202)
 def arxiv(request: ArxivRequest, db: DB, queue: QueueDep) -> RunResponse:
+    lifecycle_lock(db)
     return RunResponse.model_validate(enqueue(db, queue, "arxiv", request.model_dump()))
 
 
@@ -309,7 +313,7 @@ def search_papers(
 def paper(paper_id: str, db: DB) -> PaperResponse:
     p = db.get(Paper, paper_id)
     if p is None:
-        raise HTTPException(404, "paper_not_found")
+        missing_paper(db, paper_id)
     return paper_response(db, p)
 
 
@@ -317,7 +321,7 @@ def paper(paper_id: str, db: DB) -> PaperResponse:
 def original_pdf(paper_id: str, db: DB) -> FileResponse:
     p = db.get(Paper, paper_id)
     if p is None:
-        raise HTTPException(404, "paper_not_found")
+        missing_paper(db, paper_id)
     return FileResponse(
         p.original_path,
         media_type="application/pdf",
@@ -330,6 +334,8 @@ def original_pdf(paper_id: str, db: DB) -> FileResponse:
 def chunks(paper_id: str, db: DB, offset: int = 0, limit: int = 50) -> list[dict[str, object]]:
     if not 1 <= limit <= 200 or offset < 0:
         raise HTTPException(422, "invalid_pagination")
+    if db.get(PaperDeletion, paper_id):
+        raise HTTPException(410, "source_deleted")
     return [
         {
             "chunk_id": c.id,
@@ -354,6 +360,7 @@ def chunks(paper_id: str, db: DB, offset: int = 0, limit: int = 50) -> list[dict
 def annotate(
     paper_id: str, chunk_id: str, request: list[EntityAnnotation], db: DB
 ) -> dict[str, str]:
+    lifecycle_lock(db)
     chunk = db.get(Chunk, chunk_id)
     if not chunk or chunk.paper_id != paper_id:
         raise HTTPException(404, "chunk_not_found")
@@ -380,6 +387,7 @@ def annotate(
 
 @router.post("/{paper_id}/retry", status_code=202)
 def retry_ingestion(paper_id: str, db: DB, queue: QueueDep) -> RunResponse:
+    lifecycle_lock(db)
     paper = db.scalar(
         select(Paper)
         .where(Paper.id == paper_id)
@@ -387,7 +395,7 @@ def retry_ingestion(paper_id: str, db: DB, queue: QueueDep) -> RunResponse:
         .execution_options(populate_existing=True)
     )
     if paper is None:
-        raise HTTPException(404, "paper_not_found")
+        missing_paper(db, paper_id)
     if paper.status not in {"failed", "queued"}:
         raise HTTPException(409, "paper_not_retryable")
     paper.status, paper.error_code = "queued", None
@@ -396,6 +404,7 @@ def retry_ingestion(paper_id: str, db: DB, queue: QueueDep) -> RunResponse:
 
 @router.patch("/{paper_id}")
 def update_metadata(paper_id: str, request: PaperPatch, db: DB) -> PaperResponse:
+    lifecycle_lock(db)
     paper = db.scalar(
         select(Paper)
         .where(Paper.id == paper_id)
@@ -403,7 +412,7 @@ def update_metadata(paper_id: str, request: PaperPatch, db: DB) -> PaperResponse
         .execution_options(populate_existing=True)
     )
     if paper is None:
-        raise HTTPException(404, "paper_not_found")
+        missing_paper(db, paper_id)
     if request.expected_metadata_version is not None and (
         request.expected_metadata_version != paper.metadata_version
     ):
@@ -444,3 +453,9 @@ def update_metadata(paper_id: str, request: PaperPatch, db: DB) -> PaperResponse
         )
     db.commit()
     return paper_response(db, paper)
+
+
+def missing_paper(db: Session, paper_id: str) -> NoReturn:
+    if db.get(PaperDeletion, paper_id):
+        raise HTTPException(410, "source_deleted")
+    raise HTTPException(404, "paper_not_found")

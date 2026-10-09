@@ -2,7 +2,8 @@ import hashlib
 import json
 import subprocess
 from collections.abc import Callable, Iterator, Mapping
-from contextlib import contextmanager
+from contextlib import AbstractContextManager, contextmanager, nullcontext
+from contextvars import ContextVar
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
@@ -438,7 +439,19 @@ def manifest(
     }
 
 
+ArtifactGuard = Callable[[dict[str, Any]], AbstractContextManager[None]]
+artifact_guard: ContextVar[ArtifactGuard | None] = ContextVar(
+    "evaluation_artifact_guard", default=None
+)
+
+
 def write_results(directory: Path, result: dict[str, Any]) -> None:
+    guard = artifact_guard.get()
+    with guard(result) if guard is not None else nullcontext():
+        _write_results(directory, result)
+
+
+def _write_results(directory: Path, result: dict[str, Any]) -> None:
     directory.mkdir(parents=True, exist_ok=True)
     temporary = directory / "results.json.tmp"
     temporary.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")

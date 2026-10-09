@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from ragagent.conversations.presentation import message_presentation
 from ragagent.db.dispatch import JobDispatch
 from ragagent.db.models import Conversation, ExecutionEvent, Message, Paper, Run
+from ragagent.deletion.guards import guard_sources
 from ragagent.domain.conversation import MessageStatus
 from ragagent.errors import ApplicationError
 from ragagent.queues import freeze_queue
@@ -183,9 +184,12 @@ def sync_assistant_message(session: Session, run: Run) -> None:
 
 
 def finish_run(session: Session, run: Run) -> None:
-    if run.status not in TERMINAL_STATUSES:
-        raise ApplicationError("invalid_terminal_state")
-    ensure_running(session, run)
+    with session.no_autoflush:
+        if run.status not in TERMINAL_STATUSES:
+            raise ApplicationError("invalid_terminal_state")
+        if run.kind != "paper_delete":
+            guard_sources(session, [run.request, run.result])
+        ensure_running(session, run)
     sync_assistant_message(session, run)
     session.add(ExecutionEvent(run_id=run.id, node="finished", payload={"status": run.status}))
     session.commit()

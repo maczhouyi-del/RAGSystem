@@ -103,6 +103,31 @@ def test_legacy_upgrade_and_lossless_downgrade() -> None:
         alembic("upgrade", "head")
         alembic("check")
         with probe.begin() as connection:
+            connection.execute(
+                text(
+                    "INSERT INTO runs (id,kind,status,request,trace_id,created_at) "
+                    "VALUES ('cleanup-fixture','paper_delete','completed','{}',"
+                    "'cleanup-fixture',now())"
+                )
+            )
+            connection.execute(
+                text(
+                    "INSERT INTO paper_deletions "
+                    "(paper_id,deleted_at,chunk_ids,evidence_ids,files,cancelled_run_ids,"
+                    "affected_evaluation_ids,last_cleanup_run_id) VALUES "
+                    "('deleted-fixture',now(),'[]','[]','[]','[]','[]','cleanup-fixture')"
+                )
+            )
+        failure = alembic("downgrade", "0008", succeeds=False)
+        assert "paper_deletion_downgrade_requires_empty_ledger" in failure
+        with probe.begin() as connection:
+            assert (
+                connection.scalar(text("SELECT version_num FROM alembic_version")) == current_head
+            )
+            assert connection.scalar(text("SELECT count(*) FROM paper_deletions")) == 1
+            connection.execute(text("DELETE FROM paper_deletions"))
+            connection.execute(text("DELETE FROM runs WHERE id='cleanup-fixture'"))
+        with probe.begin() as connection:
             assert (
                 connection.scalar(
                     text("SELECT original_metadata FROM papers WHERE id='legacy-paper'")

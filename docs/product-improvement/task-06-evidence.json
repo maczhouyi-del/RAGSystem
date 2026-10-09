@@ -1,0 +1,100 @@
+{
+  "task": "TASK-06",
+  "status": "IN_PROGRESS",
+  "start_commit": "ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f",
+  "implementation_commit": null,
+  "scope": "Backend only: confirmed current-library removal, source retirement, history redaction and durable file/Redis cleanup. No frontend/Rust/lock changes.",
+  "scientific_quality": "NOT MEASURED",
+  "windows_11_human_acceptance": "NOT EXECUTED",
+  "fixtures": "SYNTHETIC ONLY / NOT A BENCHMARK",
+  "changes": [
+    "Domain confirmation/preview/status DTOs",
+    "Migration 0009 source tombstone/cleanup ledger with lossless downgrade guard",
+    "Atomic Paper and derived-row retirement plus orphan pruning, shared data preserved",
+    "Existing Run/outbox/RQ ingestion cleanup, retry with new Run after terminal failure",
+    "Owned relative file/checksum/dirfd/no-follow cleanup, retained unmanaged/shared files",
+    "Attributable Run/event/message/gold redaction; historical statuses and prose retained, current verification invalid",
+    "Late parser/embedding/arxiv/rerank/graph/final/evaluation publishing guards",
+    "Evaluation checkpoint source IDs include actual retrieval sources outside gold",
+    "Deleted source 410 and immediate affected evaluation artifact download block"
+  ],
+  "tests": {
+    "added_unit": 15,
+    "added_integration": 15,
+    "total": 717,
+    "unit": 511,
+    "integration": 206,
+    "failures": 0,
+    "skipped": 0,
+    "seconds": 48.334,
+    "upstream_warnings": 1,
+    "focused_with_existing_migration": {
+      "passed": 31,
+      "seconds": 9.88
+    },
+    "postgres": "Actual PostgreSQL 17.10 + pgvector 0.8.2; transactions, provenance redaction, shared isolation, late barriers and migration/downgrade verified.",
+    "redis": "Actual Redis 7.4.2/RQ queued and started jobs; independent job preserved, stop callback cannot replace cancelled status; outage and new cleanup Run retry.",
+    "files": "Temporary synthetic owned PDFs/parsed/evaluation files; partial failure/forward retry, missing file idempotence, changed checksum/symlink/traversal refusal, shared/unmanaged paths retained.",
+    "prior_failures": [
+      {
+        "result": "Focused process interrupted due to test SSE fixture using independent session blocked by outer test TRUNCATE lock.",
+        "fix": "Use same injected test DB session for SSE; no business timeout bypass."
+      },
+      {
+        "result": "Initial focused 1 failed / 22 passed",
+        "cause": "Compared unknown /api/runs route request_id instead of existing Run endpoint.",
+        "fix": "Use real per-Run endpoint and preserve exact snapshot comparison."
+      },
+      {
+        "result": "Intermediate focused 1 failed / 19 passed / 9 errors, then 1 failed / 28 passed",
+        "cause": "Fixture import removed by unused-import rule and required dataset description absent.",
+        "fix": "Explicit deletion-scoped client fixture, complete domain dataset."
+      },
+      {
+        "result": "First full 11 failed / 706 passed",
+        "cause": "New finish_run source guard read expired ORM attributes before no_autoflush; original test doubles lacked new SQL/constructor interfaces.",
+        "fix": "Wrap guard and ownership reads in no_autoflush; adapt mocks without removing assertions."
+      },
+      {
+        "result": "Affected checks 1 failed / 66 passed",
+        "cause": "One evaluation constructor mock still rejected new commit_results keyword.",
+        "fix": "Update constructor interface, final full 717 passed."
+      }
+    ]
+  },
+  "checks": {
+    "uv_sync_locked": "PASS, 109 core/dev packages; lock unchanged",
+    "ruff_format": "PASS, 209 unchanged files",
+    "ruff_check": "PASS",
+    "mypy": "PASS, 82 source files",
+    "alembic_check": "PASS, no schema drift",
+    "migration": "PASS, actual legacy upgrade and protected 0009 downgrade",
+    "npm_ci": "PASS",
+    "frontend_lint": "PASS",
+    "frontend_typecheck": "PASS",
+    "frontend_build": "PASS, existing upstream Rollup/chunk warnings; frontend unchanged",
+    "git_diff_check": "PASS"
+  },
+  "gate": {
+    "task05_acceptance_commit": "ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f",
+    "prior_doc_ci": [
+      37895505460,
+      37895505473,
+      37895509178,
+      37895509171
+    ],
+    "prior_doc_ci_status": "All completed/SUCCESS with matching exact SHA",
+    "current_ci": "NOT EXECUTED",
+    "next_task": "TASK-07 remains NOT_STARTED until actual implementation CI succeeds"
+  },
+  "limitations": [
+    "Current-library removal, not erasure of all copies. Conversation prose/questions/summaries can retain facts or quoted text.",
+    "Independent desktop caches/readers/downloads/user files/backups/sync/provider retention must be managed separately.",
+    "Full historical JSON scan during exclusive source publication lock; no large-history latency benchmark.",
+    "POSIX backend file-descriptor cleanup; Windows desktop uses Docker/Linux. Native Windows Python cleanup not supported/accepted.",
+    "RQ stop command completion is asynchronous; DB ownership revocation is authoritative. Actual running-job stop verified.",
+    "Actual scientific quality, real paid models/gold, human Win11 GUI not measured."
+  ],
+  "pr": "https://github.com/maczhouyi-del/RAGSystem/pull/1",
+  "review_state": "draft, unmerged"
+}

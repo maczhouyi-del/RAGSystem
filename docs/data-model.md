@@ -29,6 +29,17 @@ updates do not increment it. Legacy unchecked PATCH remains compatible.
 PDF bytes, source version and chunk/section/vector associations are untouched.
 Downgrade rejects non-pristine provenance/edit records to prevent silent loss.
 
+Migration 0009 adds `paper_deletions`: immutable source/chunk/Evidence IDs,
+deletion time, owned relative file manifests/checksums, revoked Run IDs,
+affected evaluation IDs and the latest cleanup Run FK. GIN indexes support
+deleted chunk/Evidence checks. It has no FK to the removed Paper and contains
+no source text. An explicit confirmation retires Paper and cascaded derivatives
+in one transaction, redacts attributed historical snapshots and creates the
+cleanup Run/outbox. Shared authors/entities remain; associated orphans and
+their entity subtypes are pruned. Failed file/Redis cleanup leaves the ledger
+and retired library state intact; retry moves forward with a new Run ID.
+Nonempty ledgers prevent downgrade. See [lifecycle](paper-deletion.md).
+
 Chunk records UUID, paper/section, complete section path,
 pages, element type, exact text, ordinal, lexical token count, JSON metadata,
 configured-dimensional vector and a generated English tsvector with GIN index.

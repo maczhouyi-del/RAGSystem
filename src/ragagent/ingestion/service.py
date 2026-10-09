@@ -26,10 +26,13 @@ async def ingest(
     chunker: StructureChunker,
     embedder: Embedder,
     progress: Callable[[str], None] | None = None,
+    guard: Callable[[], None] | None = None,
 ) -> None:
     if session.scalar(select(Chunk.id).where(Chunk.paper_id == paper.id).limit(1)):
         raise ValueError("paper_already_indexed")
     document = await asyncio.to_thread(parser.parse, Path(paper.original_path))
+    if guard is not None:
+        guard()
     drafts = chunker.chunk(document)
     if not drafts:
         raise ValueError("empty_document")
@@ -38,6 +41,8 @@ async def ingest(
     vectors = await embedder.embed(
         [contextual_text(chunk.content, chunk.source_context) for chunk in drafts]
     )
+    if guard is not None:
+        guard()
     if len(vectors) != len(drafts):
         raise ValueError("embedding_count_mismatch")
     sections: dict[str, str] = {}

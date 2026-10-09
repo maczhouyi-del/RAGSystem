@@ -145,9 +145,15 @@
 
 ### TASK-06：安全删除文献后端
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
+- 状态：IN_PROGRESS；开始 commit：`ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f`；最终 commit：未产生。
+- 生命周期设计：[安全删除](../paper-deletion.md)。仅本任务后端/数据/测试/文档；前端留给 TASK-07。
+- 最小实现：0009 删除账本；确认/版本核对、事务退休与 Run/outbox 清理；现有 retrieval/ingestion/graph/evaluation 来源发布保护；历史结构化来源脱敏/当前验证失效；受管文件和 Redis 分阶段失败重试。仅删除关联无引用作者/实体，共享数据及会话正文保留。
+- 涉及文件：domain/deletion、db/models 与 0009、api/deletions/papers/evaluations/app、deletion/history/guards/files/service、jobs/queues/worker、ingestion/service、retrieval/service、evaluation/artifacts/retrieval；三份删除专项测试、迁移测试和五份原测试替身接口适配；API/data-model/lifecycle/stage/progress/evidence。前端、Rust、依赖锁未改。
+- 新增验证：15 unit 与 15 PG/Redis/文件用例；真实 RQ queued/started 生命周期、暂停解析/Embedding/重排/arXiv/评测后的迟到写入、历史消息无 Run 的引用失效、受管导出范围外检索来源追踪、孤立/共享派生数据、原子回滚/部分清理/重试。
+- 实际结果：717 passed、0 skipped/failed（511 unit / 206 integration，48.34s，1 上游 warning）；Ruff format/check、mypy 82 文件、uv locked 109 包、Alembic check/真实迁移与非空账本降级保护 PASS；原前端 npm ci/lint/check/build PASS，前端未修改。
+- 复核修正：首次完整回归 11 failed / 706 passed，发现 ORM 过期属性读取可能提前 flush 拟议终态；已在 no_autoflush 内完成来源/所有权检查。补齐原 SQL/constructor 测试替身接口，所有原断言保留；中间 focused 的 fixture 缺字段/缺注册已修复，最终完整通过。
+- Git/PR/CI：独立提交与四个实际 workflow 尚待执行，状态继续 IN_PROGRESS。不能提前启动 TASK-07。
+- 影响/风险：新检索无已删除来源，文件/Redis 失败不会恢复 Paper；历史 job 状态保留实际结果，引用的当前验证失效。删除事务扫描历史，尚无大库延迟测量；POSIX 后端文件清理，原生 Windows Python 未支持；正文、缓存、导出/备份和外部服务留存不承诺抹除，必须由用户另行管理。真实科学质量未测。
 - 修改目标、依赖、验收计划：见上表 TASK-06；前置门禁 05。
 - 风险与已知限制：先定义 PDF/派生数据/历史证据/缓存/备份生命周期。
 

@@ -193,6 +193,6 @@ def test_failed_evaluation_artifact_is_downloadable(
     monkeypatch.setattr(
         "ragagent.api.evaluations.get_settings", lambda: Settings(data_dir=tmp_path)
     )
-    db = SimpleNamespace(get=lambda model, run_id: run)
+    db = SimpleNamespace(get=lambda model, run_id: run, scalar=lambda statement: None)
     response = artifact(run.id, "results.json", db)
     assert response.path == path / "results.json"

@@ -236,6 +236,26 @@ class Run(Base):
     )
 
 
+class PaperDeletion(Base):
+    """Tombstone and durable cleanup intent, deliberately without source text."""
+
+    __tablename__ = "paper_deletions"
+    __table_args__ = (
+        Index("ix_paper_deletions_chunk_ids", "chunk_ids", postgresql_using="gin"),
+        Index("ix_paper_deletions_evidence_ids", "evidence_ids", postgresql_using="gin"),
+    )
+    paper_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    deleted_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+    chunk_ids: Mapped[list[str]] = mapped_column(JSONB)
+    evidence_ids: Mapped[list[str]] = mapped_column(JSONB)
+    files: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
+    cancelled_run_ids: Mapped[list[str]] = mapped_column(JSONB)
+    affected_evaluation_ids: Mapped[list[str]] = mapped_column(JSONB)
+    last_cleanup_run_id: Mapped[str] = mapped_column(ForeignKey("runs.id"), index=True)
+
+
 class ExecutionEvent(Base):
     __tablename__ = "execution_events"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

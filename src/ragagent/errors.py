@@ -1,6 +1,28 @@
 import re
 
 _PUBLIC_MESSAGES = {
+    "source_deleted": (
+        "Source removed from the current library; historical citations are unavailable.",
+        False,
+    ),
+    "paper_metadata_conflict": (
+        "Paper changed; reload the preview before confirming deletion or editing.",
+        True,
+    ),
+    "cleanup_queue_unavailable": (
+        "Library removal is effective. Restore Redis access and retry cleanup.",
+        True,
+    ),
+    "cleanup_file_unavailable": (
+        "Library removal is effective. Check managed-file permissions or symlinks "
+        "and retry cleanup.",
+        True,
+    ),
+    "cleanup_file_changed": (
+        "Managed file changed. Review the deletion ledger; "
+        "do not delete the replacement automatically.",
+        False,
+    ),
     "local_auth_required": ("Local authorization required.", False),
     "local_auth_not_initialized": ("Pair the local backend before connecting.", False),
     "invalid_request": ("Invalid request; rejected input is not echoed.", False),

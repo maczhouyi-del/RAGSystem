@@ -1092,3 +1092,13 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 边界：旧来源未知，不伪造官方值；upload 源为用户输入，Atom 测试响应是 scripted，不是联网验真；旧无版本 PATCH 不具备陈旧意图保护，新 UI 全部带版本；数据保护降级不能绕过。科学质量/Win11 人工 GUI/付费模型未测。实际实现 CI 待核对，TASK-06 未开始。TASK-04 仅验收文档 736d3a7 的四个 workflow 已全部 completed/SUCCESS。
 
 - TASK-05 验收：`5c288748342f2c782c934c5c1deb36687903e1e4` 的 push CI 37894376600 / Desktop 37894376697、PR CI 37894379794 / Desktop 37894379810 四个 workflow 全部 completed/SUCCESS，完整 SHA 与所有 job 已核对；Windows MSI/NSIS 与 Linux 原生 GUI smoke PASS。687 后端/47 浏览器/11 transport 本地 PASS；工程 PASSED，按授权自动进入 TASK-06；真实科学质量/Win11 人工 GUI 未测。
+
+## TASK-06 安全文献删除后端（2026-10-09 Asia/Shanghai）
+
+- 开始：`ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f`；此前 TASK-05 文档验收提交的 push CI 37895505460 / Desktop 37895505473、PR CI 37895509178 / Desktop 37895509171 全部 completed/SUCCESS，完整 head 匹配。
+- 改动：domain 删除确认/预览/状态契约；0009 tombstone/file manifest/Run 清理账本及有损降级保护；DELETE 事务去除 Paper 与级联 PDF 派生数据/向量/Evidence/实体 occurrence，关联孤立作者/实体子类型删除，共享数据保留；Run/outbox ingestion 队列异步清理，明确幂等/失败新 Run 重试；受管路径/摘要/no-follow 文件清理；历史 Run/事件/消息来源脱敏和当前引用验证失效，正文/真实历史状态保留；模型等待后的解析/Embedding/重排/arXiv/事件/最终输出/评测文件保护；评测实际来源 ID checkpoint；GET/PATCH/retry 410 与导出禁止。未改前端、Rust、锁文件，未引入新队列或模型调用。
+- 验证：新增 15 unit / 15 integration；真实 PostgreSQL 和 Redis queued/started RQ job stop、短事务迟到 barriers、共享/孤立元数据与另一论文/会话保留、确认/版本冲突无写入、注入事务失败全部回滚、部分文件失败与新 Run 重试、受管替换/越界/符号链接不误删、历史引用/原文/金标脱敏、导出之外用户文件保留、非空删除账本有损 downgrade 拒绝。最终 717 passed（511 unit / 206 integration，0 skipped/failures，48.34s，1 上游 warning）；Ruff/mypy 82/Alembic check/uv locked 109/npm ci/lint/check/build PASS。
+- 初次完整 11 failed / 706 passed：终态保护新读取触发过期属性自动 flush，修复 no_autoflush 范围；既有单位/PG 替身需支持新增 scalar/scalars/constructor keyword，保持原断言；受影响 66 passed/1 failed 时剩余评测构造替身未收 keyword，修正后最终全绿。专项首次 SSE fixture 使用独立连接被外层 TRUNCATE 锁阻塞，终止该测试进程并改测试依赖共享连接；随后错误路由比较 request_id、fixture 注册、description 缺字段均修正。没有靠删除断言或盲目重跑洗绿。
+- 影响：数据库提交后当前知识库立即不可见，清理状态独立；停止消息最终消费不保证同步，但已撤销 worker DB 所有权，RQ callback 不覆盖 cancelled。文件已清理不随 DB rollback 恢复，缺文件可幂等继续。实际 checkpoint 追踪可识别金标之外来源，旧消息即使缺 Run 也有当前来源失效标记。
+- 限制：全历史脱敏扫描会暂停来源发布，未测大库延迟；当前 POSIX 文件描述符后端，Windows 桌面通过 Docker/Linux，原生 Win Python 未支持；历史回答/用户问题/摘要可能留有论文事实或引用正文，独立桌面 documents 缓存、外部阅读器/下载/备份/同步/provider 留存需人工管理，恢复旧备份须再应用删除记录。科研质量与人工 Win11 GUI 未测。TASK-07 实现引用可用性显示和删除确认 UI，本任务无前端改动。
+- 状态：IN_PROGRESS；实际 GitHub CI 待推送和核对，不能提前 PASSED。
