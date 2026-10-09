@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { Run, api } from "./api";
+import { Run, api, PdfLocation } from "./api";
+import { PdfLink, pageLabel, targetPage } from "./PdfReading";
 
 const Page = z.object({
   limit: z.number(),
@@ -14,6 +15,7 @@ const Chunks = Page.extend({
       section_path: z.string(),
       page_start: z.number(),
       page_end: z.number(),
+      page_location: PdfLocation.page_location,
       content_sha256: z.string(),
       status: z.string(),
     }),
@@ -42,6 +44,7 @@ const Links = z.array(
   }),
 );
 const Source = z.object({
+  ...PdfLocation,
   chunk_id: z.string().uuid(),
   content: z.string(),
   content_sha256: z.string().regex(/^[0-9a-f]{64}$/),
@@ -387,9 +390,8 @@ export function EntityReview({
                 >
                   {chunks.items.map((c, i) => (
                     <option key={c.chunk_id} value={c.chunk_id}>
-                      #{chunks.offset + i + 1} · {c.section_path} · p.
-                      {c.page_start}–{c.page_end} ·{" "}
-                      {chunkLabels[c.status] ?? c.status}
+                      #{chunks.offset + i + 1} · {c.section_path} ·{" "}
+                      {pageLabel(c)} · {chunkLabels[c.status] ?? c.status}
                     </option>
                   ))}
                 </select>
@@ -420,8 +422,8 @@ export function EntityReview({
           {source && current && (
             <>
               <p>
-                {source.section_path} · p.{source.page_start}–{source.page_end}{" "}
-                · 原文只读。选择连续的完整实体名称，再选择类型。
+                {source.section_path} · {pageLabel(source)} ·
+                原文只读。选择连续的完整实体名称，再选择类型。
               </p>
               <textarea
                 ref={text}
@@ -434,6 +436,12 @@ export function EntityReview({
               <p aria-label="已选择实体原文">
                 {span ? `已选：${span.text}` : "尚未选择实体原文"}
               </p>
+              <PdfLink
+                paperId={paperId}
+                page={targetPage(source)}
+                label="打开核对来源 PDF"
+                onError={setError}
+              />
               <label>
                 实体类型
                 <select

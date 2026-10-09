@@ -260,7 +260,7 @@ test("citations preserve version and separate auxiliary source text and limitati
     "Method | Accuracy (%)",
   );
   await expect(dialog.getByLabel("辅助原文", { exact: true })).toContainText(
-    "Results / Evaluation · p.6–6",
+    "Results / Evaluation · p.6",
   );
   await expect(dialog.getByLabel("辅助原文", { exact: true })).toContainText(
     "来源：table-header · 原文字符 30–51",

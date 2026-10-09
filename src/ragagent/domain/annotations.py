@@ -55,6 +55,7 @@ class EntityOccurrence(BaseModel):
     section_path: str
     page_start: int
     page_end: int
+    page_location: PageLocation = "available"
 
 
 class PaperAnnotations(BaseModel):

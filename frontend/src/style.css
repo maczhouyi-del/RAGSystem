@@ -123,6 +123,20 @@ pre {
   font-size: 12px;
   padding: 3px 7px;
 }
+.pdf-navigation {
+  border: 1px solid #ccd8de;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 14px 0;
+}
+.pdf-navigation .inline {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+blockquote mark {
+  background: #fff1ad;
+  color: #172a36;
+}
 .evidence {
   display: block;
   text-align: left;

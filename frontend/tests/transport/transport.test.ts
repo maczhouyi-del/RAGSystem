@@ -1,7 +1,12 @@
 /** Adapter unit tests: these exercise real transport encoding; no inference/GUI claims. */
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, mock, test } from "node:test";
-import { request, stream, openLocalResource } from "../../src/transport.ts";
+import {
+  request,
+  stream,
+  openLocalResource,
+  openPaperPdf,
+} from "../../src/transport.ts";
 import { errorMessage } from "../../src/errors.ts";
 
 let commands: { command: string; args: Record<string, unknown> }[];
@@ -252,6 +257,23 @@ test("desktop document opener only accepts local fixed resource URLs", async () 
   ])
     await assert.rejects(openLocalResource(path), /local_resource_not_allowed/);
   assert.equal(commands.length, 1);
+});
+test("PDF navigation retains unknown pages and validates every explicit page before IPC", async () => {
+  const id = "12345678-1234-1234-1234-123456789abc";
+  native = async () => undefined;
+  await openPaperPdf(id);
+  await openPaperPdf(id, 7);
+  assert.deepEqual(
+    commands.map((item) => item.args.path),
+    [`/api/papers/${id}/pdf`, `/api/papers/${id}/pdf#page=7`],
+  );
+  for (const page of [0, -1, 1.5, NaN, Infinity, 100000])
+    await assert.rejects(openPaperPdf(id, page), /invalid_local_page/);
+  await assert.rejects(
+    openPaperPdf("../private", 7),
+    /local_resource_not_allowed/,
+  );
+  assert.equal(commands.length, 2);
 });
 
 test("desktop organization scope and individual relations preserve exact verbs and confirmation", async () => {

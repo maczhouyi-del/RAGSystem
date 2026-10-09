@@ -172,6 +172,16 @@ export async function openLocalResource(path: string): Promise<void> {
     );
   }
 }
-export async function openPaperPdf(paperId: string, page = 1): Promise<void> {
-  await openLocalResource(`/api/papers/${paperId}/pdf#page=${page}`);
+export async function openPaperPdf(
+  paperId: string,
+  page?: number,
+): Promise<void> {
+  if (
+    page !== undefined &&
+    (!Number.isInteger(page) || page < 1 || page > 99999)
+  )
+    throw new Error("invalid_local_page");
+  await openLocalResource(
+    `/api/papers/${paperId}/pdf${page === undefined ? "" : `#page=${page}`}`,
+  );
 }

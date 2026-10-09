@@ -4,7 +4,7 @@ from typing import Annotated, Literal, cast
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, case, func, select
 from sqlalchemy.sql.selectable import CTE
 
 from ragagent.api.papers import DB, missing_paper
@@ -144,6 +144,11 @@ def paper_annotations(
             Chunk.section_path,
             Chunk.page_start,
             Chunk.page_end,
+            case(
+                (Chunk.metadata_json["page_location"].as_string() == "available", "available"),
+                (func.jsonb_exists(Chunk.metadata_json, "page_location"), "unavailable"),
+                else_="available",
+            ).label("page_location"),
         )
         .join(ChunkEntity, ChunkEntity.entity_id == Entity.id)
         .join(Chunk, Chunk.id == ChunkEntity.chunk_id)

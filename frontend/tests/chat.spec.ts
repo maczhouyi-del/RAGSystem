@@ -44,6 +44,7 @@ test("claim span uses original Unicode text and PDF target page remains explicit
       ...completed.result,
       reranked_evidence: [original],
       citation_validation: {
+        valid: true,
         supported_pairs: [
           {
             claim_id: "metric",

@@ -1178,3 +1178,11 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-12 修正后完整后端824 passed，0 skipped/failed，67.78s；Ruff/mypy92/locked sync PASS，前端实现未变，既有97 browser/15 transport结果继续适用。初始四个 workflow已completed：push CI1失败、其余3 SUCCESS，9/10 job成功，原生步骤实际成功；全部保留，修正提交将重新触发完整门禁。
 
 - TASK-12 验收：c55c15867ab5e3647ace294527ab28dade0c7cdc push CI37946282912 / Desktop37946282951、PR CI37946292019 / Desktop37946292211四个 workflow/十个 job completed/SUCCESS，完整SHA与native实际步骤已核对。824后端/97 MOCK browser/15 transport本地PASS，真实生成两页PDF来源链验证成功、0模型调用。原失败及固定含500 digest复现/科学错误负向控制保留；旧开发Run及schema0012不变。工程PASSED，自动进入TASK-13；实际布局/OCR/科研质量NOT MEASURED，Win11人工NOT EXECUTED。
+
+## TASK-13 引用与 PDF 阅读（2026-10-09）
+
+- 开始于TASK-12验收提交3cc1c70，前置c55c158四个实现workflow/十个job全部SUCCESS。决定复用受限外部PDF阅读路径，无新PDF解析/worker依赖，不降低CSP或文件/远程WebView/API安全边界。可靠原文支持跨度在原文面板标记；元素框仅为页候选，不作逐字PDF高亮。状态IN_PROGRESS，验证尚未执行。
+
+- TASK-13 实现与本地：831后端（576 unit/255 PG、0 skipped/failed、198s）PASS，新增3 unit/4 PG，包括真实原PDF字节/摘要/论文路由读取；33专项 browser/15专项Python PASS，新增10 browser与1transport。锁定安装/Ruff/mypy92/npm ci/lint/check/build/16transport/官方rustfmt PASS。页可用性贯通引用/实体面板与列表，未知页不假装p.1；多来源/表格辅助页独立、原文Unicode支持跨度核对后标记，受限Desktop/Web路径复用，无新依赖/CSP权限变化。首次全量106browser PASS/1旧p.6–6文案断言FAIL，改成真实p.6后重跑完整回归；初始类型/ORM字段拼写错误及修正保留。工程IN_PROGRESS，CI待产生，科研/布局正确率NOT MEASURED，Win11系统阅读器人工NOT EXECUTED。
+
+- TASK-13 最终前端：107 MOCK browser PASS（1.5m、0 failed/skipped）、16 transport PASS，npm lint/check/build成功。原表格页码标签断言按p.6修正，原文/来源/版本/辅助页检查保留。最终截图已检查，上方原始PDF入口可见，表格原文数字不变；实际系统阅读器人工操作仍NOT EXECUTED。待精确实现CI门禁。

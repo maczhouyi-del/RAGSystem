@@ -52,6 +52,15 @@ const guidance: Record<string, string> = {
   request_failed: "请求失败，请检查本机后端与诊断信息。",
   invalid_response: "后端响应格式不兼容，请检查客户端与后端版本。",
   local_backend_unavailable: "本机后端不可用，请启动后端并检查连接。",
+  local_document_unavailable:
+    "原始文档暂不可用，请重新读取引用并检查原始文件是否仍在。",
+  local_document_open_failed:
+    "文档已读取，但系统阅读器未能打开，请检查默认阅读器。",
+  local_document_cache_full: "阅读缓存无法写入，请检查缓存目录空间和权限。",
+  invalid_local_pdf: "文档未通过 PDF 格式检查，请核对原始文件或重新导入。",
+  invalid_local_page: "页码无法用于跳转，请打开完整 PDF 并按原文搜索。",
+  local_resource_not_allowed:
+    "来源位置不合法，请重新读取引用并核对客户端版本。",
 };
 export function errorMessage(value: unknown): string {
   const match = typeof value === "string" ? value : "request_failed";

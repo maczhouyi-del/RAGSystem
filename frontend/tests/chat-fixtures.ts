@@ -155,6 +155,9 @@ export async function setupChat(
         evidence_id: source.evidence_id,
         page_start: source.page_start,
         page_end: source.page_end,
+        page_location:
+          (source as typeof evidence & { page_location?: string })
+            .page_location ?? "available",
       })),
     };
   }

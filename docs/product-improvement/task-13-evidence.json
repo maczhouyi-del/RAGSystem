@@ -1,0 +1,271 @@
+{
+  "task": "TASK-13",
+  "status": "IN_PROGRESS",
+  "start_commit": "3cc1c70b6f98a4572bfab0e1d30dadfb1eb2b09a",
+  "implementation_commit": null,
+  "changed_files": [
+    "docs/citation-reading.md",
+    "docs/product-improvement/PROGRESS.md",
+    "docs/product-improvement/task-13-evidence.json",
+    "docs/stage-log.md",
+    "frontend/src/Annotations.tsx",
+    "frontend/src/EntityReview.tsx",
+    "frontend/src/PdfReading.tsx",
+    "frontend/src/api.ts",
+    "frontend/src/chat/ResultPanel.tsx",
+    "frontend/src/components.tsx",
+    "frontend/src/errors.ts",
+    "frontend/src/style.css",
+    "frontend/src/transport.ts",
+    "frontend/tests/chat-fixtures.ts",
+    "frontend/tests/chat.spec.ts",
+    "frontend/tests/pdf-location.spec.ts",
+    "frontend/tests/pdf-reading.spec.ts",
+    "frontend/tests/transport/transport.test.ts",
+    "frontend/tests/ui.spec.ts",
+    "src/ragagent/api/annotations.py",
+    "src/ragagent/api/entities.py",
+    "src/ragagent/conversations/presentation.py",
+    "src/ragagent/domain/annotations.py",
+    "tests/integration/test_pdf_reading.py",
+    "tests/unit/test_message_presentation.py"
+  ],
+  "scientific_quality": "NOT MEASURED",
+  "standard_docling_layout_ocr_accuracy": "NOT MEASURED",
+  "windows_11_human_reading_acceptance": "NOT EXECUTED",
+  "tests": {
+    "pytest": 831,
+    "unit": 576,
+    "integration": 255,
+    "new_unit": 3,
+    "new_integration": 4,
+    "python_seconds": 197.999,
+    "failures": 0,
+    "skipped": 0,
+    "playwright": 107,
+    "new_playwright": 10,
+    "transport": 16,
+    "new_transport": 1,
+    "focused_browser": 33,
+    "focused_python": 15,
+    "truth": "Actual PostgreSQL JSON metadata/API source pages and exact owned two-page PDF HTTP file read; synthetic source text and data. MOCK browser HTTP and Desktop IPC contracts, not manual system-reader execution or a scientific benchmark.",
+    "browser_duration": "1.5m (reported)"
+  },
+  "checks": {
+    "uv_sync_locked": "PASS",
+    "ruff_format": "PASS",
+    "ruff_check": "PASS",
+    "mypy": "PASS, 92 files",
+    "npm_ci": "PASS",
+    "npm_lint": "PASS",
+    "npm_check": "PASS",
+    "npm_build": "PASS, existing bundle size warning",
+    "transport": "PASS, 16 tests",
+    "rustfmt": "PASS, official verified Rust 1.90",
+    "cargo_local": "NOT EXECUTED; exact-SHA native CI required",
+    "visual_review": "PASS: final pdf-reading-table.png inspected; primary PDF opener visible above source text, numeric quote unchanged and source range 7–9 shown",
+    "git_diff_check": "PASS",
+    "playwright": "PASS, 107 MOCK browser tests, zero failed/skipped"
+  },
+  "gate": {
+    "prior_acceptance_ci": [
+      {
+        "conclusion": "success",
+        "databaseId": 37947100510,
+        "event": "pull_request",
+        "headSha": "3cc1c70b6f98a4572bfab0e1d30dadfb1eb2b09a",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:51:31Z",
+            "conclusion": "success",
+            "databaseId": 113876105842,
+            "name": "backend",
+            "startedAt": "2026-10-09T14:49:50Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947100510/job/113876105842"
+          },
+          {
+            "completedAt": "2026-10-09T14:52:15Z",
+            "conclusion": "success",
+            "databaseId": 113876106225,
+            "name": "compose",
+            "startedAt": "2026-10-09T14:49:50Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947100510/job/113876106225"
+          },
+          {
+            "completedAt": "2026-10-09T14:51:44Z",
+            "conclusion": "success",
+            "databaseId": 113876106486,
+            "name": "frontend",
+            "startedAt": "2026-10-09T14:49:50Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947100510/job/113876106486"
+          }
+        ],
+        "name": "CI",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947100510"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 37947100544,
+        "event": "pull_request",
+        "headSha": "3cc1c70b6f98a4572bfab0e1d30dadfb1eb2b09a",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:53:19Z",
+            "conclusion": "success",
+            "databaseId": 113876106281,
+            "name": "linux-desktop",
+            "startedAt": "2026-10-09T14:49:50Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947100544/job/113876106281"
+          },
+          {
+            "completedAt": "2026-10-09T14:55:29Z",
+            "conclusion": "success",
+            "databaseId": 113876106682,
+            "name": "windows-desktop",
+            "startedAt": "2026-10-09T14:49:51Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947100544/job/113876106682"
+          }
+        ],
+        "name": "Desktop",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947100544"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 37947091382,
+        "event": "push",
+        "headSha": "3cc1c70b6f98a4572bfab0e1d30dadfb1eb2b09a",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:51:35Z",
+            "conclusion": "success",
+            "databaseId": 113876070714,
+            "name": "compose",
+            "startedAt": "2026-10-09T14:49:45Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947091382/job/113876070714"
+          },
+          {
+            "completedAt": "2026-10-09T14:51:49Z",
+            "conclusion": "success",
+            "databaseId": 113876071119,
+            "name": "backend",
+            "startedAt": "2026-10-09T14:49:46Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947091382/job/113876071119"
+          },
+          {
+            "completedAt": "2026-10-09T14:51:41Z",
+            "conclusion": "success",
+            "databaseId": 113876071145,
+            "name": "frontend",
+            "startedAt": "2026-10-09T14:49:45Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947091382/job/113876071145"
+          }
+        ],
+        "name": "CI",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947091382"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 37947091501,
+        "event": "push",
+        "headSha": "3cc1c70b6f98a4572bfab0e1d30dadfb1eb2b09a",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:55:14Z",
+            "conclusion": "success",
+            "databaseId": 113876071731,
+            "name": "windows-desktop",
+            "startedAt": "2026-10-09T14:49:49Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947091501/job/113876071731"
+          },
+          {
+            "completedAt": "2026-10-09T14:53:25Z",
+            "conclusion": "success",
+            "databaseId": 113876072048,
+            "name": "linux-desktop",
+            "startedAt": "2026-10-09T14:49:46Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947091501/job/113876072048"
+          }
+        ],
+        "name": "Desktop",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37947091501"
+      }
+    ],
+    "implementation_ci": [],
+    "conclusion": "PENDING: complete final browser regression and exact implementation SHA CI before TASK-14"
+  },
+  "reading_design": {
+    "navigation": "One-click own paper; raw quote/section/version; actual region-page candidates and independent auxiliary source PDF targets. Unknown page does not masquerade as page 1. Bounded range fallback for legacy sources. Fresh Run/lifecycle checks remain required on every citation open.",
+    "highlighting": "Only completed, valid RAG/Research review supports plus exact Unicode code-point quote/span agreement; text panel only. Invalid ranges/mismatched text/unverified result do not produce a mark. Element bbox never claims character-level PDF highlighting.",
+    "pdf_opener": "Existing Web same-origin authenticated PDF and #page; existing fixed UUID/route Desktop IPC, private random cache and system reader. No CSP/remote WebView/arbitrary file/API security relaxation. Native reader may ignore page; explicit manual target guidance.",
+    "dependencies": "No new reader/dependency/lock/workflow changes. PDF.js would add parsing/worker/package boundary without creating reliable character coordinates; existing external reader selected.",
+    "compatibility": "Optional malformed regions/digest fall back safely. Page availability added to lightweight citation references and annotation/review source/list DTOs. Old original pages remain readable. Legacy reviewer detail without full validation remains inspectable, but does not trigger verified span marking."
+  },
+  "failures_retained": [
+    {
+      "check": "first TypeScript check",
+      "result": "10 errors",
+      "fix": "Use structural Pick of actual source navigation fields rather than treating SourceContext Zod value as a type."
+    },
+    {
+      "check": "initial mypy",
+      "result": "3 unknown metadata_ attributes; correction then 2 double-suffix attributes",
+      "fix": "Correct ORM attribute to metadata_json in API and fixture, including the two accidental replacement suffixes; final mypy92 and 831 backend tests passed."
+    },
+    {
+      "check": "first full browser regression",
+      "result": "106 passed / 1 failed",
+      "fix": "Single-page display is p.6 instead of p.6–6; update existing label assertion while preserving original source text, auxiliary offset/version and target-page checks. Final full regression: 107 passed, zero failed/skipped."
+    }
+  ],
+  "external_resources": {
+    "TASK-17": "User confirms real corpus/human gold/model budget unavailable; continue engineering. No real scientific comparison claimed or paid/model calls issued."
+  },
+  "evidence_hashes": {
+    "ruff-fixed.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "ruff-format-fixed.log": "fb657d816765e1e34ee973f51a2741e149dccaf95599aec5cc8a07bbc090a6ad",
+    "npm-build-final.log": "4faeb50a20ad8f4b755452675af233e7b44009b5361f83b5d253a5131364c15e",
+    "frontend-fixed.log": "196b45f34199cfaf004469ea02ae4cbed2f638e3ce548d1a62d6c9f50855ec0e",
+    "mypy-fixed-final.log": "4ceb57b647f65ad9bc4a2ac12b1f1d95323ae55da4304fb3e5014cf75bf56502",
+    "ruff-initial.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "mypy-final.log": "4ceb57b647f65ad9bc4a2ac12b1f1d95323ae55da4304fb3e5014cf75bf56502",
+    "ruff-format-final.log": "fb657d816765e1e34ee973f51a2741e149dccaf95599aec5cc8a07bbc090a6ad",
+    "npm-check-final.log": "1dae3f3becbd93cbf7a98a4ca872730f0d0d3433a39919dede00c7ac5f1b12a4",
+    "npm-check-release.log": "196b45f34199cfaf004469ea02ae4cbed2f638e3ce548d1a62d6c9f50855ec0e",
+    "python-focused.log": "f8dca6e2366efe808216c80e48c79dc29b83557661bb043a7437131ded5bb133",
+    "mypy-initial.log": "c265a71ff4cc7755052e5c91e3ac2bb8d773f7b5cb6942f981cb06a769199d4a",
+    "uv-sync-final.log": "ce14ca76c5914dc1ca580be3322cfc87e9b5a468e8ce3bcdfc35b01cccc354fd",
+    "transport-final.log": "347327be2e6a6079af8c137068a925dda4579d52d9a5bf1b78263c890826a2f6",
+    "browser-release.log": "45385c5ca32fb7cac64b63ad347202bff8f59050f4f4bb5b34965d2ea4cd4655",
+    "browser-final.log": "cb4947f7db13636e39ca216dc37e57fe6f87f414c9f00b809ef6f79395813013",
+    "frontend-initial.log": "f63f6d86666b0b459dd34b52b18861a4c0b1bf47ab81e40f3dad6e3aeb50b67e",
+    "ruff-check-final.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "transport-release.log": "184e175ad03d0bbba0c95b8c3bc38af7c1357ca25b1658d12c20d8bc9c725eef",
+    "check-focused.log": "196b45f34199cfaf004469ea02ae4cbed2f638e3ce548d1a62d6c9f50855ec0e",
+    "frontend-annotation-check.log": "196b45f34199cfaf004469ea02ae4cbed2f638e3ce548d1a62d6c9f50855ec0e",
+    "npm-build-release.log": "7d49095958851131a49a3bde1cb6fac6c667cbe7b28fc89fb3ee6c5efa1b8b3d",
+    "npm-lint-final.log": "7183314da952c79f266bb4e2d9d91c1c6490404a08d1d6bdccd44f49cc91974a",
+    "build-focused.log": "a9d64d37eb2d353b655637b1efe0e6d1af5d97479f1c20d7069a0ca40196b102",
+    "rustfmt-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "npm-lint-release.log": "0c5a6ec8ad6e8f1ac414d1cc914a131352a62ebcf91ce289676a6a3f91356abc",
+    "npm-ci-final.log": "614fb23513ecb62a4a7305d26000969db96e036434f5a811be50b1cbe6a008bf",
+    "pytest-final.log": "608d68906423b8138fef6ee426c087a0ada94586eac5fac43650e109654a17a9",
+    "transport-focused.log": "5b4f5492d3bc323ed697c8c7becfdcfc78024a8177a36408548875ab0d16ad97",
+    "ruff-format-initial.log": "45b3275639ca66d46675939d13eafcf77e2764d7d12a60fc34f0dfc5ef2d61f2",
+    "browser-focused.log": "1baa725340cfc832f3986a1c898439a0a1651b6e53f142d81fcdc73f8bd91246",
+    "mypy-fixed.log": "98f010201bfde04e4b906aacdcfeb57b6359970eb69cc6a87f456f7ebc1499cd"
+  }
+}

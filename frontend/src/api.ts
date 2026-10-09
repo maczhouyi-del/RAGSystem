@@ -113,18 +113,36 @@ export const PdfBox = z
         ? box.top < box.bottom
         : box.bottom < box.top),
   );
-export const PdfRegion = z.object({
-  source_id: z.string(),
-  page_no: z.number().int().positive().nullable(),
-  bbox: PdfBox.nullable(),
-  parser_charspan: z.tuple([z.number().int(), z.number().int()]).nullable(),
-  source_start: z.number().int().nonnegative().nullable(),
-  source_end: z.number().int().positive().nullable(),
-  scope: z.literal("element"),
-  status: z.enum(["available", "unavailable"]),
-  text_mapping: z.enum(["parsed_element", "unavailable"]),
-  unavailable_reason: z.string().nullable(),
-});
+export const PdfRegion = z
+  .object({
+    source_id: z.string(),
+    page_no: z.number().int().positive().nullable(),
+    bbox: PdfBox.nullable(),
+    parser_charspan: z.tuple([z.number().int(), z.number().int()]).nullable(),
+    source_start: z.number().int().nonnegative().nullable(),
+    source_end: z.number().int().positive().nullable(),
+    scope: z.literal("element"),
+    status: z.enum(["available", "unavailable"]),
+    text_mapping: z.enum(["parsed_element", "unavailable"]),
+    unavailable_reason: z.string().nullable(),
+  })
+  .refine(
+    (region) =>
+      (region.bbox === null || region.page_no !== null) &&
+      ((region.source_start === null && region.source_end === null) ||
+        (region.source_start !== null &&
+          region.source_end !== null &&
+          region.source_start < region.source_end)),
+  )
+  .transform((region) => ({
+    ...region,
+    status:
+      region.bbox === null ? ("unavailable" as const) : ("available" as const),
+    text_mapping:
+      region.source_start === null
+        ? ("unavailable" as const)
+        : ("parsed_element" as const),
+  }));
 export const PdfLocation = {
   // Optional cached navigation metadata must never suppress valid source text.
   pdf_regions: z
@@ -175,7 +193,12 @@ export const Evidence = z.object({
     ...SourceAvailability.shape,
     paper_id: z.string(),
     title: z.string(),
-    pdf_sha256: z.string().nullable().default(null),
+    pdf_sha256: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/)
+      .nullable()
+      .default(null)
+      .catch(null),
   }),
   chunk_id: z.string(),
   section_id: z.string().optional(),
@@ -197,13 +220,25 @@ export const SupportingPair = z.object({
   supporting_span_end: z.number().int().nullable().optional(),
 });
 export type SupportingPair = z.infer<typeof SupportingPair>;
+export const CitationValidation = z
+  .object({
+    valid: z.boolean().default(false),
+    supported_pairs: z.array(SupportingPair).default([]),
+  })
+  .passthrough();
+export const ResearchReview = z
+  .object({
+    decision: z.enum(["PASS", "NEED_MORE_EVIDENCE", "NEED_REVISION"]),
+    validation: CitationValidation.optional().catch(undefined),
+  })
+  .passthrough();
 export const Result = z
   .object({
     ...SourceAvailability.shape,
     answer: z.string().optional(),
     draft_report: z.string().optional(),
     research_plan: z.unknown().optional(),
-    review_result: z.unknown().optional(),
+    review_result: ResearchReview.optional().catch(undefined),
     limitations: z.array(z.string()).default([]),
     analysis_results: z
       .array(
@@ -214,9 +249,7 @@ export const Result = z
       .default([]),
     evidence_pool: z.array(Evidence).optional(),
     reranked_evidence: z.array(Evidence).optional(),
-    citation_validation: z
-      .object({ supported_pairs: z.array(SupportingPair).default([]) })
-      .optional(),
+    citation_validation: CitationValidation.optional().catch(undefined),
   })
   .passthrough();
 export const Run = z.object({

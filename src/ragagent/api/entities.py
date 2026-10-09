@@ -188,6 +188,9 @@ def review_chunks(
                 "section_path": chunk.section_path,
                 "page_start": chunk.page_start,
                 "page_end": chunk.page_end,
+                "page_location": "available"
+                if (chunk.metadata_json or {}).get("page_location", "available") == "available"
+                else "unavailable",
                 "content_sha256": digest,
                 "status": review.status
                 if review and review.content_sha256 == digest

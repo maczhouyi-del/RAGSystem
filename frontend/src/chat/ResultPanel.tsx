@@ -25,6 +25,10 @@ const Presentation = z.object({
         evidence_id: z.string(),
         page_start: z.number(),
         page_end: z.number().optional(),
+        page_location: z
+          .enum(["available", "unavailable"])
+          .default("available")
+          .catch("unavailable"),
       }),
     )
     .default([]),
@@ -139,7 +143,16 @@ export function ResultPanel({
           evidence={result?.evidence_pool ?? result?.reranked_evidence ?? []}
           references={presentation?.citation_refs}
           loadEvidence={loadEvidence}
-          supportingPairs={result?.citation_validation?.supported_pairs}
+          supportingPairs={
+            state === "completed"
+              ? result?.review_result?.decision === "PASS" &&
+                result.review_result.validation?.valid
+                ? result.review_result.validation.supported_pairs
+                : result?.citation_validation?.valid
+                  ? result.citation_validation.supported_pairs
+                  : []
+              : []
+          }
         />
       )}
       {unavailable && (

@@ -27,7 +27,7 @@ for (const metadata of [
     await expect(
       page.getByRole("heading", { name: "已通过自动证据校验" }),
     ).toBeVisible();
-    await page.getByRole("button", { name: "文献 · p.7" }).click();
+    await page.getByRole("button", { name: /文献 · (p.7|页码未知)/ }).click();
     await expect(page.getByRole("dialog", { name: "引用原文" })).toContainText(
       evidence.quote,
     );

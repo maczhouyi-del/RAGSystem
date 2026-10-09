@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { EntityReview } from "./EntityReview";
-import { api } from "./api";
+import { api, PdfLocation } from "./api";
+import { PdfLink, pageLabel, targetPage } from "./PdfReading";
 import type { Filters } from "./components";
 
 const Coverage = z.object({
@@ -37,6 +38,7 @@ const Annotations = Coverage.omit({
       section_path: z.string(),
       page_start: z.number(),
       page_end: z.number(),
+      page_location: PdfLocation.page_location,
     }),
   ),
   total_occurrences: z.number().int().nonnegative(),
@@ -44,6 +46,7 @@ const Annotations = Coverage.omit({
   offset: z.number().int(),
 });
 const Source = z.object({
+  ...PdfLocation,
   paper_id: z.string().uuid(),
   chunk_id: z.string().uuid(),
   section_id: z.string().uuid(),
@@ -280,7 +283,7 @@ export function PaperAnnotations({
                 {data.items.map((item) => (
                   <li key={`${item.chunk_id}:${item.entity_id}`}>
                     {kinds[item.entity_type] ?? item.entity_type}：{item.name} ·{" "}
-                    {item.section_path} · p.{item.page_start}–{item.page_end}{" "}
+                    {item.section_path} · {pageLabel(item)}{" "}
                     <button onClick={() => void showSource(item.chunk_id)}>
                       查看 {item.name} 来源片段
                     </button>
@@ -311,10 +314,15 @@ export function PaperAnnotations({
           {source && (
             <div aria-label="实体来源片段">
               <p>
-                {source.section_path} · p.{source.page_start}–{source.page_end}{" "}
-                · {source.chunk_id}
+                {source.section_path} · {pageLabel(source)} · {source.chunk_id}
               </p>
               <pre className="annotation-source">{source.content}</pre>
+              <PdfLink
+                paperId={paperId}
+                page={targetPage(source)}
+                label="打开来源 PDF"
+                onError={setSourceError}
+              />
               <p>
                 这是关联的原始片段。请在人工校正面板核对精确跨度；旧关联没有跨度时，不能据名称推断已核验。
               </p>
