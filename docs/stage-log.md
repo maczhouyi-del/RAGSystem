@@ -1172,3 +1172,7 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-12 本地后端：824 passed（573 unit/251 PG、0 skipped/failed，75.53s），新增24 unit/3 PG；保持稳定 Evidence ID 与真实向量/全文过滤隔离。Ruff/mypy92/locked sync/Alembic check0012/npm ci/lint/check/build/transport15/官方 rustfmt PASS。实际生成两页 PDF，锁定 Docling NativePdfPipeline 产出12来源元素/3块，0模型调用、未下载模型，PDF原页已渲染检查。几何只为元素导航提示；旧 JSON/无 provenance 有效文本仍可读。完整浏览器和精确实现 CI 待完成，状态 IN_PROGRESS；上游许可证/坐标语义/wheel SHA256 已核对，真实布局/OCR/科研质量 NOT MEASURED。
 
 - TASK-12 完整前端：97 MOCK browser PASS（1.4m），含2个旧 Run 可选坐标损坏回归。修复前正确定位的2个负向控制均失败，修复后全量成功；原始错误定位运行单独保留，不作产品缺陷证据。静态检查/构建/15 transport PASS，待精确实现 SHA CI。
+
+- TASK-12 初始实现3449f8e 的 push CI37945304885：823 passed/1 failed（Research比较追问）。原 fixture把整个证据JSON中的500当错误人数；新PDF provenance SHA256随机含500而误判。固定含500的两个论文digest使RAG/Research原断言均确定性失败，修正只排除经64hex校验的pdf_sha256，保留所有其他科学/元数据字段，生产digest仍完整保留。相关15 integration PASS；独立负向控制确认错误500原文/标题与伪造digest被拒绝。完整后端正在重跑，不重跑旧失败CI洗绿，TASK-13门禁保持关闭。
+
+- TASK-12 修正后完整后端824 passed，0 skipped/failed，67.78s；Ruff/mypy92/locked sync PASS，前端实现未变，既有97 browser/15 transport结果继续适用。初始四个 workflow已completed：push CI1失败、其余3 SUCCESS，9/10 job成功，原生步骤实际成功；全部保留，修正提交将重新触发完整门禁。

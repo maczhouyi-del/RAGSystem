@@ -125,7 +125,16 @@ class LargestSampleFacts(MockProvider):
         self.usage.record_cost(None)
         assert "recent_messages" not in payload and "conversation_summary" not in payload
         supplied = payload["evidence"]
-        assert len(supplied) == 2 and "500" not in json.dumps(supplied)
+        assert len(supplied) == 2
+        # A validated PDF digest is source identity, not a participant count.
+        # Keep every other field observable, including scientific text and metadata.
+        scientific = []
+        for source in supplied:
+            paper = dict(source["paper"])
+            digest = paper.pop("pdf_sha256", None)
+            assert digest is None or re.fullmatch(r"[0-9a-f]{64}", digest)
+            scientific.append({**source, "paper": paper})
+        assert "500" not in json.dumps(scientific)
         samples: dict[str, tuple[int, str]] = {}
         for source in supplied:
             match = re.fullmatch(r"(Paper \w+) enrolled (\d+) participants\.", source["quote"])
@@ -229,7 +238,8 @@ async def test_comparison_followup_uses_two_real_papers_instead_of_historical_wi
         paper = Paper(
             id=str(UUID(int=index + 1)),
             title=f"Paper {name}",
-            sha256=uuid4().hex * 2,
+            # Provenance hashes may contain forbidden answer digits without being facts.
+            sha256="500" + f"{index:061x}",
             original_path="synthetic-comparison-fixture",
             status="indexed",
             embedding_model="test:384",
@@ -306,6 +316,9 @@ async def test_comparison_followup_uses_two_real_papers_instead_of_historical_wi
     assert row["metrics"]["citation_precision"] == row["metrics"]["citation_recall"] == 1.0
     assert row["metrics"]["answer_completeness"] == 1.0
     assert {source["paper"]["paper_id"] for source in row["evidence"]} == set(paper_ids)
+    assert {source["paper"]["pdf_sha256"] for source in row["evidence"]} == {
+        "500" + f"{index:061x}" for index in range(2)
+    }
     assert {source["chunk_id"] for source in row["evidence"]} == set(chunk_ids)
     assert all(
         set(plan["filters"]["paper_ids"]) == set(paper_ids) for plan in row["retrieval_plans"]

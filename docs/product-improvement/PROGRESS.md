@@ -217,7 +217,7 @@
 - 方案：先核查锁定的上游 Docling/core 坐标和 charspan 语义及许可证，再扩展兼容域契约与 Chunk JSON 元数据；不改变 Evidence UUID5 输入、不伪造坐标、不新增用户费用或默认模型调用。
 - 实现：Element/SourceSpan/SourceContext/Evidence 可选来源区域与 page_location，Chunk JSON 增量保存；维持 Evidence UUID5、论文版本和原文关系。无 prov 的有效文字保留；缺失/无效区域 unavailable，不能冒充精确结论高亮。来源退役清除新增位置。前端损坏历史坐标安全降级。
 - 文件：域 locations/documents/research/annotations、parser/chunker/ingestion/retrieval/source API/retirement、frontend api 与元数据显示 prop、24 unit/3 PG integration/2 MOCK browser、PDF fixture/验证脚本、来源说明及本证据文档。
-- 实际验证：824 Python（573 unit/251 PostgreSQL integration、0 skipped/failed、75.53s）；locked sync/Ruff/mypy92/Alembic check0012/npm ci/lint/check/build/transport15/官方 rustfmt PASS。两页自有真实 PDF 通过锁定 Docling NativePdfPipeline：12 elements/3 chunks/0 模型调用，渲染页已检查。完整97项 MOCK browser PASS（1.4m，0 skipped/failed）；实现提交 CI 尚未产生，TASK-13 不得开始。
+- 实际验证：824 Python（573 unit/251 PostgreSQL integration、0 skipped/failed、75.53s）；locked sync/Ruff/mypy92/Alembic check0012/npm ci/lint/check/build/transport15/官方 rustfmt PASS。两页自有真实 PDF 通过锁定 Docling NativePdfPipeline：12 elements/3 chunks/0 模型调用，渲染页已检查。完整97项 MOCK browser PASS（1.4m，0 skipped/failed）；初始实现3449f8e push CI 37945304885 有1个误判（823 passed）；PR CI及push Desktop SUCCESS，PR Desktop SUCCESS。新 PDF 哈希随机含500被既有科研文本断言误判，已用固定含500哈希双模式重现并修复测试 oracle；15专项及科学错误负向控制 PASS，修正后完整824后端 PASS（0 skipped/failed）；新提交 CI 待完成，TASK-13 不得开始。
 - 上游 wheel SHA256/坐标和 charspan 语义/许可证已核对；无数据库 DDL、无全量原文回填，无新默认模型调用。完整 Docling 布局/OCR 正确率和科研质量 NOT MEASURED，Win11 人工 NOT EXECUTED。
 
 ### TASK-13：引用与 PDF 阅读
