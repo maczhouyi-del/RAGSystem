@@ -335,6 +335,7 @@ actual verification.
 [Repair decisions](docs/adr/README.md) ·
 [Reference/license review](docs/reference-review.md) · [Architecture](docs/architecture.md) ·
 [Data model](docs/data-model.md) · [Conversation and memory](docs/conversation-memory.md) · [Retrieval](docs/retrieval.md) ·
+[Paper library search](docs/paper-library.md) ·
 [Agents](docs/agents.md) · [API](docs/api.md) · [Deployment](docs/deployment.md) ·
 [Contributor rules](AGENTS.md).
 

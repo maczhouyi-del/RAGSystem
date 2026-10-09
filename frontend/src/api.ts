@@ -24,6 +24,13 @@ export const Paper = z.object({
   status: z.string(),
   error_code: z.string().nullable(),
   chunk_count: z.number(),
+  created_at: z.string().nullable().default(null),
+});
+export const PaperPage = z.object({
+  items: z.array(Paper),
+  total: z.number().int().nonnegative(),
+  limit: z.number().int().positive(),
+  offset: z.number().int().nonnegative(),
 });
 export const SourceContext = z.object({
   source_id: z.string(),

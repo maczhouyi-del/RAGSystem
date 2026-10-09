@@ -1,0 +1,79 @@
+{
+  "task": "TASK-04",
+  "status": "IN_PROGRESS",
+  "start_commit": "bdefa45a4065bdfe8d277aa70f20652d286d98b8",
+  "local": {
+    "ruff_format": "PASS",
+    "ruff_check": "PASS",
+    "mypy": {
+      "files": 75,
+      "status": "PASS"
+    },
+    "npm_ci": "PASS",
+    "lint": "PASS",
+    "typescript": "PASS",
+    "build": "PASS",
+    "pytest": {
+      "passed": 672,
+      "unit": 496,
+      "integration": 176,
+      "skipped": 0,
+      "failed": 0,
+      "seconds": 36.44,
+      "junit": "/workspace/.rag-task04/pytest.xml",
+      "warning": "one existing Alembic path_separator deprecation"
+    },
+    "playwright": {
+      "passed": 43,
+      "skipped": 0,
+      "seconds": 49.7,
+      "boundary": "MOCK HTTP contracts, no actual PDF parsing/model quality/native GUI"
+    },
+    "transport": {
+      "passed": 11,
+      "skipped": 0
+    },
+    "migration": "PASS: real legacy upgrade/alembic check/lossless downgrade/base/head integration",
+    "rustfmt": "PASS: official pinned 1.90 rustc/rustfmt downloads with SHA256 verification; format/check",
+    "native_rust_compile_and_gui": "NOT EXECUTED locally; required Windows/Linux CI pending",
+    "gin_access_paths": "PASS with enable_seqscan=off EXPLAIN for title/venue/author; no performance benchmark",
+    "visual_review": "PASS: /workspace/.rag-task04/browser-results-final/knowledge-search-search-co-1e240-nd-sends-all-server-filters/library-search.png"
+  },
+  "added_tests": {
+    "real_postgresql": 27,
+    "synthetic_papers_per_library_fixture": 214,
+    "browser": 4,
+    "transport": 1,
+    "rust_bridge_case_group": 1
+  },
+  "failures_preserved": [
+    {
+      "kind": "initial browser regression",
+      "failed": 2,
+      "passed": 41,
+      "cause": "new select controls had no explicit accessible names; exact label locators timed out",
+      "fix": "add explicit aria-label, retain assertions, full browser regression passes",
+      "log": "/workspace/.rag-task04/e2e-initial-failure.log"
+    },
+    {
+      "kind": "initial mypy",
+      "errors": 1,
+      "cause": "column variable reused across heterogeneous SQLAlchemy field types",
+      "fix": "rename sort_column",
+      "log": "/workspace/.rag-task04/mypy-initial.log"
+    }
+  ],
+  "scope": {
+    "legacy_papers_array": "compatible",
+    "new_route": "GET /api/papers/search",
+    "indexes_added": 7,
+    "shared_pg_trgm_removed_on_downgrade": false,
+    "lock_changes": false,
+    "original_pdf_changes": false,
+    "embedding_changes": false
+  },
+  "scientific_quality": "NOT MEASURED",
+  "real_large_library_latency": "NOT MEASURED",
+  "windows11_human_gui": "NOT EXECUTED",
+  "ci": []
+}

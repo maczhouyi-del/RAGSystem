@@ -114,8 +114,15 @@ async function setupGuide(page: Page, existing = false) {
     fixture.paidTests++;
     return route.fulfill({ json: { ok: true, model: "MOCK-only" } });
   });
-  await page.route("**/api/papers?*", (route) =>
-    route.fulfill({ json: fixture.papers }),
+  await page.route("**/api/papers/search?*", (route) =>
+    route.fulfill({
+      json: {
+        items: fixture.papers,
+        total: fixture.papers.length,
+        limit: 50,
+        offset: 0,
+      },
+    }),
   );
   await page.route("**/api/papers/upload", (route) => {
     fixture.papers = [paper("queued")];

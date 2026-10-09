@@ -242,7 +242,9 @@ export async function setupChat(
       },
     }),
   );
-  await page.route("**/api/papers?*", (route) => route.fulfill({ json: [] }));
+  await page.route("**/api/papers/search?*", (route) =>
+    route.fulfill({ json: { items: [], total: 0, limit: 50, offset: 0 } }),
+  );
   await page.route("**/api/conversations**", async (route) => {
     const url = new URL(route.request().url());
     const path = url.pathname.split("/").filter(Boolean).slice(2);

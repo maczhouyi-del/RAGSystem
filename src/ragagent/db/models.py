@@ -15,6 +15,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    func,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
@@ -49,6 +50,9 @@ class Paper(Base):
             unique=True,
             postgresql_where=text("arxiv_id IS NULL"),
         ),
+        Index("ix_papers_created_id", "created_at", "id"),
+        Index("ix_papers_year_id", "year", "id"),
+        Index("ix_papers_status_created_id", "status", "created_at", "id"),
     )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     title: Mapped[str] = mapped_column(Text)
@@ -79,6 +83,19 @@ class Author(Base):
     name: Mapped[str] = mapped_column(String(256), unique=True)
 
 
+for table_column, index_name, expression_name in [
+    (Paper.title, "ix_papers_title_trgm", "title_search"),
+    (Paper.venue, "ix_papers_venue_trgm", "venue_search"),
+    (Author.name, "ix_authors_name_trgm", "author_search"),
+]:
+    Index(
+        index_name,
+        func.lower(table_column).label(expression_name),
+        postgresql_using="gin",
+        postgresql_ops={expression_name: "gin_trgm_ops"},
+    )
+
+
 class PaperAuthor(Base):
     __tablename__ = "paper_authors"
     paper_id: Mapped[str] = mapped_column(
@@ -86,6 +103,7 @@ class PaperAuthor(Base):
     )
     author_id: Mapped[str] = mapped_column(ForeignKey("authors.id"), primary_key=True)
     position: Mapped[int] = mapped_column(Integer)
+    __table_args__ = (Index("ix_paper_authors_author_paper", "author_id", "paper_id"),)
 
 
 class Section(Base):

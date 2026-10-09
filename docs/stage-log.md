@@ -1074,3 +1074,10 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 边界：物理 PDF 页/语义支持必须人工检查；未知费用为空；原失败保留，未审核不记零；无真实金标/模型请求/Win11 人工 GUI；科学质量 NOT MEASURED。实际实现 CI 待核对，通过前不进入 TASK-04。
 
 - TASK-03 验收：实现 `b77c04157a03309484b6a62a7071b5add14b893b` 的 push CI 37890505110 / Desktop 37890505103、PR CI 37890510399 / Desktop 37890510395 全部 completed/SUCCESS，完整 SHA 和全部 job 已匹配。645 项本地测试、Windows MSI/NSIS 与 Linux 原生 smoke 通过；工程 PASSED，科学质量 NOT MEASURED；自动开始 TASK-04。后续仅文档提交保存证据。
+
+## TASK-04 文献搜索、排序和分页（2026-10-09）
+
+- 修改：domain 搜索参数、兼容旧数组的 /api/papers/search 与按页批量 response、created_at 字段、db 七个索引及 0007/pg_trgm 迁移、Knowledge 筛选/总数/排序/分页、Web/受限 Rust Unicode 查询、214 篇 PG/浏览器/transport/bridge 测试、README/使用文档/进度/证据。未改依赖锁、PDF、Embedding 或科学检索协议。
+- 实际验证：Ruff format/check、mypy 75、npm ci/lint/check/build PASS；672 pytest（496 unit / 176 integration，0 skipped，36.44s）、43 Playwright（49.7s，0 skipped）和 11 transport PASS；真实迁移升级/降级/重升及 Alembic check PASS；官方校验下载的 rustfmt 1.90 format/check PASS；三种 GIN access path EXPLAIN 可用，仅强制索引可用性，不是性能测量；截图已检查。
+- 保留失败：初次浏览器 2 failed/41 passed（新 select 可访问名称不明确），补 aria-label 后完整回归通过；mypy column 变量复用类型冲突，改为 sort_column 后通过。未删断言。
+- 限制：跨请求集合变化会移动 offset；大库普通索引迁移需维护窗口/磁盘/扩展权限；共享 pg_trgm 降级保留；实际大库性能/科研质量 NOT MEASURED，Win11 人工 GUI NOT EXECUTED。本提交 Rust 编译/原生 smoke/安装包由实际 CI 验证，待通过前不进入 TASK-05。

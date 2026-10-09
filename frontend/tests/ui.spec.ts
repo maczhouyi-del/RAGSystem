@@ -58,11 +58,18 @@ test("knowledge pagination reaches paper 51 and returns to the first page", asyn
     error_code: null,
     chunk_count: 1,
   }));
-  await page.route("**/api/papers?*", (route) => {
+  await page.route("**/api/papers/search?*", (route) => {
     const url = new URL(route.request().url());
     const offset = Number(url.searchParams.get("offset"));
     const limit = Number(url.searchParams.get("limit"));
-    return route.fulfill({ json: papers.slice(offset, offset + limit) });
+    return route.fulfill({
+      json: {
+        items: papers.slice(offset, offset + limit),
+        total: papers.length,
+        limit,
+        offset,
+      },
+    });
   });
   await page.goto("/");
   await page
@@ -325,8 +332,8 @@ test("knowledge source status can be manually saved without changing ingestion s
     source_status: "unknown",
   };
   let submitted: Record<string, unknown> | undefined;
-  await page.route("**/api/papers?*", (route) =>
-    route.fulfill({ json: [paper] }),
+  await page.route("**/api/papers/search?*", (route) =>
+    route.fulfill({ json: { items: [paper], total: 1, limit: 50, offset: 0 } }),
   );
   await page.route("**/api/papers/paper-1", (route) => {
     submitted = route.request().postDataJSON();

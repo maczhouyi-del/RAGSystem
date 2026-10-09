@@ -23,7 +23,8 @@ function encode(data: Uint8Array): string {
   return btoa(binary);
 }
 function localPath(path: string): void {
-  if (!path.startsWith("/api/") || /[\\#\s]/.test(path) || path.includes(".."))
+  const route = path.split("?", 1)[0];
+  if (!path.startsWith("/api/") || /[\\#\s]/.test(path) || route.includes(".."))
     throw new Error("invalid_local_path");
 }
 export async function request(

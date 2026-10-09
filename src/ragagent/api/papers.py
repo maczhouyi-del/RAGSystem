@@ -1,9 +1,9 @@
 import hashlib
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, true
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -12,6 +12,7 @@ from ragagent.api.queue import JobQueue, get_queue
 from ragagent.api.schemas import (
     ArxivRequest,
     EntityAnnotation,
+    PaperPage,
     PaperPatch,
     PaperResponse,
     RunResponse,
@@ -30,6 +31,7 @@ from ragagent.db.models import (
     Run,
     new_id,
 )
+from ragagent.domain.papers import PaperSearchQuery
 from ragagent.domain.privacy import reject_credentials
 from ragagent.jobs import dispatch_run
 from ragagent.settings import get_settings
@@ -80,32 +82,46 @@ def author_ids(session: Session, names: list[str]) -> dict[str, str]:
 
 
 def paper_response(session: Session, paper: Paper) -> PaperResponse:
-    authors = list(
-        session.scalars(
-            select(Author.name)
-            .join(PaperAuthor)
-            .where(PaperAuthor.paper_id == paper.id)
-            .order_by(PaperAuthor.position)
+    return paper_responses(session, [paper])[0]
+
+
+def paper_responses(session: Session, items: list[Paper]) -> list[PaperResponse]:
+    if not items:
+        return []
+    ids = [paper.id for paper in items]
+    authors: dict[str, list[str]] = {}
+    for paper_id, name in session.execute(
+        select(PaperAuthor.paper_id, Author.name)
+        .join(Author)
+        .where(PaperAuthor.paper_id.in_(ids))
+        .order_by(PaperAuthor.paper_id, PaperAuthor.position, Author.id)
+    ):
+        authors.setdefault(paper_id, []).append(name)
+    counts = dict(
+        session.execute(
+            select(Chunk.paper_id, func.count())
+            .where(Chunk.paper_id.in_(ids))
+            .group_by(Chunk.paper_id)
+        ).all()
+    )
+    return [
+        PaperResponse(
+            id=paper.id,
+            title=paper.title,
+            authors=authors.get(paper.id, []),
+            year=paper.year,
+            venue=paper.venue,
+            arxiv_id=paper.arxiv_id,
+            arxiv_family_id=paper.arxiv_family_id,
+            arxiv_version=paper.arxiv_version,
+            source_status=paper.source_status,
+            status=paper.status,
+            error_code=paper.error_code,
+            chunk_count=counts.get(paper.id, 0),
+            created_at=paper.created_at,
         )
-    )
-    count = (
-        session.scalar(select(func.count()).select_from(Chunk).where(Chunk.paper_id == paper.id))
-        or 0
-    )
-    return PaperResponse(
-        id=paper.id,
-        title=paper.title,
-        authors=authors,
-        year=paper.year,
-        venue=paper.venue,
-        arxiv_id=paper.arxiv_id,
-        arxiv_family_id=paper.arxiv_family_id,
-        arxiv_version=paper.arxiv_version,
-        source_status=paper.source_status,
-        status=paper.status,
-        error_code=paper.error_code,
-        chunk_count=count,
-    )
+        for paper in items
+    ]
 
 
 @router.post("/upload", status_code=202)
@@ -202,12 +218,72 @@ def arxiv(request: ArxivRequest, db: DB, queue: QueueDep) -> RunResponse:
 def papers(db: DB, limit: int = 50, offset: int = 0) -> list[PaperResponse]:
     if not 1 <= limit <= 200 or offset < 0:
         raise HTTPException(422, "invalid_pagination")
-    return [
-        paper_response(db, p)
-        for p in db.scalars(
-            select(Paper).order_by(Paper.created_at.desc()).limit(limit).offset(offset)
+    return paper_responses(
+        db,
+        list(
+            db.scalars(
+                select(Paper)
+                .order_by(Paper.created_at.desc(), Paper.id)
+                .limit(limit)
+                .offset(offset)
+            )
+        ),
+    )
+
+
+@router.get("/search")
+def search_papers(
+    db: DB, request: Request, query: Annotated[PaperSearchQuery, Query()]
+) -> PaperPage:
+    names = [key for key, _ in request.query_params.multi_items()]
+    if len(names) != len(set(names)):
+        raise HTTPException(422, "duplicate_search_parameter")
+    statement = select(Paper.id)
+    for text, column in [(query.title, Paper.title), (query.venue, Paper.venue)]:
+        if text is not None:
+            statement = statement.where(func.lower(column).contains(text.lower(), autoescape=True))
+    if query.author is not None:
+        statement = statement.where(
+            select(PaperAuthor.paper_id)
+            .join(Author)
+            .where(
+                PaperAuthor.paper_id == Paper.id,
+                func.lower(Author.name).contains(query.author.lower(), autoescape=True),
+            )
+            .exists()
         )
-    ]
+    if query.year is not None:
+        statement = statement.where(Paper.year == query.year)
+    if query.status is not None:
+        statement = statement.where(Paper.status == query.status)
+    matching = statement.cte("matching_papers")
+    total = select(func.count().label("total")).select_from(matching).cte("matching_total")
+    sort_column = Paper.created_at if query.sort == "created_at" else Paper.year
+    order = (sort_column.asc() if query.direction == "asc" else sort_column.desc()).nulls_last()
+    page = (
+        select(Paper.id, sort_column.label("sort_value"))
+        .join(matching, matching.c.id == Paper.id)
+        .order_by(order, Paper.id)
+        .limit(query.limit)
+        .offset(query.offset)
+        .cte("matching_page")
+    )
+    page_order = (
+        page.c.sort_value.asc() if query.direction == "asc" else page.c.sort_value.desc()
+    ).nulls_last()
+    # Count and page IDs share one PostgreSQL statement snapshot, including an
+    # empty/out-of-range page. EXISTS prevents duplicate rows from author joins.
+    rows = db.execute(
+        select(Paper, total.c.total)
+        .select_from(total.outerjoin(page, true()).outerjoin(Paper, Paper.id == page.c.id))
+        .order_by(page_order, page.c.id)
+    ).all()
+    return PaperPage(
+        items=paper_responses(db, [paper for paper, _ in rows if paper is not None]),
+        total=rows[0][1],
+        limit=query.limit,
+        offset=query.offset,
+    )
 
 
 @router.get("/{paper_id}")

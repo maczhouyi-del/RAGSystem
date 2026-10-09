@@ -105,6 +105,27 @@ test("desktop request only passes allowed payload fields and decodes response", 
     '{"title":"科研"}',
   );
 });
+test("desktop library searches preserve encoded Unicode and dots in query values", async () => {
+  const parameters = new URLSearchParams({
+    title: "中文..科学",
+    author: "Alice DEMO",
+    offset: "0",
+    limit: "50",
+  });
+  const path = `/api/papers/search?${parameters}`;
+  await request(path);
+  const payload = commands[0].args.request as { path: string; method: string };
+  assert.equal(payload.path, path);
+  assert.equal(payload.method, "GET");
+  assert.equal(
+    new URL(`http://127.0.0.1${payload.path}`).searchParams.get("title"),
+    "中文..科学",
+  );
+  await assert.rejects(
+    request("/api/../papers/search?title=test"),
+    /invalid_local_path/,
+  );
+});
 test("multipart upload preserves actual boundary and PDF bytes", async () => {
   const form = new FormData();
   form.set(

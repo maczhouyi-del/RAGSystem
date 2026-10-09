@@ -11,7 +11,7 @@
 - TASK-00：**PASSED**；日志已恢复，引用 UUID 误判已修复；固定 ID 回归、负向控制、604 项完整测试及修复提交 push/PR CI、Windows/Linux Desktop 均通过。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
 - 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
-- TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；TASK-02：PASSED；本地 39 项浏览器/10 项 transport 验证及实现提交 `088e8be` 的 push/PR CI、Windows/Linux Desktop 四个 workflow 全部 SUCCESS；TASK-03：PASSED；645 项后端测试及实现提交四个实际 workflow 全部 SUCCESS；真实科研质量 NOT MEASURED。
+- TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；TASK-02：PASSED；本地 39 项浏览器/10 项 transport 验证及实现提交 `088e8be` 的 push/PR CI、Windows/Linux Desktop 四个 workflow 全部 SUCCESS；TASK-03：PASSED；645 项后端测试及实现提交四个实际 workflow 全部 SUCCESS；真实科研质量 NOT MEASURED；TASK-04：IN_PROGRESS，搜索/分页已实现、本地回归通过，待提交和实际 CI。
 - [基线报告](BASELINE.md)；[实际验证记录](task-00-evidence.json)。
 
 ## 串行计划与依赖
@@ -25,7 +25,7 @@
 | TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | PASSED |
 | TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | PASSED |
 | TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | PASSED |
-| TASK-04 | 文献搜索、排序和分页 | 03 | 保留旧 /api/papers；已有分页需扩展 | 至少 200 篇 fixture，搜索/筛选/稳定排序/总数/兼容 | NOT_STARTED |
+| TASK-04 | 文献搜索、排序和分页 | 03 | 保留旧 /api/papers；已有分页需扩展 | 至少 200 篇 fixture，搜索/筛选/稳定排序/总数/兼容 | IN_PROGRESS |
 | TASK-05 | 文献元数据修改 | 04 | 复用 PATCH；保护原始来源并检测陈旧编辑 | UI 保存/刷新/冲突/原 PDF 与 chunk 不变 | NOT_STARTED |
 | TASK-06 | 安全删除文献后端 | 05 | 先定义 PDF/派生数据/历史证据/缓存/备份生命周期 | PG 事务、文件补偿、迟到 worker、检索排除与历史引用失效 | NOT_STARTED |
 | TASK-07 | 文献删除 UI | 06 | 仅消费已验收删除协议 | Playwright 确认/取消/失败/列表与其他数据隔离 | NOT_STARTED |
@@ -118,11 +118,17 @@
 
 ### TASK-04：文献搜索、排序和分页
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
-- 修改目标、依赖、验收计划：见上表 TASK-04；前置门禁 03。
-- 风险与已知限制：保留旧 /api/papers；已有分页需扩展。
+- 状态：IN_PROGRESS；开始 commit：`bdefa45a4065bdfe8d277aa70f20652d286d98b8`；最终实现 commit 待产生。
+- 分析：已有列表/offset，但搜索与总数缺失；逐行加载作者/chunk 有 N+1；桌面 bridge 仅允许数字分页参数，不支持 Unicode 搜索。TASK-03 实现四个 CI workflow 及全部 job 已通过。
+- 范围：新增 /api/papers/search，旧 /api/papers 数组保留；标题/作者/会议期刊字面子串、年份/索引状态 AND 筛选；时间/年份稳定 ID 排序、空年份末尾、同 SQL 快照总数/分页；批量 response 与七个索引；前端搜索/总数/排序/分页，受限桌面 query 解码。
+- 涉及文件：domain/papers、API papers/schemas、db/models、0007 迁移、Knowledge/api/transport、Rust bridge、集成/浏览器/transport 测试和文档。
+- 新增测试：214 篇 SYNTHETIC 文献，27 项真实 PG 搜索/排序/分页/校验，4 项浏览器筛选/竞态/恢复/导入与 1 项 transport，Rust bridge 正反向 Unicode/路由/参数限制用例。
+- 实际检查：npm ci/lint/check/build PASS；Ruff format/check、mypy 75 文件 PASS；完整 pytest 672 passed（496 unit / 176 integration、0 skipped、36.44s，1 已有 Alembic warning）；43 Playwright（0 skipped、49.7s）和 11 transport（0 skipped）PASS；真实迁移升级/降级/重升与 Alembic check PASS；官方 pinned rustfmt 1.90 format/check PASS；三种 GIN 访问路径可用（强制索引偏好 EXPLAIN，不是性能基准），截图已检查。
+- 保留失败：首轮浏览器 2 failed/41 passed，新 select 缺明确可访问名称，补 aria-label 后完整 43 passed；原测试与断言保留。初次 mypy 变量 column 类型复用冲突，改为 sort_column 后 PASS。原始日志见实际证据。
+- 影响：旧数组协议保留、添加 created_at；作者和 chunk 数量按页批量加载；未修改依赖锁/PDF/Embedding/检索语义；来源状态编辑、PDF 上传和 arXiv 流程回归通过。
+- Git/PR/CI：独立实现待提交，draft #1 未合并；本地 Rust 编译/原生 GUI 未执行，使用本提交 Windows/Linux CI 完成必需平台验收；未核对前不进入 TASK-05。
+- 限制：offset 排序在固定集合中稳定，跨请求增删可移动分页位置；不宣称搜索性能实测。pg_trgm 不在 downgrade 时删除，以免影响其他表。
+- 下一项 TASK-05 尚未开始，须本任务全部门禁通过。
 
 ### TASK-05：文献元数据修改
 

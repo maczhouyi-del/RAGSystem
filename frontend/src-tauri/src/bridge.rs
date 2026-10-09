@@ -117,17 +117,85 @@ pub fn client_with_token(token: Option<&str>) -> Result<Client, String> {
 fn uuid(value: &str) -> bool {
     value.len() == 36 && Uuid::parse_str(value).is_ok()
 }
+fn library_query(query: &str) -> bool {
+    // Decode values only on the fixed library-search route. Percent-encoded
+    // paths, redirects, arbitrary keys and duplicate parameters remain denied.
+    let bytes = query.as_bytes();
+    let mut index = 0;
+    while index < bytes.len() {
+        if bytes[index] == b'%' {
+            if index + 2 >= bytes.len()
+                || !bytes[index + 1].is_ascii_hexdigit()
+                || !bytes[index + 2].is_ascii_hexdigit()
+            {
+                return false;
+            }
+            index += 3;
+        } else {
+            index += 1;
+        }
+    }
+    if query.is_empty()
+        || query.split('&').any(|entry| {
+            !entry.split_once('=').is_some_and(|(key, _)| {
+                !key.is_empty() && key.bytes().all(|b| b.is_ascii_lowercase())
+            })
+        })
+    {
+        return false;
+    }
+    let Ok(url) = reqwest::Url::parse(&format!("{API_BASE}/api/papers/search?{query}")) else {
+        return false;
+    };
+    let mut names = Vec::new();
+    for (key, value) in url.query_pairs() {
+        if names.contains(&key.to_string()) {
+            return false;
+        }
+        names.push(key.to_string());
+        let numeric = |min: u32, max: u32| {
+            !value.is_empty()
+                && value.bytes().all(|b| b.is_ascii_digit())
+                && value.parse::<u32>().is_ok_and(|n| (min..=max).contains(&n))
+        };
+        let valid = match key.as_ref() {
+            "title" | "author" | "venue" => {
+                !value.trim().is_empty()
+                    && value.chars().count() <= if key == "title" { 1000 } else { 256 }
+                    && !value.chars().any(char::is_control)
+                    && !value.contains('\u{fffd}')
+            }
+            "year" => numeric(1000, 2100),
+            "limit" => numeric(1, 200),
+            "offset" => numeric(0, 1_000_000),
+            "status" => matches!(
+                value.as_ref(),
+                "queued" | "parsing" | "indexing" | "indexed" | "failed"
+            ),
+            "sort" => matches!(value.as_ref(), "created_at" | "year"),
+            "direction" => matches!(value.as_ref(), "asc" | "desc"),
+            _ => false,
+        };
+        if !valid {
+            return false;
+        }
+    }
+    true
+}
 fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
-    if path.len() > 4096
+    let (route, query) = path
+        .split_once('?')
+        .map_or((path, None), |(route, query)| (route, Some(query)));
+    let search = route == "/api/papers/search";
+    if path.len() > if search { 24576 } else { 4096 }
         || !path.is_ascii()
-        || path.contains(['\\', '#', '%'])
+        || path.contains(['\\', '#'])
+        || route.contains('%')
+        || (!search && path.contains('%'))
         || path.chars().any(char::is_whitespace)
     {
         return Err("invalid_local_path".into());
     }
-    let (route, query) = path
-        .split_once('?')
-        .map_or((path, None), |(route, query)| (route, Some(query)));
     if !route.starts_with("/api/")
         || route.contains("//")
         || route.split('/').any(|s| s == "." || s == "..")
@@ -135,6 +203,13 @@ fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
         return Err("invalid_local_path".into());
     }
     if let Some(query) = query {
+        if search {
+            return if library_query(query) {
+                Ok((route, Some(query)))
+            } else {
+                Err("invalid_local_query".into())
+            };
+        }
         // Only pagination/cursors and the explicit workflow mode are accepted.
         let mut cursor = None;
         if query.is_empty()
@@ -177,6 +252,7 @@ pub fn validate_request(path: &str, method: &str) -> Result<(), String> {
         ["api", "providers"] => matches!(method, "GET" | "PUT"),
         ["api", "providers", "test"] => method == "POST",
         ["api", "papers"] => method == "GET",
+        ["api", "papers", "search"] => method == "GET",
         ["api", "papers", "upload" | "arxiv"] => method == "POST",
         ["api", "papers", id] if uuid(id) => matches!(method, "GET" | "PATCH"),
         ["api", "papers", id, "chunks"] if uuid(id) => method == "GET",
@@ -493,6 +569,55 @@ pub fn resource(path: &str) -> Result<Resource, String> {
 mod tests {
     use super::*;
     const ID: &str = "12345678-1234-1234-1234-123456789abc";
+    #[test]
+    fn library_search_supports_unicode_without_expanding_route_access() {
+        for query in [
+            "title=%E4%B8%AD%E6%96%87&author=Alice+Demo&venue=Science&year=2024&status=indexed&sort=year&direction=asc&limit=50&offset=200",
+            "title=100%25_literal",
+            "title=Two..dots",
+            "title=http%3A%2F%2Fexample.com%2Fapi%3Fx%3D1",
+        ] {
+            assert!(validate_request(&format!("/api/papers/search?{query}"), "GET").is_ok(), "{query}");
+        }
+        for query in [
+            "title=%",
+            "title=%FF",
+            "title=%0A",
+            "title=%00",
+            "title=+",
+            "title=a&title=b",
+            "limit=0",
+            "limit=201",
+            "offset=-1",
+            "offset=1000001",
+            "year=999",
+            "year=2101",
+            "status=active",
+            "sort=title",
+            "direction=none",
+            "url=http%3A%2F%2Fevil",
+            "%74itle=value",
+            "title=value&",
+        ] {
+            assert!(
+                validate_request(&format!("/api/papers/search?{query}"), "GET").is_err(),
+                "{query}"
+            );
+        }
+        assert!(validate_request("/api/papers/search?title=value", "POST").is_err());
+        assert!(validate_request("/api/health?title=value", "GET").is_err());
+        assert!(validate_request("/api/papers/%73earch?title=value", "GET").is_err());
+        assert!(validate_request(
+            &format!("/api/papers/search?title={}", "%F0%9F%8C%8D".repeat(1000)),
+            "GET"
+        )
+        .is_ok());
+        assert!(validate_request(
+            &format!("/api/papers/search?title={}", "a".repeat(1001)),
+            "GET"
+        )
+        .is_err());
+    }
     #[test]
     fn requests_are_local_and_scoped() {
         assert!(validate_request("/api/health", "GET").is_ok());

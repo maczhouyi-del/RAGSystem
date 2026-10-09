@@ -51,6 +51,14 @@ class PaperResponse(BaseModel):
     status: str
     error_code: str | None
     chunk_count: int
+    created_at: datetime | None = None
+
+
+class PaperPage(BaseModel):
+    items: list[PaperResponse]
+    total: int
+    limit: int
+    offset: int
 
 
 class EntityAnnotation(SensitiveInput):
