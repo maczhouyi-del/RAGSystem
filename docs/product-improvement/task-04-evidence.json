@@ -1,6 +1,6 @@
 {
   "task": "TASK-04",
-  "status": "IN_PROGRESS",
+  "status": "PASSED",
   "start_commit": "bdefa45a4065bdfe8d277aa70f20652d286d98b8",
   "local": {
     "ruff_format": "PASS",
@@ -37,7 +37,8 @@
     "rustfmt": "PASS: official pinned 1.90 rustc/rustfmt downloads with SHA256 verification; format/check",
     "native_rust_compile_and_gui": "NOT EXECUTED locally; required Windows/Linux CI pending",
     "gin_access_paths": "PASS with enable_seqscan=off EXPLAIN for title/venue/author; no performance benchmark",
-    "visual_review": "PASS: /workspace/.rag-task04/browser-results-final/knowledge-search-search-co-1e240-nd-sends-all-server-filters/library-search.png"
+    "visual_review": "PASS: /workspace/.rag-task04/browser-results-final/knowledge-search-search-co-1e240-nd-sends-all-server-filters/library-search.png",
+    "uv_sync_locked": "PASS: 109 installed packages checked, lock unchanged"
   },
   "added_tests": {
     "real_postgresql": 27,
@@ -75,5 +76,92 @@
   "scientific_quality": "NOT MEASURED",
   "real_large_library_latency": "NOT MEASURED",
   "windows11_human_gui": "NOT EXECUTED",
-  "ci": []
+  "ci": [
+    {
+      "id": 37892156284,
+      "name": "CI",
+      "event": "push",
+      "head_sha": "5e59f1bd8851da0551b2c5b31bb004b93bc6fc9f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37892156284",
+      "jobs": [
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        },
+        {
+          "name": "backend",
+          "conclusion": "success"
+        },
+        {
+          "name": "compose",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37892156271,
+      "name": "Desktop",
+      "event": "push",
+      "head_sha": "5e59f1bd8851da0551b2c5b31bb004b93bc6fc9f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37892156271",
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37892160891,
+      "name": "CI",
+      "event": "pull_request",
+      "head_sha": "5e59f1bd8851da0551b2c5b31bb004b93bc6fc9f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37892160891",
+      "jobs": [
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        },
+        {
+          "name": "compose",
+          "conclusion": "success"
+        },
+        {
+          "name": "backend",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37892160910,
+      "name": "Desktop",
+      "event": "pull_request",
+      "head_sha": "5e59f1bd8851da0551b2c5b31bb004b93bc6fc9f",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37892160910",
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "implementation_commit": "5e59f1bd8851da0551b2c5b31bb004b93bc6fc9f",
+  "platform_ci": "PASS: actual Rust compile/test/clippy, Linux native GUI smoke, Windows MSI/NSIS; human Win11 GUI NOT EXECUTED"
 }

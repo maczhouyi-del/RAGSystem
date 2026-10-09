@@ -1081,3 +1081,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 实际验证：Ruff format/check、mypy 75、npm ci/lint/check/build PASS；672 pytest（496 unit / 176 integration，0 skipped，36.44s）、43 Playwright（49.7s，0 skipped）和 11 transport PASS；真实迁移升级/降级/重升及 Alembic check PASS；官方校验下载的 rustfmt 1.90 format/check PASS；三种 GIN access path EXPLAIN 可用，仅强制索引可用性，不是性能测量；截图已检查。
 - 保留失败：初次浏览器 2 failed/41 passed（新 select 可访问名称不明确），补 aria-label 后完整回归通过；mypy column 变量复用类型冲突，改为 sort_column 后通过。未删断言。
 - 限制：跨请求集合变化会移动 offset；大库普通索引迁移需维护窗口/磁盘/扩展权限；共享 pg_trgm 降级保留；实际大库性能/科研质量 NOT MEASURED，Win11 人工 GUI NOT EXECUTED。本提交 Rust 编译/原生 smoke/安装包由实际 CI 验证，待通过前不进入 TASK-05。
+
+- TASK-04 验收：`5e59f1bd8851da0551b2c5b31bb004b93bc6fc9f` 的 push CI 37892156284 / Desktop 37892156271、PR CI 37892160891 / Desktop 37892160910 四个 workflow 全部 completed/SUCCESS，完整 SHA 与所有 job 已核对；Rust check/test/clippy、Windows MSI/NSIS、Linux 原生 GUI smoke PASS。uv locked sync 109 包 PASS；本任务工程 PASSED，自动进入 TASK-05；科研质量/真实大库性能/Win11 人工 GUI 未测。TASK-03 文档验收提交 bdefa45 的四个 workflow 同样已全部 SUCCESS。
