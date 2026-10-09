@@ -215,6 +215,33 @@ export async function setupChat(
   await page.route("**/api/ready", (route) =>
     route.fulfill({ json: { status: "ready" } }),
   );
+  await page.route("**/api/auth/status", (route) =>
+    route.fulfill({ json: { initialized: true, authenticated: true } }),
+  );
+  await page.route("**/api/diagnostics", (route) =>
+    route.fulfill({
+      json: {
+        build: {
+          version: "0.2.0",
+          source_commit: "unknown",
+          dirty: null,
+          built_at_utc: "unknown",
+        },
+        database: "available",
+        redis: "available",
+        local_auth: "initialized",
+        inference: "not_tested",
+        queues: {
+          interactive: { pending: 0, workers: 1 },
+          ingestion: { pending: 0, workers: 1 },
+          evaluation: { pending: 0, workers: 1 },
+        },
+        chat_configuration: {},
+        retrieval_configuration: { model_loading: "not_tested" },
+        corpus: { state: "available", usable_papers: 1 },
+      },
+    }),
+  );
   await page.route("**/api/papers?*", (route) => route.fulfill({ json: [] }));
   await page.route("**/api/conversations**", async (route) => {
     const url = new URL(route.request().url());

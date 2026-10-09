@@ -11,7 +11,7 @@
 - TASK-00：**PASSED**；日志已恢复，引用 UUID 误判已修复；固定 ID 回归、负向控制、604 项完整测试及修复提交 push/PR CI、Windows/Linux Desktop 均通过。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
 - 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
-- TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；自动开始 TASK-02。
+- TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；TASK-02：IN_PROGRESS，首次使用引导已完成本地 39 项浏览器/10 项 transport 验证，等待提交与实际 CI。
 - [基线报告](BASELINE.md)；[实际验证记录](task-00-evidence.json)。
 
 ## 串行计划与依赖
@@ -23,7 +23,7 @@
 | --- | --- | --- | --- | --- | --- |
 | TASK-00 | 现有代码与测试基线检查 | 无 | 审查/文档及基线测试误判修复；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | PASSED |
 | TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | PASSED |
-| TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | NOT_STARTED |
+| TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | IN_PROGRESS |
 | TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | NOT_STARTED |
 | TASK-04 | 文献搜索、排序和分页 | 03 | 保留旧 /api/papers；已有分页需扩展 | 至少 200 篇 fixture，搜索/筛选/稳定排序/总数/兼容 | NOT_STARTED |
 | TASK-05 | 文献元数据修改 | 04 | 复用 PATCH；保护原始来源并检测陈旧编辑 | UI 保存/刷新/冲突/原 PDF 与 chunk 不变 | NOT_STARTED |
@@ -93,11 +93,14 @@
 
 ### TASK-02：首次使用引导界面
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
-- 修改目标、依赖、验收计划：见上表 TASK-02；前置门禁 01。
-- 风险与已知限制：复用 AuthPanel/Settings/Diagnostics。
+- 状态：IN_PROGRESS；开始 commit：`c331848034b135181ad5fc319ddd3ddfe0bbaa0c`；最终 commit：待提交。
+- 范围：只读引导复用 AuthPanel、Settings、Diagnostics、Knowledge、Tasks；不改授权系统、后端数据、记忆/会话语义；关闭偏好仅保存在浏览器本地，不包含凭据/数据 ID。
+- 涉及文件：`frontend/src/FirstUseGuide.tsx`、`Diagnostics.tsx`、`main.tsx`、`style.css`、`frontend/tests/first-use.spec.ts`、`chat-fixtures.ts`，及文档/进度/证据/stage log。
+- 新增测试：7 项 Playwright：空白授权→配置检查→上传→等待索引→问答；已有用户；关闭/重启保留原数据；空库关闭后重启；离线恢复；数据库/worker 故障禁止首次问答；挂起请求超时后可恢复；默认无连接测试、凭据不入 storage。
+- 当前实际结果：tsc/build PASS；7 项新增 Playwright PASS（MOCK HTTP/SSE，非真实解析/模型/质量/Windows 凭据库）；完整前端结果：npm ci/lint/check/build PASS；39 项 Playwright PASS（41.5s，0 skipped）；transport 10 PASS（0 skipped）；截图已检查。CI 待提交后核对完整 SHA 与最终状态。
+- 历史失败与修复：初次完整浏览器运行 12 failed/2 interrupted/23 not run/1 passed，原聊天夹具缺新受保护诊断路由，触发实际本机 API 的 401；补齐路由与授权模拟，保留原断言。新增超时用例初次 1 failed/38 passed，离线自动重试使刷新按钮持续 busy；取消/超时释放 busy，离线停止自动轮询并支持手动恢复，完整 39 项重跑通过。未删测试或降低断言。
+- 限制：引导不安装或配置环境/密钥；远程模型/Embedding 可能收费，连接测试可选且手动；真实科研效果 NOT MEASURED、Windows 11 人工 GUI NOT EXECUTED。
+- 前置 TASK-01 已通过，当前仅修改 TASK-02；TASK-03 未开始。
 
 ### TASK-03：可复现科研验收框架
 

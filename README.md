@@ -5,6 +5,7 @@
 Startup problems? Run `./scripts/diagnose.sh` (Linux) or
 `powershell -NoProfile -File .\scripts\diagnose.ps1` (Windows).
 See [read-only environment diagnostics](docs/environment-diagnostics.md) for prerequisites and repairs.
+New users can follow the dismissible [first-use guide](docs/first-use.md) in Web or Desktop.
 
 A local scientific literature assistant with persistent RAG/Research chats,
 inspectable conversation memory and a Tauri desktop entry. It retains the existing

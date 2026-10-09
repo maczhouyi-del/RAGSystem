@@ -1,0 +1,54 @@
+{
+  "task": "TASK-02",
+  "status": "IN_PROGRESS",
+  "start_commit": "c331848034b135181ad5fc319ddd3ddfe0bbaa0c",
+  "local": {
+    "npm_ci": "PASS",
+    "prettier": "PASS",
+    "typescript": "PASS",
+    "build": "PASS",
+    "playwright": {
+      "passed": 39,
+      "skipped": 0,
+      "seconds": 41.5
+    },
+    "transport": {
+      "passed": 10,
+      "skipped": 0
+    },
+    "visual_review": "PASS: synthetic first-use screenshot at /workspace/.rag-task02/browser-results/first-use-blank-user-follo-b8980-without-implicit-paid-tests/first-use.png"
+  },
+  "failures_preserved": [
+    {
+      "type": "initial browser run",
+      "failed": 12,
+      "interrupted": 2,
+      "not_run": 23,
+      "passed": 1,
+      "cause": "old authorized chat fixture omitted protected diagnostics route; request reached live loopback API and AUTH_REQUIRED hid chat",
+      "fix": "mock diagnostics consistently with authorization; keep all prior assertions",
+      "log": "/workspace/.rag-task02/e2e-initial-failure.log"
+    },
+    {
+      "type": "timeout regression",
+      "failed": 1,
+      "passed": 38,
+      "cause": "automatic retry at timeout kept refresh disabled",
+      "fix": "release busy after abort/timeout; avoid overlapping probes; stop guide polling while offline; preserve explicit recovery assertion",
+      "log": "/workspace/.rag-task02/e2e-timeout-failure.log"
+    }
+  ],
+  "scope": {
+    "backend_changes": false,
+    "rust_changes": false,
+    "migration_changes": false,
+    "lock_changes": false,
+    "new_authorization_system": false,
+    "automatic_provider_tests": false
+  },
+  "scientific_quality": "NOT MEASURED",
+  "actual_paid_model_requests": "NOT EXECUTED",
+  "windows11_human_gui": "NOT EXECUTED",
+  "ci": [],
+  "browser_test_boundary": "MOCK HTTP/SSE contracts, not actual PDF parsing/model inference/database durability/Windows secure storage"
+}

@@ -4,6 +4,25 @@
   background: #f4f7f8;
   font-size: 15px;
 }
+.first-use-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 0 24px;
+}
+.first-use-guide {
+  margin: 12px 0;
+  border-left: 4px solid #163e53;
+}
+.first-use-guide li {
+  margin: 8px 0;
+  min-width: 0;
+}
+.first-use-guide ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 12px 32px;
+  padding-left: 24px;
+}
 * {
   box-sizing: border-box;
 }

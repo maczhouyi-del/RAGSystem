@@ -5,7 +5,7 @@ import { api } from "./api";
 import { Json } from "./components";
 import { isDesktop } from "./transport";
 
-const Snapshot = z.object({
+export const DiagnosticSnapshot = z.object({
   build: z.object({
     version: z.string(),
     source_commit: z.string(),
@@ -21,9 +21,20 @@ const Snapshot = z.object({
     .nullable(),
   chat_configuration: z.unknown(),
   retrieval_configuration: z.unknown(),
+  corpus: z
+    .object({
+      state: z.enum(["available", "empty", "unknown"]),
+      usable_papers: z.number().int().nonnegative().optional(),
+    })
+    .optional(),
+  runtime_dependencies: z
+    .record(z.string(), z.enum(["installed", "missing", "not_required"]))
+    .optional(),
 });
 export function Diagnostics() {
-  const [data, setData] = useState<z.infer<typeof Snapshot> | null>(null);
+  const [data, setData] = useState<z.infer<typeof DiagnosticSnapshot> | null>(
+    null,
+  );
   const [native, setNative] = useState<unknown>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -34,7 +45,7 @@ export function Diagnostics() {
       setData(
         await api(
           "/api/diagnostics",
-          Snapshot,
+          DiagnosticSnapshot,
           undefined,
           "GET",
           AbortSignal.timeout(10000),
@@ -79,6 +90,16 @@ export function Diagnostics() {
                 </li>
               ))}
             </ul>
+          )}
+          {data.corpus && (
+            <p>
+              知识库：
+              {data.corpus.state === "available"
+                ? `${data.corpus.usable_papers ?? ""} 篇可用文献`
+                : data.corpus.state === "empty"
+                  ? "尚无可用文献，上传后等待索引"
+                  : "尚无法检查"}
+            </p>
           )}
           <h4>后端诊断详情</h4>
           <Json value={data} />

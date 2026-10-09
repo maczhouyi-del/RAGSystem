@@ -6,6 +6,7 @@ import { Settings } from "./Settings";
 import { Evaluation } from "./Evaluation";
 import { request, isDesktop, AUTH_REQUIRED } from "./transport";
 import { AuthPanel } from "./AuthPanel";
+import { FirstUseGuide } from "./FirstUseGuide";
 import "./style.css";
 
 const pages = [
@@ -77,6 +78,12 @@ function BackendStatus() {
 function App() {
   const [page, setPage] = useState<Page>(pageFromHash);
   const [needsAuth, setNeedsAuth] = useState(false);
+  const [authRevision, setAuthRevision] = useState(0);
+  function revealMain() {
+    requestAnimationFrame(() =>
+      document.querySelector("main")?.scrollIntoView({ behavior: "smooth" }),
+    );
+  }
   useEffect(() => {
     const requireAuth = () => setNeedsAuth(true);
     window.addEventListener(AUTH_REQUIRED, requireAuth);
@@ -113,13 +120,31 @@ function App() {
         </nav>
       </header>
       <BackendStatus />
+      <FirstUseGuide
+        authRevision={authRevision}
+        onAuthorize={() => {
+          setNeedsAuth(true);
+          revealMain();
+        }}
+        onNavigate={(destination) => {
+          setNeedsAuth(false);
+          setPage(destination);
+          window.location.hash = `/${paths[destination]}`;
+          revealMain();
+        }}
+      />
       <main
         className={
           page === "RAG" || page === "Research" ? "chat-page" : undefined
         }
       >
         {needsAuth ? (
-          <AuthPanel onConnected={() => setNeedsAuth(false)} />
+          <AuthPanel
+            onConnected={() => {
+              setNeedsAuth(false);
+              setAuthRevision((value) => value + 1);
+            }}
+          />
         ) : page === "Knowledge Base" ? (
           <Knowledge />
         ) : page === "Settings" ? (

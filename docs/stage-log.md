@@ -1056,3 +1056,10 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-01 平台验证：`238403a6438c1d838e7e4f99afb35c440fe1d3d2` 的全部十个 CI check run 和四个 workflow 的全部 job SUCCESS；Windows 两种 PowerShell、MSI/NSIS 及 Linux 原生 smoke 均成功；uv locked sync 109 包通过。PR CI run 37884520894 汇总仍 in_progress，与已结束成功的三个 job 不一致；如实保留状态，不重新运行洗绿，暂不开始 TASK-02。证据提交仅记录实际验证与差异。
 
 - TASK-01 最终验收：验证提交 `9e650ae837011ce0298546a6409a0cfa2e4c452b` 的 push CI 37885297371 / Desktop 37885297374、PR CI 37885301335 / Desktop 37885301369 四个 workflow 全部 completed/SUCCESS，SHA 和全部 job 已匹配。原实现 PR 汇总未结束的观察保留，不猜测其状态，没有失败检查被重跑。TASK-01 工程 PASSED；自动开始 TASK-02。验收提交只保存证据。
+
+## TASK-02 首次使用引导（2026-10-09）
+
+- 修改：新 FirstUseGuide 读取连接/授权/Diagnostics；复用 AuthPanel、Settings、Knowledge 与 RAG；main 集成、响应式步骤 CSS、Diagnostics corpus 展示、授权后的旧聊天夹具与 7 项新 Playwright、首次使用文档/进度/证据。没有后端、Rust、迁移、依赖锁或记忆/会话协议修改。
+- 实际验证：npm ci/lint/check/build、39 项 Playwright（0 skipped、41.5s）、10 项 transport（0 skipped）通过；合成 UI 截图已检查。测试明确 MOCK HTTP/SSE；未执行真实 PDF 解析、付费 API、科研质量、Win11 人工操作。
+- 保留失败：旧 fixture 缺诊断路由造成 12 项聊天失败，补齐模拟后原断言通过；超时场景 1 failed/38 passed，修复取消/超时 busy 与离线自动轮询，完整重跑 39 pass。详见 task-02-evidence.json，没有删测试或降低断言。
+- CI 待对应提交的实际检查；用户已授权通过后自动开始 TASK-03。
