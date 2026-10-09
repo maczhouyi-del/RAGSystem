@@ -1022,3 +1022,19 @@ results-receiver.actions.githubusercontent.com / productionresultssa17.blob.core
 Required domains saved in environment draft; runtime access not established.
 No speculative flaky-test attribution, no blind rerun, no test/source changes.
 TASK-00 BLOCKED pending log access and diagnosis; TASK-01 remains NOT_STARTED.
+
+
+### TASK-00 baseline test false positive recovery (2026-10-09 Asia/Shanghai)
+
+Original PR CI logs are now retrievable. The sole failure in run 37782769354
+was test_false_local_history_and_memory_cannot_supply_scientific_answer[research]:
+correct 120-participant prose, but the citation UUID contained 5009 and triggered
+the whole-string 500 exclusion. Analyst/reviewer serialized IDs had the same risk.
+Changed only tests/integration/test_conversation_worker.py and the TASK-00
+BASELINE/PROGRESS/evidence files plus this log. No runtime, API, schema or lock change.
+A fixed chunk/Evidence UUID containing 500 reproduces both modes' old failures;
+updated assertions validate citation identity and retain scientific-text exclusion.
+Worker file: 6 passed. Negative-control leaked scientific text: 2 intentional
+failures, confirming both guards remain effective. Full locked sync, Ruff format/check,
+mypy: PASS; pytest 604 passed (463 unit / 141 integration, zero skipped), 1 upstream
+warning, 30.70s. Fix-commit CI pending; TASK-00 IN_PROGRESS, TASK-01 NOT_STARTED.

@@ -110,7 +110,7 @@ Desktop 当前基准 artifact `11547938987`：`scientific-ragagent-windows-unsig
 
 完整串行任务顺序与依赖见 PROGRESS.md。本轮没有调整用户顺序，没有实现任何后续 TASK。
 
-## 8. TASK-00 提交门禁结果
+## 8. TASK-00 初次提交门禁结果（历史）
 
 基线文档提交 `d238275e3e49c392c5907bf218ffda57161b3a13` 已推送，
 草稿 [PR #1](https://github.com/maczhouyi-del/RAGSystem/pull/1) 已创建。
@@ -124,3 +124,20 @@ job 中也通过。精确 job/step 结果保存在 task-00-evidence.json。
 基准 Git diff 为空；这不能直接证明失败是偶发或环境原因。未修改测试、跳过
 用例或盲目重跑。TASK-00 为 BLOCKED，不能开始 TASK-01。恢复前置为应用已保存
 网络域名变更并取得失败日志。此结论不抹去本机 604 项通过和远端失败的差异。
+
+## 9. 基线测试误判恢复（2026-10-09 Asia/Shanghai）
+
+失败日志现在已可下载。run 37782769354 的唯一失败是
+`test_false_local_history_and_memory_cannot_supply_scientific_answer[research]`：
+答案含正确的 120 participants，但引用 UUID `85d8-a4c5-5009-b422-19530dd16509`
+含字符串 500，命中了全字符串断言。原运行实际为 603 passed / 1 failed。
+因此已确认既有测试对随机标识符的误判；该失败不证明错误历史被当作科学事实。
+
+为解除基线门禁，只调整现有测试文件与本任务记录。固定 source chunk 和真实
+UUID5 Evidence ID 均含 500，在 RAG/Research 中原断言各稳定失败；修复后仍
+要求正确 120 人、正确证据引用和来源 chunk，错误数字不能出现在非引用正文或
+分析/审查请求的科学文本中。完整 UUID 字符串值与科学文本分开检查。
+外部负向控制向分析请求注入错误 500 人文本，两模式仍按预期断言失败。
+修复后 worker 文件 6 passed，完整 Python 604 passed，Ruff/mypy/锁定安装 PASS。
+只改变测试，无业务、数据模型、API 或依赖修改；新增语义检查范围没有变成
+允许错误人数。修复提交的 GitHub CI 尚待核查，TASK-00 暂为 IN_PROGRESS。

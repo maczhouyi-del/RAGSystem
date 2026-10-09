@@ -7,7 +7,7 @@
 
 ## 当前断点
 
-- TASK-00：**BLOCKED**；本地检查和 push CI 通过，但 PR CI 后端 pytest 失败，失败日志被网络策略拒绝，原因尚未查明。
+- TASK-00：**IN_PROGRESS**；日志访问已恢复，已定位并修正引用 UUID 导致的既有测试误判；本地回归通过，等待修复提交的适用 CI。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
 - 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
 - 下一项 TASK-01 尚未开始；只有 TASK-00 标记 PASSED 后，下次运行才能开始。
@@ -20,7 +20,7 @@
 
 | TASK | 修改目标 | 前置门禁/关键依赖 | 范围与风险边界 | 计划验证 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| TASK-00 | 现有代码与测试基线检查 | 无 | 只审查/文档；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | BLOCKED |
+| TASK-00 | 现有代码与测试基线检查 | 无 | 审查/文档及基线测试误判修复；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | IN_PROGRESS |
 | TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | NOT_STARTED |
 | TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | NOT_STARTED |
 | TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | NOT_STARTED |
@@ -41,7 +41,7 @@
 | TASK-18 | 最终安装方案与完整部署 | 17；01/02 诊断引导 | 先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI | 实际 Windows artifact/哈希、版本/auth/升级备份卸载；人工平台单列 | NOT_STARTED |
 | TASK-19 | 科研用户端到端验收 | 18；03/17 真实评测资源 | 停止新功能；A–L 全场景，工程与人工证据分开 | 全新 Win11、20 PDF、数值/比较/记忆/删除/报告/恢复/升级/跨语言 | NOT_STARTED |
 
-## TASK-00 执行记录
+## TASK-00 初次执行记录（历史，后续恢复见下节）
 
 - 修改目标：冻结当前实现/真实 CI/测试/产品缺口与依赖，供后续任务逐项验收。
 - 开始 commit：`a8d5c1f0ace08573c5e5787bf5eef39570405191`。
@@ -57,6 +57,17 @@
 - 风险/限制：REST/GraphQL 后续已成功，PR 已创建。失败日志经 results-receiver.actions.githubusercontent.com 或 productionresultssa17.blob.core.windows.net 下载被代理拒绝；artifact 经 productionresultssa19.blob.core.windows.net 也被拒绝。已将这些确切域名及 api.github.com 保存到网络草稿，不能视为运行实例已应用。缺具体失败日志，不能断言 flaky、业务缺陷或文档回归。真实 provider 科研问答、人工金标质量、Windows 11 人工安装和 macOS 本机验收未执行。
 - 工程状态：BLOCKED。科研质量：NOT MEASURED；Windows 11 人工操作：NOT EXECUTED。
 - 恢复步骤：在环境设置应用已保存网络变更（按界面要求保存/发布），重新下载 run 37782769354 的 backend job 113329775925 日志，定位具体用例；先区分环境/原有问题再决定修复或重跑，不能盲目 rerun 洗绿。保留失败证据，核查最新证据提交及 PR 的适用 CI 后才可 PASSED。TASK-01 不得开始。
+
+## TASK-00 阻塞恢复（2026-10-09 Asia/Shanghai）
+
+- 本次开始 commit：`3e6259b8510a1b3d6abea26d6766779c10c2fd14`。
+- 原失败日志已通过标准 REST job logs 下载；具体用例为 `test_false_local_history_and_memory_cannot_supply_scientific_answer[research]`，原运行 603 passed / 1 failed。答案正确为 120 participants，断言把引用 UUID 中的 `5009` 误判为错误人数；不是本轮文档引入的科研错误。
+- 仅修复 `tests/integration/test_conversation_worker.py`，并更新本任务的三份报告/证据与 stage log；不改业务、API、数据库、锁文件或后续 TASK。
+- 最小实现：fixture 使用固定 chunk UUID（包含 500），其真实 UUID5 Evidence ID 同样包含 500；核对引用 ID，然后检查剔除合法引用后的全文；分析/审查请求仅排除完整 UUID 字符串值，继续检查其余问题、事实、原文等文本；要求 payload 实际存在并携带来源 chunk。
+- 新增测试覆盖：保留原 RAG/Research 参数化用例，以固定 ID 确定性覆盖误判；没有删测试或降低科学文本断言。
+- 验证：固定 ID + 原断言 2 项 EXPECTED FAILURE；修复后的 worker 文件 6 passed；外部负向控制注入错误 500 人文本后两种模式均 EXPECTED FAILURE；完整 `uv sync --locked`、Ruff format/check、mypy、`uv run pytest -q --junitxml=...` PASS，604 passed（463 unit / 141 integration、0 skipped/failures，30.70s，1 upstream warning）。
+- CI/最终修复 commit：提交后补录；目前 IN_PROGRESS，不能提前标记 PASSED。
+- 真实科研效果仍 NOT MEASURED，Win11 人工安装仍 NOT EXECUTED；下一 TASK-01 保持 NOT_STARTED。
 
 ## 尚未开始任务的执行记录
 

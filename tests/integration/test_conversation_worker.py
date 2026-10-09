@@ -32,6 +32,7 @@ from ragagent.domain.research import AnswerDraft, QueryPlan, VerificationRespons
 from ragagent.graphs.state import AnalysisResult, ResearchPlan
 from ragagent.jobs import claim_run
 from ragagent.providers.chat import Usage
+from ragagent.retrieval.evidence import CITATION, parse_citations
 from ragagent.settings import Settings
 from tests.integration.test_retrieval import Embedder, FixtureReranker
 
@@ -171,7 +172,9 @@ class ScientificScript:
 
 
 @contextmanager
-def local_conversation(sessions: sessionmaker[Session], mode: str) -> Iterator[tuple[str, str]]:
+def local_conversation(
+    sessions: sessionmaker[Session], mode: str, *, chunk_id: str | None = None
+) -> Iterator[tuple[str, str]]:
     with sessions() as session:
         paper = Paper(
             title="DEMO ONLY / NOT A BENCHMARK",
@@ -189,6 +192,7 @@ def local_conversation(sessions: sessionmaker[Session], mode: str) -> Iterator[t
         session.flush()
         session.add(
             Chunk(
+                id=chunk_id or new_id(),
                 paper_id=paper.id,
                 section_id=section.id,
                 section_path="Datasets",
@@ -343,7 +347,10 @@ async def test_false_local_history_and_memory_cannot_supply_scientific_answer(
     job_sessions: sessionmaker[Session], monkeypatch: pytest.MonkeyPatch, mode: str
 ) -> None:
     agents = configure_worker(monkeypatch, job_sessions)
-    with local_conversation(job_sessions, mode) as (cid, pid):
+    # Both the source chunk and its UUID5 Evidence ID contain "500". The false
+    # participant count must be rejected without treating identifiers as facts.
+    chunk_id = "50000000-0000-4000-8000-000000000092"
+    with local_conversation(job_sessions, mode, chunk_id=chunk_id) as (cid, pid):
         with job_sessions() as session:
             session.add(
                 Message(
@@ -365,10 +372,22 @@ async def test_false_local_history_and_memory_cannot_supply_scientific_answer(
             assert run is not None and run.status == "completed" and run.result
             answer = session.get(Message, run.request["assistant_message_id"])
             assert answer is not None and "120 participants" in answer.content
-            assert "500" not in answer.content
+            assert parse_citations(answer.content) == ["25e9cf28-d5d9-500f-8ae5-19abc7bbe4b6"]
+            assert "500" not in CITATION.sub("", answer.content)
         assert "500" in json.dumps([p for _, p in agents["retriever"].payloads])
-        assert "500" not in json.dumps([p for _, p in agents["analyst"].payloads])
-        assert "500" not in json.dumps([p for _, p in agents["reviewer"].payloads])
+        for role in ("analyst", "reviewer"):
+            payloads = agents[role].payloads
+            assert payloads
+            serialized = json.dumps([p for _, p in payloads])
+            assert chunk_id in serialized
+            # Ignore only whole UUID string values. Query, claim and evidence
+            # text (including any leaked false participant count) stays checked.
+            text = re.sub(
+                r'"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"',
+                '""',
+                serialized,
+            )
+            assert "500" not in text
 
 
 @pytest.mark.integration

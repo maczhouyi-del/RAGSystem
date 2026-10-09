@@ -1,9 +1,9 @@
 {
   "task": "TASK-00",
-  "observed_at": "2026-10-08T21:19:43.690350+08:00",
+  "observed_at": "2026-10-09T12:05:14.981888+08:00",
   "baseline_commit": "a8d5c1f0ace08573c5e5787bf5eef39570405191",
   "branch": "codex/research-product-improvement",
-  "task_status": "BLOCKED",
+  "task_status": "IN_PROGRESS",
   "business_code_changed": false,
   "checks": [
     {
@@ -1021,6 +1021,93 @@
       "productionresultssa19.blob.core.windows.net"
     ],
     "runtime_access_proven": false,
-    "next_action": "Apply saved network changes in environment settings, fetch failed pytest log, diagnose before rerun or code changes. Do not begin TASK-01."
+    "next_action": "Apply saved network changes in environment settings, fetch failed pytest log, diagnose before rerun or code changes. Do not begin TASK-01.",
+    "resolution": {
+      "log_access": "restored; standard REST job-log download succeeded",
+      "failed_test": "tests/integration/test_conversation_worker.py::test_false_local_history_and_memory_cannot_supply_scientific_answer[research]",
+      "cause": "Whole-answer substring assertion rejected 500 inside citation UUID 85d8-a4c5-5009-b422-19530dd16509; answer correctly contained 120 participants. Serialized analyst/reviewer identifiers had same assertion risk.",
+      "repository_defect_scope": "existing test false positive, no evidence of wrong scientific answer in this failed run",
+      "resolved_by": "deterministic fixture and semantic-text assertions; pending fix-commit CI"
+    }
+  },
+  "test_fix": {
+    "started_from_commit": "3e6259b8510a1b3d6abea26d6766779c10c2fd14",
+    "files": [
+      "tests/integration/test_conversation_worker.py",
+      "docs/product-improvement/BASELINE.md",
+      "docs/product-improvement/PROGRESS.md",
+      "docs/product-improvement/task-00-evidence.json",
+      "docs/stage-log.md"
+    ],
+    "business_code_changed": false,
+    "database_or_api_changed": false,
+    "fixture_chunk_id": "50000000-0000-4000-8000-000000000092",
+    "fixture_evidence_id": "25e9cf28-d5d9-500f-8ae5-19abc7bbe4b6",
+    "before_fix_reproduction": {
+      "result": "EXPECTED FAILURE",
+      "failed": 2,
+      "modes": [
+        "rag",
+        "research"
+      ],
+      "command": "uv run pytest -q tests/integration/test_conversation_worker.py -k false_local_history (fixed fixture, old assertions)"
+    },
+    "after_fix_worker_file": {
+      "result": "PASS",
+      "passed": 6,
+      "command": "uv run pytest -q tests/integration/test_conversation_worker.py"
+    },
+    "negative_control": {
+      "result": "EXPECTED FAILURE",
+      "failed": 2,
+      "modes": [
+        "rag",
+        "research"
+      ],
+      "injected_text": "Dataset A has 500 participants.",
+      "injected_location": "captured analyst request, using an external pytest plugin",
+      "command": "PYTHONPATH=/workspace/.rag-task00:/workspace/RAGSystem uv run pytest -q -p uuid_negative_control tests/integration/test_conversation_worker.py -k false_local_history",
+      "notes": "Initial control hook patched an uncollected module and did not inject text; corrected collection hook produced the two required assertion failures. No plugin committed."
+    },
+    "checks": [
+      {
+        "command": "uv sync --locked",
+        "result": "PASS"
+      },
+      {
+        "command": "uv run ruff format --check .",
+        "result": "PASS"
+      },
+      {
+        "command": "uv run ruff check .",
+        "result": "PASS"
+      },
+      {
+        "command": "uv run mypy src",
+        "result": "PASS"
+      },
+      {
+        "command": "uv run pytest -q --junitxml=/workspace/.rag-task00/uuid-fix-pytest.xml",
+        "result": "PASS"
+      }
+    ],
+    "pytest": {
+      "passed": 604,
+      "unit_passed": 463,
+      "integration_passed": 141,
+      "skipped": 0,
+      "failed": 0,
+      "seconds": 30.7,
+      "warnings": 1
+    },
+    "fix_commit": null,
+    "ci": [],
+    "log_hashes": {
+      "uuid-failure-excerpt.txt": "2acaa63634baaa16b590ccaade2a598323ed0f9948687b160df84227d97ce9ee",
+      "fixed-id-before.log": "b0cf9aae4ffcfa687b2f0a9916ddc8d9ecf768d3e5788e6d60c44a89015e0601",
+      "uuid-negative-control.log": "80f04ad56e69bfb827575d16584922ebd62b15bbcb12c10a7bd9b469239b3bd9",
+      "uuid-fix-validation.log": "ced84260b651a9873617d481c64fa3ddc95c62f6db3b80ee7db2f855f9c78af9",
+      "uuid-fix-pytest.xml": "b2307d0e248b1ebc6d2442594546f34499d8f5418669670e49b869f6b3831a26"
+    }
   }
 }
