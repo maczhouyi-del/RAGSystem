@@ -72,7 +72,7 @@ def test_organization_migration_preserves_legacy_and_rejects_lossy_downgrade() -
             "downgrade", "0009", success=False
         )
         with probe.begin() as db:
-            assert db.scalar(text("SELECT version_num FROM alembic_version")) == "0010"
+            assert db.scalar(text("SELECT version_num FROM alembic_version")) == "0011"
             assert db.scalar(text("SELECT count(*) FROM paper_collection_members")) == 1
             assert (
                 db.scalar(text("SELECT original_path FROM papers WHERE id='legacy'"))

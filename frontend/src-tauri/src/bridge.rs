@@ -204,7 +204,7 @@ fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
         return Err("invalid_local_path".into());
     }
     if let Some(query) = query {
-        if route == "/api/collections" {
+        if route == "/api/collections" || route.ends_with("/annotations") {
             let mut names = Vec::new();
             let valid = !query.is_empty()
                 && query.split('&').all(|entry| {
@@ -229,7 +229,10 @@ fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
                 Err("invalid_local_query".into())
             };
         }
-        if route.split('/').any(|part| part == "collections") {
+        if route.split('/').any(|part| part == "collections")
+            || route.ends_with("/source")
+            || route == "/api/annotations/coverage"
+        {
             return Err("invalid_local_query".into());
         }
         if search {
@@ -292,7 +295,11 @@ pub fn validate_request(path: &str, method: &str) -> Result<(), String> {
         ["api", "papers", id] if uuid(id) => matches!(method, "GET" | "PATCH" | "DELETE"),
         ["api", "papers", id, "deletion-preview" | "deletion"] if uuid(id) => method == "GET",
         ["api", "papers", id, "deletion", "retry"] if uuid(id) => method == "POST",
-        ["api", "papers", id, "chunks"] if uuid(id) => method == "GET",
+        ["api", "papers", id, "chunks" | "annotations"] if uuid(id) => method == "GET",
+        ["api", "annotations", "coverage"] => method == "POST",
+        ["api", "papers", id, "chunks", chunk, "source"] if uuid(id) && uuid(chunk) => {
+            method == "GET"
+        }
         ["api", "papers", id, "retry"] if uuid(id) => method == "POST",
         ["api", "papers", id, "chunks", chunk, "entities"] if uuid(id) && uuid(chunk) => {
             method == "POST"
@@ -654,6 +661,29 @@ mod tests {
             "GET"
         )
         .is_err());
+    }
+
+    #[test]
+    fn annotation_visibility_uses_fixed_read_routes() {
+        let annotations = format!("/api/papers/{ID}/annotations");
+        let source = format!("/api/papers/{ID}/chunks/{ID}/source");
+        assert!(validate_request(&annotations, "GET").is_ok());
+        assert!(validate_request(&format!("{annotations}?limit=50&offset=0"), "GET").is_ok());
+        assert!(validate_request(&source, "GET").is_ok());
+        assert!(validate_request("/api/annotations/coverage", "POST").is_ok());
+        for path in [
+            format!("{annotations}?after=0"),
+            format!("{annotations}?limit=0"),
+            format!("{annotations}?limit=1&limit=2"),
+            format!("{source}?offset=0"),
+            "/api/papers/invalid/annotations".into(),
+            "/api/annotations/coverage?limit=1".into(),
+        ] {
+            assert!(validate_request(&path, "GET").is_err());
+        }
+        assert!(validate_request(&annotations, "POST").is_err());
+        assert!(validate_request(&source, "DELETE").is_err());
+        assert!(validate_request("/api/annotations/coverage", "GET").is_err());
     }
 
     #[test]

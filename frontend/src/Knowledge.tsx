@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Paper, PaperPage, Run, api } from "./api";
 import type { SourceStatus } from "./api";
+import { PaperAnnotations } from "./Annotations";
 import { PdfImports } from "./PdfImports";
 import {
   CollectionManager,
@@ -404,6 +405,7 @@ export function Knowledge() {
                 <br />
                 {p.year} · {p.venue}
                 <MetadataOverrides paper={p} />
+                <PaperAnnotations paperId={p.id} title={p.title} />
                 <OriginalMetadata paper={p} />
                 <PaperOrganization
                   paper={p}

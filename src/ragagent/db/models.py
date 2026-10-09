@@ -175,6 +175,31 @@ class Chunk(Base):
     )
 
 
+class ChunkAnnotationReview(Base):
+    """Coverage of all dataset/method/metric types for one exact chunk revision.
+
+    Occurrence links alone never create this record. No work queue lives here.
+    """
+
+    __tablename__ = "chunk_annotation_reviews"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('queued', 'processing', 'completed', 'failed')",
+            name="ck_annotation_review_status",
+        ),
+        CheckConstraint("content_sha256 ~ '^[0-9a-f]{64}$'", name="ck_annotation_review_hash"),
+    )
+    chunk_id: Mapped[str] = mapped_column(
+        ForeignKey("chunks.id", ondelete="CASCADE"), primary_key=True
+    )
+    content_sha256: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(16))
+    run_id: Mapped[str | None] = mapped_column(ForeignKey("runs.id", ondelete="SET NULL"))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+
+
 class Entity(Base):
     __tablename__ = "entities"
     __table_args__ = (UniqueConstraint("name", "entity_type"),)

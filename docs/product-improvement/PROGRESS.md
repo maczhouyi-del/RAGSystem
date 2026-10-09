@@ -31,7 +31,7 @@
 | TASK-07 | 文献删除 UI | 06 | 仅消费已验收删除协议 | Playwright 确认/取消/失败/列表与其他数据隔离 | PASSED |
 | TASK-08 | 批量 PDF 导入 | 07 | 复用单篇 API/ingestion/outbox，限制并发 | 重复/失败/断网/重试/刷新/并发；上传与索引状态分离 | PASSED |
 | TASK-09 | 论文分组与标签 | 08 | 后端检索范围；不复制 PDF/Embedding | 关系迁移/CRUD/删除分组不删论文/RAG 与 Research 过滤 | PASSED |
-| TASK-10 | 实体标注状态可视化 | 09 | 区分未标注与不存在；严格过滤不等于全文搜索 | 部分标注语料、来源片段、状态/警示与过滤语义 | NOT_STARTED |
+| TASK-10 | 实体标注状态可视化 | 09 | 区分未标注与不存在；严格过滤不等于全文搜索 | 部分标注语料、来源片段、状态/警示与过滤语义 | IN_PROGRESS |
 | TASK-11 | 实体提取与人工校正 | 10 | 保守带来源提取；费用显式、重试幂等、同名消歧 | 证据关联/校正持久化/严格过滤/重复导入；实际质量独立测量 | NOT_STARTED |
 | TASK-12 | 更精确 PDF 来源定位 | 11 | 保留 stable Evidence ID；旧索引兼容；不可伪造 bbox | 文本/表格/公式 PDF、无坐标降级、迁移兼容 | NOT_STARTED |
 | TASK-13 | 引用与 PDF 阅读 | 12 | 复用 source metadata/受限 bridge；新增依赖先许可证审查 | 正确论文/页/多引用/表格/缺坐标降级，Web/Desktop | NOT_STARTED |
@@ -191,11 +191,13 @@
 
 ### TASK-10：实体标注状态可视化
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
-- 修改目标、依赖、验收计划：见上表 TASK-10；前置门禁 09。
-- 风险与已知限制：区分未标注与不存在；严格过滤不等于全文搜索。
+- 状态：IN_PROGRESS；开始 commit：`626f7886a63c08fc47e188274f95923c2262714f`；最终实现 commit：待独立提交与实际 CI。
+- 修改：0011 显式逐片段覆盖/原文 SHA256/Run 可选指针，五状态与历史链接不自动完成；按需论文状态/实体分页/当前来源；与真实检索共享谓词的一条 SQL 范围覆盖查询、严格过滤零匹配和部分覆盖提示、不自动放宽；固定 UUID native read/coverage 路由。未启动抽取/模型调用，未增加队列、未复制 PDF/Embedding/Evidence。
+- 涉及文件、命令与验证：[完整证据](task-10-evidence.json)、[使用与边界](../entity-annotation-visibility.md)。新增 9 unit /10 integration（真实 PG 状态、SHA 过期、来源、严格 dense/lexical、删除级联和有损降级保护）、9 MOCK browser /1 transport /1 Rust 路由测试。
+- 本地验证：Ruff format/check、mypy 86、locked sync 109、npm ci/lint/check/build、官方 Rust 1.90 rustfmt PASS；91 browser（0 skipped，报告 1.3m）/14 transport PASS，状态和来源截图已检查；最终 768 pytest（534 unit /234 PG、0 skipped/failed、54.90s）PASS。
+- 保留失败：新浏览器定位使用不存在的中文导航，取消后旧 preview 短暂占端口；改用实际 hash 路由，旧进程退出后专项 7 PASS。完整 browser 90 PASS/1 FAIL 的旧会话夹具缺少覆盖查询，trace 证实真实 HTTP 401 切换授权页面；增加明确 MOCK 覆盖响应、保留全部过滤重置断言，专项 1 PASS、完整 91 PASS。新增删除 fixture 在提交后读取已删除 Chunk 的过期 ORM 属性，Python 767 PASS/1 FAIL；冻结请求 ID 后来源专项 9 PASS，最终全量 768 PASS。迁移 SQL 行长/类型注解 Ruff、格式/重复 import 已修正，不删除断言。
+- CI：前置验收 626f788 的 push 37928172260/37928172394、PR 37928178031/37928178151 四个 workflow/十个 job 均 completed/SUCCESS、完整 SHA 核对；本实现实际 CI 尚未执行，TASK-11 不得开始。
+- 云服务：schema 0011、开发库 0 Paper/1 原有 Run/0 审阅，API/Web/三个 worker ready，无模型请求。状态与过滤检查是读取快照，覆盖查询不是最终召回保证；计算原文摘要的大库延迟未测量。实体提取与审阅写入属于 TASK-11；科学质量 NOT MEASURED、Win11 人工 GUI NOT EXECUTED。
 
 ### TASK-11：实体提取与人工校正
 

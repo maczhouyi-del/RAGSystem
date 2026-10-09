@@ -1,3 +1,5 @@
+from typing import TypeVarTuple
+
 from sqlalchemy import Select, func, or_, select
 
 from ragagent.db.models import (
@@ -12,10 +14,10 @@ from ragagent.db.models import (
 )
 from ragagent.domain.research import MetadataFilter
 
+Columns = TypeVarTuple("Columns")
 
-def apply_filters(
-    statement: Select[Chunk, Paper, float], filters: MetadataFilter
-) -> Select[Chunk, Paper, float]:
+
+def apply_filters(statement: Select[*Columns], filters: MetadataFilter) -> Select[*Columns]:
     if filters.paper_ids:
         statement = statement.where(Paper.id.in_(filters.paper_ids))
     for ids, kind in [(filters.group_ids, "group"), (filters.tag_ids, "tag")]:

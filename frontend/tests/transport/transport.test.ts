@@ -280,3 +280,29 @@ test("desktop organization scope and individual relations preserve exact verbs a
   }
   assert.ok(!JSON.stringify(commands).includes("Authorization"));
 });
+
+test("desktop annotation reads and coverage use fixed paths without inference", async () => {
+  const id = "b27e97ba-0c6b-4ac2-8b1d-0ef2f6a8ef7f";
+  const filters = { group_ids: [id], datasets: ["DEMO dataset"] };
+  for (const [path, method, body] of [
+    [`/api/papers/${id}/annotations?limit=50&offset=0`, "GET", undefined],
+    [`/api/papers/${id}/chunks/${id}/source`, "GET", undefined],
+    ["/api/annotations/coverage", "POST", JSON.stringify(filters)],
+  ] as const) {
+    await request(path, {
+      method,
+      ...(body
+        ? { body, headers: { "Content-Type": "application/json" } }
+        : {}),
+    });
+    const payload = commands.at(-1)!.args.request as {
+      path: string;
+      method: string;
+      body: string | null;
+    };
+    assert.equal(payload.path, path);
+    assert.equal(payload.method, method);
+    if (body) assert.deepEqual(JSON.parse(atob(payload.body!)), filters);
+  }
+  assert.ok(!JSON.stringify(commands).includes("Authorization"));
+});

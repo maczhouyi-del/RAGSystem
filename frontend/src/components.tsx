@@ -3,6 +3,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { isDesktop, openPaperPdf } from "./transport";
 import type { Evidence, SourceStatus, SupportingPair } from "./api";
+import { EntityFilterNotice } from "./Annotations";
 import { OrganizationFilters } from "./Collections";
 export const sourceStatusLabels: Record<SourceStatus, string> = {
   unknown: "来源状态未核验",
@@ -105,6 +106,7 @@ export function FilterEditor({
     <details>
       <summary>文献过滤条件（同字段 OR，不同字段 AND）</summary>
       <OrganizationFilters value={value} onChange={onChange} />
+      <EntityFilterNotice filters={value} />
       <div className="grid">
         {fields.map((key) => (
           <label key={key}>

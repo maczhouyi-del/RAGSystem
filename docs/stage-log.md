@@ -1141,3 +1141,12 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 边界：当前检索快照成员范围，名称版本不冻结关联数；大库性能/真实模型科研质量未测，Win11 人工 GUI 未执行；MOCK HTTP 不证明真实科研表现。本任务实际 CI 待提交；TASK-10 未开始。
 
 - TASK-09 验收：48e89dd8fa24d4e458d188292fd5ab660252e370 的 push CI 37925725221 / Desktop 37925725238、PR CI 37925731577 / Desktop 37925731446 四个实际 workflow/十个 job completed/SUCCESS，完整 SHA 核对。Rust/Windows MSI/NSIS/Linux GUI smoke PASS；749 后端、82 MOCK 浏览器、13 transport 本地 PASS。工程 PASSED，自动进入 TASK-10。TASK-17 真实评测资源经用户确认未备妥，科学质量和 Win11 人工验收仍未测。
+
+## TASK-10 实体标注状态可视化（2026-10-09）
+
+- 开始：626f7886a63c08fc47e188274f95923c2262714f，前置四个精确 SHA workflow/十个 job SUCCESS。0011 审阅覆盖/原文摘要、五状态/历史链接不自动 completed；分页实体与原文来源读、共享过滤谓词范围计数与零匹配/部分覆盖说明；固定 native 路由，不调用模型、不启动抽取、不修改源文献/证据或新建队列。
+- 验证：Ruff/mypy 86/locked sync 109/npm ci/lint/check/build/官方 rustfmt PASS；真实 PG 专项 17、迁移 2、删除恢复专项 9 PASS；完整 browser 91（MOCK HTTP，1.3m）/transport 14 PASS，截图已查看。最终 Python 增加删除回归正在验证，实际 CI 待提交。
+- 失败保留：新导航定位与旧 preview 端口占用已修复；旧会话 fixture 未模拟覆盖查询导致真实 401 授权切换，修正 MOCK 并保留全部科学/过滤断言；新增删除 fixture 提交后刷新已删除 ORM Chunk，先保留 IDs，专项 PASS。格式/SQL 行长/类型注解修正，没有跳过测试。状态与严格条件不可满足不是实体科学不存在证明。
+- 当前状态 IN_PROGRESS；TASK-11 未开始。真实模型抽取质量、真实科研质量/人工 Win11 GUI 未测量，用户确认 TASK-17 真实资源未备妥。
+
+- TASK-10 最终本地后端：768 passed（534 unit /234 integration、0 skipped/failed、54.90s），Ruff format/check 与 mypy 86 PASS；退役来源 410 和审阅 CASCADE 实际验证。最终前端 91 MOCK browser/14 transport PASS，构建/格式/type PASS，官方 rustfmt PASS。状态 IN_PROGRESS，等待新实现四个实际 workflow/十个 job 门禁。

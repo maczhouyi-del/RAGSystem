@@ -242,6 +242,26 @@ export async function setupChat(
       },
     }),
   );
+  // MOCK coverage only; never request the real backend from scripted chat tests.
+  await page.route("**/api/annotations/coverage", (route) => {
+    const filters = route.request().postDataJSON() as Record<string, unknown>;
+    const strict = ["datasets", "methods", "metrics", "entity_types"].some(
+      (key) =>
+        Array.isArray(filters[key]) && (filters[key] as unknown[]).length > 0,
+    );
+    return route.fulfill({
+      json: {
+        total_chunks: 1,
+        reviewed_chunks: 0,
+        linked_chunks: 0,
+        active_chunks: 0,
+        failed_chunks: 0,
+        matching_chunks: strict ? 0 : 1,
+        strict,
+        complete: false,
+      },
+    });
+  });
   await page.route("**/api/papers/search?*", (route) =>
     route.fulfill({ json: { items: [], total: 0, limit: 50, offset: 0 } }),
   );

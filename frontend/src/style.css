@@ -729,3 +729,10 @@ footer {
   max-height: 80dvh;
   overflow-y: auto;
 }
+
+.annotation-source {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 24rem;
+  overflow: auto;
+}
