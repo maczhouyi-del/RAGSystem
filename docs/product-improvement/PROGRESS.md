@@ -11,7 +11,7 @@
 - TASK-00：**PASSED**；日志已恢复，引用 UUID 误判已修复；固定 ID 回归、负向控制、604 项完整测试及修复提交 push/PR CI、Windows/Linux Desktop 均通过。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
 - 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
-- TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；TASK-02：PASSED；本地 39 项浏览器/10 项 transport 验证及实现提交 `088e8be` 的 push/PR CI、Windows/Linux Desktop 四个 workflow 全部 SUCCESS；TASK-03：IN_PROGRESS；复用 Evaluation，补齐来源标注、逐例人工核验与同数据对比；真实科研质量 NOT MEASURED。
+- TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；TASK-02：PASSED；本地 39 项浏览器/10 项 transport 验证及实现提交 `088e8be` 的 push/PR CI、Windows/Linux Desktop 四个 workflow 全部 SUCCESS；TASK-03：PASSED；645 项后端测试及实现提交四个实际 workflow 全部 SUCCESS；真实科研质量 NOT MEASURED。
 - [基线报告](BASELINE.md)；[实际验证记录](task-00-evidence.json)。
 
 ## 串行计划与依赖
@@ -24,7 +24,7 @@
 | TASK-00 | 现有代码与测试基线检查 | 无 | 审查/文档及基线测试误判修复；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | PASSED |
 | TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | PASSED |
 | TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | PASSED |
-| TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | IN_PROGRESS |
+| TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | PASSED |
 | TASK-04 | 文献搜索、排序和分页 | 03 | 保留旧 /api/papers；已有分页需扩展 | 至少 200 篇 fixture，搜索/筛选/稳定排序/总数/兼容 | NOT_STARTED |
 | TASK-05 | 文献元数据修改 | 04 | 复用 PATCH；保护原始来源并检测陈旧编辑 | UI 保存/刷新/冲突/原 PDF 与 chunk 不变 | NOT_STARTED |
 | TASK-06 | 安全删除文献后端 | 05 | 先定义 PDF/派生数据/历史证据/缓存/备份生命周期 | PG 事务、文件补偿、迟到 worker、检索排除与历史引用失效 | NOT_STARTED |
@@ -105,16 +105,16 @@
 
 ### TASK-03：可复现科研验收框架
 
-- 状态：IN_PROGRESS；开始 commit：`f61ca43c64d748a2d1d39d4db058e8074d273073`；最终 commit：待提交。
+- 状态：PASSED；开始 commit：`f61ca43c64d748a2d1d39d4db058e8074d273073`；最终实现 commit：`b77c04157a03309484b6a62a7071b5add14b893b`；其后的提交只保存验收证据。
 - 范围：复用现有 Evaluation 与 retrieval/generation/conversation runners、原指标和失败 resume；扩展可核验的原始 PDF SHA/版本/页/quote/span 金标，补逐例人工核验及同数据配对对比。
 - 新旧协议：保留旧数据格式；新的 source_v1 人工格式严格验证来源。脚本化/模型路径分开标记；未审核值不记为零；未提供人工真实资源不编造数据或科研成绩。
 - 涉及文件：domain/evaluation 契约，evaluation 的 schema/validation/artifacts/generation/conversation/audit，API 入队 JSON 序列化，annotation_template/audit_evaluation 脚本，unit/integration 测试，evaluation 文档及本任务进度/证据/stage log。
-- 新增覆盖：23 项无网络单元、7 项真实 PG 来源校验、1 项真实 API 数值精度/JSONB 入队；保留旧数据集/多轮哈希、严格来源与版本/页/quote、人工审核不可篡改、失败与 unknown cost、同数据对比/配置隔离。
-- 实际结果：Ruff format/check、mypy 74 文件 PASS；pytest 645 passed（496 unit / 149 integration，0 skipped/failures，30.80s）；四个离线 CLI 与七份未标注表单 PASS（SYNTHETIC ONLY，不构成科研数据）。CI 待实现提交后核对。
+- 新增覆盖：23 项无网络单元、7 项真实 PG 来源校验、1 项真实 API 数值精度/PostgreSQL JSON 入队；保留旧数据集/多轮哈希、严格来源与版本/页/quote、人工审核不可篡改、失败与 unknown cost、同数据对比/配置隔离。
+- 实际结果：Ruff format/check、mypy 74 文件 PASS；pytest 645 passed（496 unit / 149 integration，0 skipped/failures，30.80s）；四个离线 CLI 与七份未标注表单 PASS（SYNTHETIC ONLY，不构成科研数据）。实际四个实现 workflow 已核对完整 SHA 和全部 job，全部 completed/SUCCESS。
 - 历史失败：首轮新增 fixture 错用 Claim.statement 导致 16 failed/93 passed；改为真实契约 text 字段，保留断言，后续完整回归通过。
 - 影响与限制：旧 API/数据格式/哈希兼容；未新增依赖/迁移/桌面协议；人工标注与审核仍是用户声明，精确 PDF 物理页需人读原文，mock 测试不代表科研效果；真实资源/质量 NOT MEASURED、付费调用 NOT EXECUTED。
-- Git/PR：独立提交待产生；draft #1 未合并；后续 TASK-04 必须等待实际 CI 通过。
-- 前置 TASK-02 已通过；当前仅修改 TASK-03；后续 TASK-04 未开始。
+- Git/PR：独立实现提交 `b77c041`，draft #1 未合并；push CI 37890505110 / Desktop 37890505103、PR CI 37890510399 / Desktop 37890510395 全部 completed/SUCCESS。完整链接与 job 见 [实际证据](task-03-evidence.json)。
+- 前置 TASK-02 与本任务工程门禁通过；按授权自动开始 TASK-04。
 
 ### TASK-04：文献搜索、排序和分页
 

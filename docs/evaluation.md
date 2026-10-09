@@ -255,7 +255,7 @@ human cases need a nonblank annotator and timezone-aware annotation timestamp.
 Numeric cases additionally need `numeric_targets`: name, decimal `value` as a
 JSON string, explicit `unit` (use `dimensionless` where appropriate), and nonblank
 experimental `conditions` keys/values. The API preserves decimal precision when
-queuing to JSONB. Correctness requires all values, units and conditions, rather
+queuing to PostgreSQL JSON. Correctness requires all values, units and conditions, rather
 than matching a digit somewhere in an answer.
 
 Download an existing run's `results.json` using Evaluation, then inspect/review
