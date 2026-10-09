@@ -11,7 +11,7 @@
 - TASK-00：**PASSED**；日志已恢复，引用 UUID 误判已修复；固定 ID 回归、负向控制、604 项完整测试及修复提交 push/PR CI、Windows/Linux Desktop 均通过。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
 - 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
-- TASK-01：IN_PROGRESS；已实现只读跨平台诊断，完成本地验证，等待本任务提交与实际 CI；未开始 TASK-02。
+- TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；自动开始 TASK-02。
 - [基线报告](BASELINE.md)；[实际验证记录](task-00-evidence.json)。
 
 ## 串行计划与依赖
@@ -22,7 +22,7 @@
 | TASK | 修改目标 | 前置门禁/关键依赖 | 范围与风险边界 | 计划验证 | 状态 |
 | --- | --- | --- | --- | --- | --- |
 | TASK-00 | 现有代码与测试基线检查 | 无 | 审查/文档及基线测试误判修复；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | PASSED |
-| TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | IN_PROGRESS |
+| TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | PASSED |
 | TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | NOT_STARTED |
 | TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | NOT_STARTED |
 | TASK-04 | 文献搜索、排序和分页 | 03 | 保留旧 /api/papers；已有分页需扩展 | 至少 200 篇 fixture，搜索/筛选/稳定排序/总数/兼容 | NOT_STARTED |
@@ -72,15 +72,15 @@
 - 验收状态：PASSED。历史失败保留在上节和 evidence 的 task_ci/blocker；不是靠盲目重跑解除。
 - 真实科研效果仍 NOT MEASURED，Win11 人工安装仍 NOT EXECUTED；下一 TASK-01 保持 NOT_STARTED。
 
-## 尚未开始任务的执行记录
+## 任务执行记录与后续任务计划
 
-以下每项均无开始 commit、无实际涉及文件、无修改、无新增测试、无已执行验证命令、
+以下 NOT_STARTED 项均无开始 commit、无实际涉及文件、无修改、无新增测试、无已执行验证命令、
 无测试结果、无 CI 链接、无最终 commit。表中的验证为计划，不能填作 PASS。
 开始任一任务时，必须把这些字段替换为实际记录并列出具体文件；风险与依赖沿用上表并细化。
 
 ### TASK-01：环境检查与启动诊断
 
-- 状态：IN_PROGRESS；开始 commit：`38fec46fab33b6dd4395d93cd64fd0c4e0c099e9`；最终实现 commit：`238403a6438c1d838e7e4f99afb35c440fe1d3d2`。
+- 状态：PASSED；开始 commit：`38fec46fab33b6dd4395d93cd64fd0c4e0c099e9`；最终实现 commit：`238403a6438c1d838e7e4f99afb35c440fe1d3d2`。
 - 最小实现：PowerShell/Bash 入口共用标准库 Python 只读诊断；Docker/Compose、端口、磁盘、授权、DB/Redis/三个 worker、模型配置、可选 supervisor 真实调用、可用知识库和运行时依赖分开显示，均附修复建议。
 - 涉及文件：`scripts/diagnose.py/.ps1/.sh`、`scripts/test_diagnostic_launchers.py`、`src/ragagent/api/diagnostics.py`、`tests/unit/test_environment_diagnostics.py`、`tests/integration/test_api.py`、两个 CI 工作流、`README.md`、`docs/environment-diagnostics.md`、本进度/evidence/stage log。
 - 新增验证：10 个离线决策场景；PG/Redis 集成验证 corpus 对 indexed/chunk/withdrawn/retracted/queued 的判定；真实 Linux API/PG/Redis/RQ smoke；Linux 合成 API 启动入口；Windows CI 执行 PowerShell 7 与 Windows PowerShell 入口。
@@ -88,7 +88,8 @@
 - 实际 CI：实现提交 push [CI 37884515678](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884515678)、[Desktop 37884515709](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884515709) 及 PR [Desktop 37884520899](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884520899) 全部 SUCCESS；PR [CI 37884520894](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884520894) 的三个 job 和完整 SHA 上十个 check run 都 SUCCESS，但 workflow/check suite 汇总仍 in_progress/conclusion=null。保留原始差异，不猜测完成，不盲目 rerun。Windows 实际执行两种 PowerShell 和 10 个离线场景；MSI/NSIS 与 Linux 原生 smoke 成功，Win11 人工安装 NOT EXECUTED。
 - 限制：诊断需要 Python 3.11+；缺少时明确提示，退出 2；授权不足显示 unknown，不能据此判定正常；worker 注册不代表工作执行成功；依赖安装不等于模型加载；未调用付费 API；真实科研质量 NOT MEASURED。
 - `uv sync --locked` PASS（109 包）；[实际证据](task-01-evidence.json)。
-- 前置门禁 00 已通过；下一项 02 等待本任务 CI 汇总完成。
+- 验证提交：`9e650ae837011ce0298546a6409a0cfa2e4c452b`，只记录实际 CI 证据，未改业务；其 push [CI 37885297371](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37885297371)、[Desktop 37885297374](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37885297374)；PR [CI 37885301335](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37885301335)、[Desktop 37885301369](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37885301369)，全部 completed/SUCCESS、完整 SHA 与全部 job 已核对；原实现 PR 汇总差异作为历史状态保留，没有失败检查被盲目重跑。
+- 工程验收 PASSED。前置门禁 00 与本任务门禁通过，按用户授权自动开始 02。
 
 ### TASK-02：首次使用引导界面
 

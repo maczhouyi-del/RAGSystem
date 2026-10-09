@@ -1054,3 +1054,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 待办：本任务 push/PR CI 与 Windows 两种 PowerShell 实际执行；不能在此门禁前开始 TASK-02。缺主机 Python/授权时给出具体恢复建议；真实科研质量和 Win11 人工安装未测。
 
 - TASK-01 平台验证：`238403a6438c1d838e7e4f99afb35c440fe1d3d2` 的全部十个 CI check run 和四个 workflow 的全部 job SUCCESS；Windows 两种 PowerShell、MSI/NSIS 及 Linux 原生 smoke 均成功；uv locked sync 109 包通过。PR CI run 37884520894 汇总仍 in_progress，与已结束成功的三个 job 不一致；如实保留状态，不重新运行洗绿，暂不开始 TASK-02。证据提交仅记录实际验证与差异。
+
+- TASK-01 最终验收：验证提交 `9e650ae837011ce0298546a6409a0cfa2e4c452b` 的 push CI 37885297371 / Desktop 37885297374、PR CI 37885301335 / Desktop 37885301369 四个 workflow 全部 completed/SUCCESS，SHA 和全部 job 已匹配。原实现 PR 汇总未结束的观察保留，不猜测其状态，没有失败检查被重跑。TASK-01 工程 PASSED；自动开始 TASK-02。验收提交只保存证据。
