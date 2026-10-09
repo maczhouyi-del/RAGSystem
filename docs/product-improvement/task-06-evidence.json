@@ -1,8 +1,8 @@
 {
   "task": "TASK-06",
-  "status": "IN_PROGRESS",
+  "status": "PASSED",
   "start_commit": "ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f",
-  "implementation_commit": null,
+  "implementation_commit": "da9ba0d24404ca7a72d1712bf32bca03c18caacc",
   "scope": "Backend only: confirmed current-library removal, source retirement, history redaction and durable file/Redis cleanup. No frontend/Rust/lock changes.",
   "scientific_quality": "NOT MEASURED",
   "windows_11_human_acceptance": "NOT EXECUTED",
@@ -73,7 +73,18 @@
     "frontend_lint": "PASS",
     "frontend_typecheck": "PASS",
     "frontend_build": "PASS, existing upstream Rollup/chunk warnings; frontend unchanged",
-    "git_diff_check": "PASS"
+    "git_diff_check": "PASS",
+    "actual_cloud_runtime": {
+      "schema": "0009",
+      "public_api_health": "ok",
+      "public_api_ready_via_web_proxy": "ready",
+      "existing_papers": 0,
+      "existing_failed_runs_preserved": 1,
+      "models_called": false,
+      "protected_local_smoke": "NOT EXECUTED: detached-process runtime credential inaccessible; protected tests run locally via TestClient and in CI."
+    },
+    "pytest_junit_sha256": "a6e6c0cffdd55a5094d74408cd74a0a5f7a48331829f335ee08a1b9a3886341c",
+    "native_desktop_ci": "PASS: actual Rust check/test/clippy; Windows MSI/NSIS and Linux native GUI smoke on exact implementation SHA. Not human Windows 11 acceptance."
   },
   "gate": {
     "task05_acceptance_commit": "ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f",
@@ -84,8 +95,126 @@
       37895509171
     ],
     "prior_doc_ci_status": "All completed/SUCCESS with matching exact SHA",
-    "current_ci": "NOT EXECUTED",
-    "next_task": "TASK-07 remains NOT_STARTED until actual implementation CI succeeds"
+    "current_ci": "PASSED: all four actual implementation workflows completed/SUCCESS, matching full SHA and all ten jobs.",
+    "next_task": "TASK-07 authorized to start after saving TASK-06 acceptance commit.",
+    "workflow_ids": [
+      37914217426,
+      37914219092,
+      37914222359,
+      37914222404
+    ],
+    "workflows": [
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "da9ba0d24404ca7a72d1712bf32bca03c18caacc",
+        "id": 37914217426,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113766361181,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914217426/job/113766361181"
+          },
+          {
+            "conclusion": "success",
+            "id": 113766361485,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914217426/job/113766361485"
+          },
+          {
+            "conclusion": "success",
+            "id": 113766361654,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914217426/job/113766361654"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914217426"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "da9ba0d24404ca7a72d1712bf32bca03c18caacc",
+        "id": 37914219092,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113766367264,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914219092/job/113766367264"
+          },
+          {
+            "conclusion": "success",
+            "id": 113766367586,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914219092/job/113766367586"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914219092"
+      },
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "da9ba0d24404ca7a72d1712bf32bca03c18caacc",
+        "id": 37914222359,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113766378541,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914222359/job/113766378541"
+          },
+          {
+            "conclusion": "success",
+            "id": 113766378852,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914222359/job/113766378852"
+          },
+          {
+            "conclusion": "success",
+            "id": 113766378953,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914222359/job/113766378953"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914222359"
+      },
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "da9ba0d24404ca7a72d1712bf32bca03c18caacc",
+        "id": 37914222404,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113766378739,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914222404/job/113766378739"
+          },
+          {
+            "conclusion": "success",
+            "id": 113766379064,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914222404/job/113766379064"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914222404"
+      }
+    ]
   },
   "limitations": [
     "Current-library removal, not erasure of all copies. Conversation prose/questions/summaries can retain facts or quoted text.",

@@ -1102,3 +1102,6 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 影响：数据库提交后当前知识库立即不可见，清理状态独立；停止消息最终消费不保证同步，但已撤销 worker DB 所有权，RQ callback 不覆盖 cancelled。文件已清理不随 DB rollback 恢复，缺文件可幂等继续。实际 checkpoint 追踪可识别金标之外来源，旧消息即使缺 Run 也有当前来源失效标记。
 - 限制：全历史脱敏扫描会暂停来源发布，未测大库延迟；当前 POSIX 文件描述符后端，Windows 桌面通过 Docker/Linux，原生 Win Python 未支持；历史回答/用户问题/摘要可能留有论文事实或引用正文，独立桌面 documents 缓存、外部阅读器/下载/备份/同步/provider 留存需人工管理，恢复旧备份须再应用删除记录。科研质量与人工 Win11 GUI 未测。TASK-07 实现引用可用性显示和删除确认 UI，本任务无前端改动。
 - 状态：IN_PROGRESS；实际 GitHub CI 待推送和核对，不能提前 PASSED。
+- 独立实现：`da9ba0d24404ca7a72d1712bf32bca03c18caacc` 已推送；push CI 37914217426 / Desktop 37914219092、PR CI 37914222359 / Desktop 37914222404 真实运行，head SHA 匹配；backend/frontend/compose SUCCESS，Desktop 待最终验收。
+- 云实例更新：运行的任务自有旧服务无进行中作业；应用库保留一条 failed Run/零论文，schema 0006→0009 无损升级，重启 API/三个 worker/web 后公共 health/ready 成功。没有触发模型请求；读取独立进程私有 runtime token 被拒，改用公共检查，不声称额外受保护本地 smoke 已执行；本地 TestClient 和实际 CI 的受保护 API 验证仍成立。
+- TASK-06 验收：`da9ba0d24404ca7a72d1712bf32bca03c18caacc` 的 push CI 37914217426 / Desktop 37914219092、PR CI 37914222359 / Desktop 37914222404 全部 completed/SUCCESS，完整 SHA 和十个实际 job 已核对；Rust/Windows MSI/NSIS/Linux 原生 GUI smoke PASS。717 后端本地 PASS，工程 PASSED；保存验收后自动执行 TASK-07。真实科研质量/Win11 人工 GUI 未测。
