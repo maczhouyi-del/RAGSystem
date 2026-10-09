@@ -1,9 +1,9 @@
 {
   "task": "TASK-00",
-  "observed_at": "2026-10-09T12:05:14.981888+08:00",
+  "observed_at": "2026-10-09T12:10:41.868460+08:00",
   "baseline_commit": "a8d5c1f0ace08573c5e5787bf5eef39570405191",
   "branch": "codex/research-product-improvement",
-  "task_status": "IN_PROGRESS",
+  "task_status": "PASSED",
   "business_code_changed": false,
   "checks": [
     {
@@ -991,7 +991,7 @@
     "local_desktop_build_this_task": "NOT EXECUTED",
     "local_compose_build_this_task": "NOT EXECUTED"
   },
-  "api_access": "GitHub REST/GraphQL and PR creation succeeded after initial CONNECT 403. Failure logs and artifact storage remain denied. Source change was verified documentation-only; flaky-test or repository-defect attribution is not established.",
+  "api_access": "GitHub API and original failed-job logs successfully read; failure diagnosed and corrected. Latest fix commit push/PR CI and Desktop all SUCCESS. Historical artifact-download limitation retained separately; no manual-platform or scientific-quality acceptance implied.",
   "log_hashes": {
     "backend.log": "df67e4291c0ca92a9d505eb6ba46c035003d7ab7b523591feb6562c76779fdc1",
     "frontend.log": "2094d72666de43a0cba4c2f231d2d76d4bbd2135e1996d913e06e9f2154cb5ca",
@@ -1027,7 +1027,8 @@
       "failed_test": "tests/integration/test_conversation_worker.py::test_false_local_history_and_memory_cannot_supply_scientific_answer[research]",
       "cause": "Whole-answer substring assertion rejected 500 inside citation UUID 85d8-a4c5-5009-b422-19530dd16509; answer correctly contained 120 participants. Serialized analyst/reviewer identifiers had same assertion risk.",
       "repository_defect_scope": "existing test false positive, no evidence of wrong scientific answer in this failed run",
-      "resolved_by": "deterministic fixture and semantic-text assertions; pending fix-commit CI"
+      "resolved_by": "09c29113bad0df7225e7d0f7e88b21bcd89a7de0",
+      "status": "RESOLVED"
     }
   },
   "test_fix": {
@@ -1100,8 +1101,49 @@
       "seconds": 30.7,
       "warnings": 1
     },
-    "fix_commit": null,
-    "ci": [],
+    "fix_commit": "09c29113bad0df7225e7d0f7e88b21bcd89a7de0",
+    "ci": [
+      {
+        "conclusion": "success",
+        "event": "push",
+        "head_sha": "09c29113bad0df7225e7d0f7e88b21bcd89a7de0",
+        "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37882246737",
+        "id": 37882246737,
+        "name": "CI",
+        "run_attempt": 1,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "head_sha": "09c29113bad0df7225e7d0f7e88b21bcd89a7de0",
+        "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37882246783",
+        "id": 37882246783,
+        "name": "Desktop",
+        "run_attempt": 1,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "head_sha": "09c29113bad0df7225e7d0f7e88b21bcd89a7de0",
+        "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37882251101",
+        "id": 37882251101,
+        "name": "CI",
+        "run_attempt": 1,
+        "status": "completed"
+      },
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "head_sha": "09c29113bad0df7225e7d0f7e88b21bcd89a7de0",
+        "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37882251036",
+        "id": 37882251036,
+        "name": "Desktop",
+        "run_attempt": 1,
+        "status": "completed"
+      }
+    ],
     "log_hashes": {
       "uuid-failure-excerpt.txt": "2acaa63634baaa16b590ccaade2a598323ed0f9948687b160df84227d97ce9ee",
       "fixed-id-before.log": "b0cf9aae4ffcfa687b2f0a9916ddc8d9ecf768d3e5788e6d60c44a89015e0601",
@@ -1109,5 +1151,6 @@
       "uuid-fix-validation.log": "ced84260b651a9873617d481c64fa3ddc95c62f6db3b80ee7db2f855f9c78af9",
       "uuid-fix-pytest.xml": "b2307d0e248b1ebc6d2442594546f34499d8f5418669670e49b869f6b3831a26"
     }
-  }
+  },
+  "final_implementation_commit": "09c29113bad0df7225e7d0f7e88b21bcd89a7de0"
 }

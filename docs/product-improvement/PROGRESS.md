@@ -7,10 +7,10 @@
 
 ## 当前断点
 
-- TASK-00：**IN_PROGRESS**；日志访问已恢复，已定位并修正引用 UUID 导致的既有测试误判；本地回归通过，等待修复提交的适用 CI。
+- TASK-00：**PASSED**；日志已恢复，引用 UUID 误判已修复；固定 ID 回归、负向控制、604 项完整测试及修复提交 push/PR CI、Windows/Linux Desktop 均通过。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
 - 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
-- 下一项 TASK-01 尚未开始；只有 TASK-00 标记 PASSED 后，下次运行才能开始。
+- 下一项 TASK-01 尚未开始；下一次运行可从 TASK-01 开始。
 - [基线报告](BASELINE.md)；[实际验证记录](task-00-evidence.json)。
 
 ## 串行计划与依赖
@@ -20,7 +20,7 @@
 
 | TASK | 修改目标 | 前置门禁/关键依赖 | 范围与风险边界 | 计划验证 | 状态 |
 | --- | --- | --- | --- | --- | --- |
-| TASK-00 | 现有代码与测试基线检查 | 无 | 审查/文档及基线测试误判修复；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | IN_PROGRESS |
+| TASK-00 | 现有代码与测试基线检查 | 无 | 审查/文档及基线测试误判修复；保护业务代码与锁文件 | 完整回归、迁移、真实 CI、Windows artifact 边界 | PASSED |
 | TASK-01 | 环境检查与启动诊断 | 00 | 复用 Diagnostics；不改 .env/数据库 | Windows/Linux 脚本正常与 Docker/端口/worker/auth/model 异常场景 | NOT_STARTED |
 | TASK-02 | 首次使用引导界面 | 01 | 复用 AuthPanel/Settings/Diagnostics | Playwright 新用户/已有用户/断线/退出恢复 | NOT_STARTED |
 | TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | NOT_STARTED |
@@ -66,7 +66,9 @@
 - 最小实现：fixture 使用固定 chunk UUID（包含 500），其真实 UUID5 Evidence ID 同样包含 500；核对引用 ID，然后检查剔除合法引用后的全文；分析/审查请求仅排除完整 UUID 字符串值，继续检查其余问题、事实、原文等文本；要求 payload 实际存在并携带来源 chunk。
 - 新增测试覆盖：保留原 RAG/Research 参数化用例，以固定 ID 确定性覆盖误判；没有删测试或降低科学文本断言。
 - 验证：固定 ID + 原断言 2 项 EXPECTED FAILURE；修复后的 worker 文件 6 passed；外部负向控制注入错误 500 人文本后两种模式均 EXPECTED FAILURE；完整 `uv sync --locked`、Ruff format/check、mypy、`uv run pytest -q --junitxml=...` PASS，604 passed（463 unit / 141 integration、0 skipped/failures，30.70s，1 upstream warning）。
-- CI/最终修复 commit：提交后补录；目前 IN_PROGRESS，不能提前标记 PASSED。
+- 最终实现/修复 commit：`09c29113bad0df7225e7d0f7e88b21bcd89a7de0`；其后的提交仅保存验收证据，自身 SHA 由 Git 历史定位。
+- 实际 CI：push [CI 37882246737](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37882246737)、[Desktop 37882246783](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37882246783)；PR [CI 37882251101](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37882251101)、[Desktop 37882251036](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37882251036)，完整 head SHA 均与修复提交匹配，全部 SUCCESS。
+- 验收状态：PASSED。历史失败保留在上节和 evidence 的 task_ci/blocker；不是靠盲目重跑解除。
 - 真实科研效果仍 NOT MEASURED，Win11 人工安装仍 NOT EXECUTED；下一 TASK-01 保持 NOT_STARTED。
 
 ## 尚未开始任务的执行记录

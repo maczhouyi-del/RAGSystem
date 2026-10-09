@@ -1038,3 +1038,11 @@ Worker file: 6 passed. Negative-control leaked scientific text: 2 intentional
 failures, confirming both guards remain effective. Full locked sync, Ruff format/check,
 mypy: PASS; pytest 604 passed (463 unit / 141 integration, zero skipped), 1 upstream
 warning, 30.70s. Fix-commit CI pending; TASK-00 IN_PROGRESS, TASK-01 NOT_STARTED.
+
+TASK-00 recovery accepted: fix 09c29113bad0df7225e7d0f7e88b21bcd89a7de0.
+Push CI 37882246737 and Desktop 37882246783; PR CI 37882251101 and Desktop
+37882251036 all completed SUCCESS, exact head SHA verified via GitHub REST.
+TASK-00 PASSED; TASK-01 remains NOT_STARTED. This evidence-only follow-up
+preserves the earlier 603-pass/1-failure log diagnosis and the deterministic
+red/green and negative-control checks. Scientific quality NOT MEASURED;
+Windows 11 manual installation NOT EXECUTED. No production or dependency changes.

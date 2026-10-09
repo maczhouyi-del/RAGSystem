@@ -10,7 +10,7 @@
 - 最新 main / 开始提交：`a8d5c1f0ace08573c5e5787bf5eef39570405191`。
 - 基准 tree：`7099b234b7ff06c0eaf038569ecf511d100bb6b4`。
 - 开发分支：`codex/research-product-improvement`，从 origin/main 创建；开始时工作区干净，未发现同名本地或远端分支。
-- 本轮只新增基线、进度、验证记录并追加 stage log；不修改业务、测试、依赖、锁文件、迁移、CI 或用户配置。
+- 初次基线提交只新增基线、进度、验证记录并追加 stage log；恢复阶段仅修复已有集成测试的 UUID 误判（见第 9 节）。业务、依赖、锁文件、迁移、CI 与用户配置均未修改。
 - 已阅读 README 两个语言版本、部署/架构/检索/评测/会话文档、ENGINEERING_REVIEW.md、product-upgrade-report.md、stage-log.md、现有工作流及下列实现。
 
 历史报告来自不同提交，不能把其中的 461/504/566 等测试数、旧分支状态或历史安装包视为当前 main 的验收结果。部署文档仍有旧仓库、旧开发分支及合并前措辞；本轮记录这一文档缺口，不顺带改造部署流程。
@@ -140,4 +140,4 @@ UUID5 Evidence ID 均含 500，在 RAG/Research 中原断言各稳定失败；�
 外部负向控制向分析请求注入错误 500 人文本，两模式仍按预期断言失败。
 修复后 worker 文件 6 passed，完整 Python 604 passed，Ruff/mypy/锁定安装 PASS。
 只改变测试，无业务、数据模型、API 或依赖修改；新增语义检查范围没有变成
-允许错误人数。修复提交的 GitHub CI 尚待核查，TASK-00 暂为 IN_PROGRESS。
+允许错误人数。修复提交 `09c29113bad0df7225e7d0f7e88b21bcd89a7de0` 的 push/PR CI 和 Desktop 已核对全部 SUCCESS：CI 37882246737 / 37882251101，Desktop 37882246783 / 37882251036。TASK-00 为 PASSED；旧失败保留作为诊断证据，TASK-01 未开始。
