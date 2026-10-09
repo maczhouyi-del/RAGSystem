@@ -1090,3 +1090,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 实际验证：uv locked sync 109、Ruff format/check、mypy 75、npm ci/lint/check/build PASS；687 pytest（496 unit / 191 integration、0 skipped、39.59s）、47 Playwright（0 skipped、47.4s）和 11 transport PASS；真实迁移/模型检查/有损降级拒绝与回滚 PASS；截图已检查。两个真实 PG session 同版本编辑仅一个成功，另一个 409。
 - 修正记录：初次 mypy 持久化字典需 domain 验证；两段长 SQL 字面量拆行；显式未知 origin 存为 JSON null 的只读探针揭示错误降级阻塞，改 none_as_null=True 并加入 SQL NULL 断言，完整回归通过。没有删断言。
 - 边界：旧来源未知，不伪造官方值；upload 源为用户输入，Atom 测试响应是 scripted，不是联网验真；旧无版本 PATCH 不具备陈旧意图保护，新 UI 全部带版本；数据保护降级不能绕过。科学质量/Win11 人工 GUI/付费模型未测。实际实现 CI 待核对，TASK-06 未开始。TASK-04 仅验收文档 736d3a7 的四个 workflow 已全部 completed/SUCCESS。
+
+- TASK-05 验收：`5c288748342f2c782c934c5c1deb36687903e1e4` 的 push CI 37894376600 / Desktop 37894376697、PR CI 37894379794 / Desktop 37894379810 四个 workflow 全部 completed/SUCCESS，完整 SHA 与所有 job 已核对；Windows MSI/NSIS 与 Linux 原生 GUI smoke PASS。687 后端/47 浏览器/11 transport 本地 PASS；工程 PASSED，按授权自动进入 TASK-06；真实科学质量/Win11 人工 GUI 未测。

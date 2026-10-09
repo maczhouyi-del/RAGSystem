@@ -1,6 +1,6 @@
 {
   "task": "TASK-05",
-  "status": "IN_PROGRESS",
+  "status": "PASSED",
   "start_commit": "736d3a7358d5bc118311abd599ef6becc33cd365",
   "local": {
     "uv_sync_locked": "PASS: 109 installed packages, no dependency/lock changes",
@@ -80,5 +80,91 @@
   "actual_paid_model_requests": "NOT EXECUTED",
   "actual_arxiv_download": "NOT EXECUTED in these tests",
   "windows11_human_gui": "NOT EXECUTED",
-  "ci": []
+  "ci": [
+    {
+      "id": 37894376600,
+      "name": "CI",
+      "event": "push",
+      "head_sha": "5c288748342f2c782c934c5c1deb36687903e1e4",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37894376600",
+      "jobs": [
+        {
+          "name": "compose",
+          "conclusion": "success"
+        },
+        {
+          "name": "backend",
+          "conclusion": "success"
+        },
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37894376697,
+      "name": "Desktop",
+      "event": "push",
+      "head_sha": "5c288748342f2c782c934c5c1deb36687903e1e4",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37894376697",
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37894379794,
+      "name": "CI",
+      "event": "pull_request",
+      "head_sha": "5c288748342f2c782c934c5c1deb36687903e1e4",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37894379794",
+      "jobs": [
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        },
+        {
+          "name": "compose",
+          "conclusion": "success"
+        },
+        {
+          "name": "backend",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37894379810,
+      "name": "Desktop",
+      "event": "pull_request",
+      "head_sha": "5c288748342f2c782c934c5c1deb36687903e1e4",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37894379810",
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "implementation_commit": "5c288748342f2c782c934c5c1deb36687903e1e4"
 }
