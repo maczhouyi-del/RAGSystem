@@ -143,6 +143,42 @@ test("multipart upload preserves actual boundary and PDF bytes", async () => {
   assert.ok(atob(payload.body).includes(`--${boundary}`));
   assert.ok(atob(payload.body).includes("%PDF-fixture"));
 });
+test("desktop deletion preserves explicit confirmation and cleanup retry verbs", async () => {
+  const id = "12345678-1234-1234-1234-123456789abc";
+  const confirmation = {
+    confirm_paper_id: id,
+    expected_metadata_version: 2,
+    scope: "current_library",
+    acknowledge_retained_copies: true,
+  };
+  await request(`/api/papers/${id}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(confirmation),
+  });
+  await request(`/api/papers/${id}/deletion/retry`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: "{}",
+  });
+  const first = commands[0].args.request as {
+    path: string;
+    method: string;
+    body: string;
+  };
+  const retry = commands[1].args.request as {
+    path: string;
+    method: string;
+    body: string;
+  };
+  assert.equal(first.path, `/api/papers/${id}`);
+  assert.equal(first.method, "DELETE");
+  assert.deepEqual(JSON.parse(atob(first.body)), confirmation);
+  assert.equal(retry.path, `/api/papers/${id}/deletion/retry`);
+  assert.equal(retry.method, "POST");
+  assert.equal(atob(retry.body), "{}");
+  assert.ok(!JSON.stringify(commands).includes("Authorization"));
+});
 test("desktop rejects arbitrary headers/destinations and aborted requests", async () => {
   await assert.rejects(
     request("https://remote.invalid/api/health"),

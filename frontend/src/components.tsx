@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { isDesktop, openPaperPdf } from "./transport";
@@ -149,7 +149,14 @@ export type CitationReference = {
   evidence_id: string;
   page_start: number;
   page_end?: number;
+  source_availability?: "available" | "unavailable";
+  source_unavailable_reason?: string;
 };
+function sourceUnavailable(
+  source: { source_availability?: string } | undefined,
+) {
+  return source?.source_availability === "unavailable";
+}
 export function Citations({
   text,
   evidence,
@@ -163,23 +170,64 @@ export function Citations({
   loadEvidence?: () => Promise<Evidence[]>;
   supportingPairs?: SupportingPair[];
 }) {
-  const [selected, setSelected] = useState<Evidence | null>(null);
+  const [selectedSource, setSelected] = useState<Evidence | null>(null);
   const [error, setError] = useState("");
   const [loaded, setLoaded] = useState<Evidence[]>([]);
+  const [opening, setOpening] = useState(false);
+  const alive = useRef(true);
+  const requestSequence = useRef(0);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      requestSequence.current += 1;
+    };
+  }, []);
   const sources = evidence.length ? evidence : loaded;
+  const unavailableIds = new Set([
+    ...references.filter(sourceUnavailable).map((source) => source.evidence_id),
+    ...sources
+      .filter(
+        (source) =>
+          sourceUnavailable(source) || sourceUnavailable(source.paper),
+      )
+      .map((source) => source.evidence_id),
+  ]);
+  const selected =
+    selectedSource && !unavailableIds.has(selectedSource.evidence_id)
+      ? selectedSource
+      : null;
   async function openEvidence(id: string) {
     setError("");
+    setSelected(null);
+    if (unavailableIds.has(id)) {
+      setError("来源已删除，当前不可验证。");
+      return;
+    }
+    const sequence = ++requestSequence.current;
+    setOpening(true);
     try {
       let next = sources;
-      if (!next.some((item) => item.evidence_id === id) && loadEvidence) {
+      // Recheck the authoritative Run each time; an already loaded source can
+      // be deleted in another window while this conversation remains visible.
+      if (loadEvidence) {
         next = await loadEvidence();
+        if (!alive.current || sequence !== requestSequence.current) return;
         setLoaded(next);
       }
       const source = next.find((item) => item.evidence_id === id);
       if (!source) throw new Error("evidence_not_found");
+      if (sourceUnavailable(source) || sourceUnavailable(source.paper)) {
+        setError("来源已删除，当前不可验证。");
+        return;
+      }
       setSelected(source);
     } catch (error) {
-      setError(String(error));
+      if (alive.current && sequence === requestSequence.current)
+        setError(String(error));
+    } finally {
+      if (alive.current && sequence === requestSequence.current)
+        setOpening(false);
     }
   }
   function remarkEvidence() {
@@ -247,12 +295,19 @@ export function Citations({
                 ? href.slice(10)
                 : undefined;
               return id ? (
-                <button
-                  className="citation"
-                  onClick={() => void openEvidence(id)}
-                >
-                  {children}
-                </button>
+                unavailableIds.has(id) ? (
+                  <span className="source-unavailable">
+                    来源已删除 · 当前不可验证
+                  </span>
+                ) : (
+                  <button
+                    className="citation"
+                    disabled={opening}
+                    onClick={() => void openEvidence(id)}
+                  >
+                    {children}
+                  </button>
+                )
               ) : (
                 <a href={href} target="_blank" rel="noreferrer">
                   {children}
@@ -267,10 +322,14 @@ export function Citations({
       </div>
       <details
         onToggle={(event) => {
-          if (event.currentTarget.open && !sources.length && loadEvidence)
+          if (event.currentTarget.open && loadEvidence)
             void loadEvidence()
-              .then(setLoaded)
-              .catch((error) => setError(String(error)));
+              .then((next) => {
+                if (alive.current) setLoaded(next);
+              })
+              .catch((error) => {
+                if (alive.current) setError(String(error));
+              });
         }}
       >
         <summary>证据 ({sources.length || references.length})</summary>
@@ -278,10 +337,13 @@ export function Citations({
           <button
             className="evidence"
             key={item.evidence_id}
-            onClick={() => setSelected(item)}
+            disabled={opening || unavailableIds.has(item.evidence_id)}
+            onClick={() => void openEvidence(item.evidence_id)}
           >
             {item.paper.title} — {item.section_path} · p.{item.page_start}–
             {item.page_end}
+            {unavailableIds.has(item.evidence_id) &&
+              " · 来源已删除，当前不可验证"}
           </button>
         ))}
       </details>

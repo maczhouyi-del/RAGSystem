@@ -254,7 +254,9 @@ pub fn validate_request(path: &str, method: &str) -> Result<(), String> {
         ["api", "papers"] => method == "GET",
         ["api", "papers", "search"] => method == "GET",
         ["api", "papers", "upload" | "arxiv"] => method == "POST",
-        ["api", "papers", id] if uuid(id) => matches!(method, "GET" | "PATCH"),
+        ["api", "papers", id] if uuid(id) => matches!(method, "GET" | "PATCH" | "DELETE"),
+        ["api", "papers", id, "deletion-preview" | "deletion"] if uuid(id) => method == "GET",
+        ["api", "papers", id, "deletion", "retry"] if uuid(id) => method == "POST",
         ["api", "papers", id, "chunks"] if uuid(id) => method == "GET",
         ["api", "papers", id, "retry"] if uuid(id) => method == "POST",
         ["api", "papers", id, "chunks", chunk, "entities"] if uuid(id) && uuid(chunk) => {
@@ -639,6 +641,35 @@ mod tests {
         assert!(validate_request(&format!("/api/runs/{ID}/events"), "GET").is_err());
         assert!(validate_request("/api/conversations?limit=20&offset=0", "GET").is_ok());
         assert!(validate_request("/api/conversations?mode=research", "GET").is_ok());
+    }
+    #[test]
+    fn paper_deletion_is_scoped_by_uuid_route_and_method() {
+        let paper = format!("/api/papers/{ID}");
+        assert!(validate_request(&paper, "DELETE").is_ok());
+        for suffix in ["deletion-preview", "deletion"] {
+            let route = format!("{paper}/{suffix}");
+            assert!(validate_request(&route, "GET").is_ok());
+            for method in ["POST", "PUT", "PATCH", "DELETE"] {
+                assert!(validate_request(&route, method).is_err());
+            }
+            assert!(validate_request(&format!("{route}?next=http://evil"), "GET").is_err());
+        }
+        let retry = format!("{paper}/deletion/retry");
+        assert!(validate_request(&retry, "POST").is_ok());
+        for method in ["GET", "PUT", "PATCH", "DELETE"] {
+            assert!(validate_request(&retry, method).is_err());
+        }
+        for route in [
+            "/api/papers/not-a-uuid",
+            "/api/papers/not-a-uuid/deletion",
+            "/api/papers/not-a-uuid/deletion/retry",
+            "/api/papers/deletion",
+        ] {
+            assert!(validate_request(route, "DELETE").is_err());
+            assert!(validate_request(route, "POST").is_err());
+        }
+        assert!(validate_request(&format!("{paper}/deletion/../retry"), "POST").is_err());
+        assert!(validate_request(&format!("{paper}/%64eletion"), "GET").is_err());
     }
     #[test]
     fn message_cursors_and_reconciliation_remain_scoped() {

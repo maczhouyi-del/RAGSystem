@@ -9,6 +9,11 @@ import {
   OriginalMetadata,
   PaperMetadataEditor,
 } from "./PaperMetadataEditor";
+import {
+  PaperDeletionDialog,
+  PaperDeletionStatus,
+  usePaperDeletions,
+} from "./PaperDeletion";
 const pageSize = 50;
 const initialFilters = {
   title: "",
@@ -35,7 +40,21 @@ export function Knowledge() {
   const [editingPaper, setEditingPaper] = useState<z.infer<
     typeof Paper
   > | null>(null);
+  const [deletingPaper, setDeletingPaper] = useState<z.infer<
+    typeof Paper
+  > | null>(null);
   const requestSequence = useRef(0);
+  const removedIds = useRef(new Set<string>());
+  const deletions = usePaperDeletions((id) => {
+    removedIds.current.add(id);
+    setPapers((items) => items.filter((item) => item.id !== id));
+    setSourceEdits((edits) => {
+      const remaining = { ...edits };
+      delete remaining[id];
+      return remaining;
+    });
+    void refresh();
+  });
   const offset = query.offset;
   const hasNext = total !== null && offset + pageSize < total;
   const setOffset = (value: number) =>
@@ -66,7 +85,9 @@ export function Knowledge() {
         );
         return;
       }
-      setPapers(page.items);
+      setPapers(
+        page.items.filter((paper) => !removedIds.current.has(paper.id)),
+      );
       setTotal(page.total);
       setError("");
     } catch (e) {
@@ -193,6 +214,15 @@ export function Knowledge() {
       {task && <p>后台任务：{task}。首次解析和模型加载可能需要数分钟。</p>}
       {error && <p role="alert">{error}</p>}
       {sourceNotice && <p role="status">{sourceNotice}</p>}
+      <PaperDeletionStatus manager={deletions} />
+      {deletingPaper && (
+        <PaperDeletionDialog
+          key={deletingPaper.id}
+          paper={deletingPaper}
+          onClose={() => setDeletingPaper(null)}
+          onTracked={deletions.track}
+        />
+      )}
       <p>
         来源状态需人工核对；indexed 仅表示已建立索引，不代表来源状态已核验。
       </p>
@@ -382,7 +412,11 @@ export function Knowledge() {
                 <OriginalMetadata paper={p} />
                 <button
                   aria-label={`编辑 ${p.title} 元数据`}
-                  disabled={editingPaper !== null}
+                  disabled={
+                    editingPaper !== null ||
+                    deletingPaper !== null ||
+                    savingPaper !== null
+                  }
                   onClick={() => setEditingPaper(p)}
                 >
                   编辑元数据
@@ -392,7 +426,7 @@ export function Knowledge() {
                   <select
                     aria-label={`${p.title} 来源状态`}
                     value={sourceEdits[p.id] ?? p.source_status}
-                    disabled={savingPaper === p.id}
+                    disabled={savingPaper === p.id || deletingPaper !== null}
                     onChange={(event) =>
                       setSourceEdits((edits) => ({
                         ...edits,
@@ -413,6 +447,7 @@ export function Knowledge() {
                   aria-label={`保存 ${p.title} 来源状态`}
                   disabled={
                     savingPaper !== null ||
+                    deletingPaper !== null ||
                     sourceEdits[p.id] === undefined ||
                     sourceEdits[p.id] === p.source_status
                   }
@@ -424,6 +459,18 @@ export function Knowledge() {
               <td>
                 {p.status} · {p.chunk_count} chunks
                 {p.error_code && <span role="alert">{p.error_code}</span>}
+                <button
+                  aria-label={`删除 ${p.title}`}
+                  className="danger"
+                  disabled={
+                    deletingPaper !== null ||
+                    editingPaper !== null ||
+                    savingPaper !== null
+                  }
+                  onClick={() => setDeletingPaper(p)}
+                >
+                  删除文献
+                </button>
               </td>
             </tr>
           ))}

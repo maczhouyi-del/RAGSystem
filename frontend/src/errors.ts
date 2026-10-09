@@ -1,5 +1,20 @@
 /** Recovery guidance. Unrecognized remote text is never echoed. */
 const guidance: Record<string, string> = {
+  source_deleted: "来源已删除，当前不可验证。历史回答正文仍可能保留来源内容。",
+  paper_not_found: "论文已不存在，请刷新文献列表。",
+  paper_deletion_not_found:
+    "尚未查到删除记录。请先刷新状态，勿自动重复提交删除。",
+  paper_deletion_confirmation_mismatch:
+    "删除对象与确认内容不一致，请重新读取删除预览。",
+  cleanup_queue_unavailable:
+    "知识库已移除该文献；请恢复 Redis 与 ingestion worker 后重试清理。",
+  cleanup_file_unavailable:
+    "知识库已移除该文献；请检查受管文件目录权限或占用，再重试清理。",
+  cleanup_unsafe_path:
+    "清理已停止：受管路径或符号链接不安全，请管理员核对目录后重试。",
+  cleanup_file_changed:
+    "清理已停止：文件与登记摘要不符。请先另存并核对替换文件，不要强行修改摘要。",
+  cleanup_unmanaged_path: "文件位于受管目录之外，需明确选择并自行清理。",
   paper_metadata_conflict:
     "论文元数据已有更新。草稿已保留，请载入最新内容后核对并重新编辑。",
   local_auth_required: "需要本机授权，请打开连接授权。",

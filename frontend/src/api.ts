@@ -49,6 +49,35 @@ export const PaperPage = z.object({
   limit: z.number().int().positive(),
   offset: z.number().int().nonnegative(),
 });
+export const SourceAvailability = z.object({
+  source_availability: z.enum(["available", "unavailable"]).optional(),
+  source_unavailable_reason: z.string().optional(),
+});
+export const PaperDeletionPreview = z.object({
+  paper_id: z.string(),
+  metadata_version: z.number().int().positive(),
+  chunks: z.number().int().nonnegative(),
+  evidence: z.number().int().nonnegative(),
+  pending_imports: z.number().int().nonnegative(),
+  scope: z.literal("current_library"),
+  retained_copies: z.array(z.string()),
+});
+export const PaperDeletion = z.object({
+  paper_id: z.string(),
+  library_removed: z.literal(true),
+  cleanup_run_id: z.string(),
+  cleanup_status: z.enum([
+    "queued",
+    "running",
+    "completed",
+    "failed",
+    "cancelled",
+  ]),
+  error_code: z.string().nullable(),
+  retained_copies: z.array(z.string()),
+  retained_managed_files: z.array(z.string()),
+});
+export type PaperDeletion = z.infer<typeof PaperDeletion>;
 export const SourceContext = z.object({
   source_id: z.string(),
   element_type: z.string(),
@@ -69,8 +98,13 @@ export const SourceSpan = z.object({
   chunk_end: z.number(),
 });
 export const Evidence = z.object({
+  ...SourceAvailability.shape,
   evidence_id: z.string(),
-  paper: SourceMetadata.extend({ paper_id: z.string(), title: z.string() }),
+  paper: SourceMetadata.extend({
+    ...SourceAvailability.shape,
+    paper_id: z.string(),
+    title: z.string(),
+  }),
   chunk_id: z.string(),
   section_id: z.string().optional(),
   section_path: z.string(),
@@ -93,6 +127,7 @@ export const SupportingPair = z.object({
 export type SupportingPair = z.infer<typeof SupportingPair>;
 export const Result = z
   .object({
+    ...SourceAvailability.shape,
     answer: z.string().optional(),
     draft_report: z.string().optional(),
     research_plan: z.unknown().optional(),

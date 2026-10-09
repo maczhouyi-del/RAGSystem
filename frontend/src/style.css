@@ -656,3 +656,47 @@ footer {
 .paper-original-metadata code {
   overflow-wrap: anywhere;
 }
+.danger {
+  color: #942e29;
+  border-color: #c79b98;
+  background: #fff4f2;
+}
+.paper-deletion-dialog::backdrop {
+  background: #172a3666;
+}
+.paper-deletion-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.deletion-content {
+  min-height: 0;
+  overflow: auto;
+}
+.paper-deletion-dialog > .inline {
+  flex-shrink: 0;
+}
+.deletion-acknowledgement {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 16px 0;
+}
+.deletion-acknowledgement input {
+  width: auto;
+}
+.paper-deletion-status {
+  margin: 16px 0;
+  border-left: 4px solid #942e29;
+}
+.paper-deletion-status small,
+.paper-deletion-dialog small {
+  overflow-wrap: anywhere;
+}
+.source-unavailable {
+  color: #942e29;
+  border: 1px solid #c79b98;
+  background: #fff4f2;
+  padding: 2px 6px;
+  border-radius: 4px;
+}

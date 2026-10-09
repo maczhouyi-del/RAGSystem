@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import type { Message } from "../api";
+import { SourceAvailability } from "../api";
 import { Citations, Json } from "../components";
 import { activeStatus } from "./useConversationMessages";
 import { useRunEvents } from "./useRunEvents";
@@ -15,10 +16,12 @@ export const statusLabels: Record<string, string> = {
   cancelled: "已取消",
 };
 const Presentation = z.object({
+  ...SourceAvailability.shape,
   limitations: z.array(z.string()).default([]),
   citation_refs: z
     .array(
       z.object({
+        ...SourceAvailability.shape,
         evidence_id: z.string(),
         page_start: z.number(),
         page_end: z.number().optional(),
@@ -61,6 +64,10 @@ export function ResultPanel({
   const presentation = presentationResult.success
     ? presentationResult.data
     : undefined;
+  const unavailable =
+    message.metadata.source_availability === "unavailable" ||
+    presentation?.source_availability === "unavailable" ||
+    result?.source_availability === "unavailable";
   const released = state === "completed" || state === "insufficient_evidence";
   const text = released
     ? message.content || result?.answer || result?.draft_report || ""
@@ -76,11 +83,15 @@ export function ResultPanel({
   const plan =
     result?.research_plan ??
     events.find((event) => event.node === "plan")?.payload.research_plan;
-  const loadDetail = () =>
-    loadRun().catch((error) => {
-      setDetailError(String(error));
+  const loadDetail = (fresh = false) =>
+    loadRun(fresh).catch((error) => {
+      if (!(error instanceof DOMException && error.name === "AbortError"))
+        setDetailError(String(error));
       throw error;
     });
+  useEffect(() => {
+    setDetailError("");
+  }, [message.updated_at]);
   useEffect(() => {
     // Only the current response may need its result immediately (legacy records
     // without compact metadata). Historical answers never all fetch their Runs.
@@ -88,7 +99,7 @@ export function ResultPanel({
       void loadDetail().catch(() => undefined);
   }, [current, released, message.id, Boolean(presentation)]);
   const loadEvidence = async () => {
-    const detail = await loadDetail();
+    const detail = await loadDetail(true);
     return (
       detail.result?.evidence_pool ?? detail.result?.reranked_evidence ?? []
     );
@@ -104,12 +115,16 @@ export function ResultPanel({
         <h3
           className={`status-badge ${state}`}
           title={
-            state === "completed"
-              ? "已通过自动证据检查；这不能保证科学事实正确，仍需研究人员判断。"
-              : undefined
+            unavailable
+              ? "来源已删除；保留历史执行状态，当前引用不可验证。"
+              : state === "completed"
+                ? "已通过自动证据检查；这不能保证科学事实正确，仍需研究人员判断。"
+                : undefined
           }
         >
-          {statusLabels[state] ?? state}
+          {unavailable && released
+            ? "历史回答 · 来源不可用，当前不可验证"
+            : (statusLabels[state] ?? state)}
         </h3>
       </div>
       {activeStatus(state) && (
@@ -119,12 +134,18 @@ export function ResultPanel({
       )}
       {text && (
         <Citations
+          key={`${message.id}:${message.updated_at}`}
           text={text}
           evidence={result?.evidence_pool ?? result?.reranked_evidence ?? []}
           references={presentation?.citation_refs}
           loadEvidence={loadEvidence}
           supportingPairs={result?.citation_validation?.supported_pairs}
         />
+      )}
+      {unavailable && (
+        <p role="status">
+          来源已删除。历史正文和执行结果保留，不代表来源仍可用；请使用现有文献重新验证。
+        </p>
       )}
       {(state === "failed" || state === "cancelled") && (
         <p role={state === "failed" ? "alert" : "status"}>

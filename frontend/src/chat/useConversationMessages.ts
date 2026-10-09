@@ -163,11 +163,30 @@ export function useConversationMessages(
   }, [hasOlder, loadingOlder, merge]);
 
   useEffect(() => {
+    let recovering = false;
     const recover = () => {
-      if (document.visibilityState === "hidden" || !selected.current) return;
-      void reconcile(selected.current).catch((error) =>
-        errorCallback.current(String(error)),
-      );
+      if (
+        document.visibilityState === "hidden" ||
+        !selected.current ||
+        recovering
+      )
+        return;
+      // Refresh only currently displayed citation-bearing answers on return.
+      // No periodic full-history reads or eager Run/evidence downloads.
+      const displayed = current.current
+        .filter(
+          (message) =>
+            message.role === "assistant" &&
+            /\[E:[0-9a-f-]{36}\]/.test(message.content),
+        )
+        .slice(-PAGE_SIZE)
+        .map((message) => message.id);
+      recovering = true;
+      void reconcile(selected.current, displayed)
+        .catch((error) => errorCallback.current(String(error)))
+        .finally(() => {
+          recovering = false;
+        });
     };
     window.addEventListener("focus", recover);
     window.addEventListener("online", recover);

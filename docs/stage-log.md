@@ -1112,3 +1112,12 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-06 CI 恢复：补修 `c1f1e3a6024cdec0202ad5266125027d76fa17d1` 的 PR CI 37916026331/backend 113772289585 是真实 FAILURE（1 failed/717 passed），push CI 37916020890、push Desktop 37916020892、PR Desktop 37916026190 SUCCESS，其余九个 job 均成功。官方 gh --log-failed 已取得具体日志；未重跑抹去失败。既有会话评测扫描引用 UUID 数字导致记忆隔离假失败；新增五个确定性控制，原代码 1 failed/4 passed，修复只排除当前来源的引用标记，正文/未知或畸形引用/裸 UUID 仍检查、原始输出保留。真实 PG RAG/Research 固定 chunk 得到含 500 Evidence UUID，两模式确认当前证据身份且正文无 500。必要 CI 恢复修改 evaluation/conversation 与对应单位/PG/检索 fixture；无前端/schema/锁变更。专项 87 passed，最终全量 723 passed（516 unit/207 integration，0 skipped/failed，42.17s），Ruff format/check 和 mypy 82 PASS；状态仍 IN_PROGRESS，等待新实现实际 CI，TASK-07 尚未开始。
 
 - TASK-06 最终补修验收：`f8640d091d895dd7c19ecd230f21bedbf4b12f48` 的 push CI 37917294006 / Desktop 37917294017、PR CI 37917298835 / Desktop 37917299180 四个实际 workflow 全部 completed/SUCCESS；四个完整 head SHA 与十个 job 核对。后端/前端/Compose、Rust check/test/clippy、实际 Windows MSI/NSIS、Linux GUI smoke PASS。723 本地后端测试 PASS；先前 c1f1e3 的 PR failure 仍保留。TASK-06 工程 PASSED，记录验收后按用户授权自动进入 TASK-07；科学质量 NOT MEASURED、Win11 人工 GUI NOT EXECUTED。
+
+## TASK-07 文献删除 UI（2026-10-09 Asia/Shanghai）
+
+- 开始 commit：f00374859eb629a445e55102cf3c71e978b742e6；TASK-06 恢复 f8640d0 与仅验收文档 f003748 四个精确 SHA workflow/十个 job 均 completed/SUCCESS；f003748 runs 37917954357/37917954320/37917961856/37917961675。
+- 修改：Knowledge 删除按钮与中央 native modal，只读最新元数据/范围版本核对、明确副本 ACK、取消/Escape 零写入/提交中防重复；已移除与清理完成分离、可见页面五秒只读状态、安全失败指导/显式 queued/failed/cancelled 清理重试、未知结果对账不重放；最近二十 UUID 只读提示恢复，不保存凭据/原文/请求/任务。历史根级/presentation/Run/Evidence 来源失效显示、非交互失效引用/他文献 PDF 保留，逐引用 fresh Run、版本取消旧详情/缓存/事件与旧引用窗口；返回窗口最多五十显示引用消息核对。Rust 仅四个固定 UUID 协议白名单与正负控制，transport DELETE 确认体与 POST 空对象保持；文档/进度/证据。无后端/迁移/依赖/锁变更。
+- 新增 14 Playwright、1 transport、1 Rust 路由控制，覆盖预览失败/取消/ACK/冲突/失联提交对账/未提交失败/清理失败新 Run/重载只读/其他文献会话/缓存失效/真实 request abort/迟到旧消息页完成/旧无 presentation 消息/提交中保护/状态服务失败。原缓存测试改为仅打开单个 Run 的每次 fresh 读取，不移除科学断言。
+- 实际验证：npm ci/lint/check/build PASS，最终 61 Playwright PASS（0 fail/skip，58.9s）、12 transport PASS；已校验官方 Rust 1.90 rustfmt/--check PASS。先专项 13 PASS、完整 58 PASS、扩展专项 14 PASS/完整 61 PASS，截图揭示长内容 footer 需滚动，改固定可见操作区并加 viewport 断言后最终 61 PASS；没有靠跳过或重跑失败洗绿。CLI prettier 首次错误 cwd 不匹配文件，修正 cwd 后 lint 全量 PASS。
+- 限制：浏览器是明确 MOCK HTTP 契约，真实检索/DB/RQ/文件保护由 TASK-06 实际验证；存储禁用/清空/换客户端/超过二十时不保证提示自动恢复，服务器账本不受影响；不周期性全历史同步；独立缓存/备份与历史正文需自行管理。本地 Cargo 未安装，实际 native 编译/测试/clippy/安装包/smoke 必须由新提交 CI 证明。科研质量 NOT MEASURED、人工 Win11 GUI NOT EXECUTED。
+- 状态：IN_PROGRESS；实现尚未提交、实际 CI NOT EXECUTED。TASK-08 NOT_STARTED。

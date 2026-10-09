@@ -28,7 +28,7 @@
 | TASK-04 | 文献搜索、排序和分页 | 03 | 保留旧 /api/papers；已有分页需扩展 | 至少 200 篇 fixture，搜索/筛选/稳定排序/总数/兼容 | PASSED |
 | TASK-05 | 文献元数据修改 | 04 | 复用 PATCH；保护原始来源并检测陈旧编辑 | UI 保存/刷新/冲突/原 PDF 与 chunk 不变 | PASSED |
 | TASK-06 | 安全删除文献后端 | 05 | 先定义 PDF/派生数据/历史证据/缓存/备份生命周期 | PG 事务、文件补偿、迟到 worker、检索排除与历史引用失效 | PASSED |
-| TASK-07 | 文献删除 UI | 06 | 仅消费已验收删除协议 | Playwright 确认/取消/失败/列表与其他数据隔离 | NOT_STARTED |
+| TASK-07 | 文献删除 UI | 06 | 仅消费已验收删除协议 | Playwright 确认/取消/失败/列表与其他数据隔离 | IN_PROGRESS |
 | TASK-08 | 批量 PDF 导入 | 07 | 复用单篇 API/ingestion/outbox，限制并发 | 重复/失败/断网/重试/刷新/并发；上传与索引状态分离 | NOT_STARTED |
 | TASK-09 | 论文分组与标签 | 08 | 后端检索范围；不复制 PDF/Embedding | 关系迁移/CRUD/删除分组不删论文/RAG 与 Research 过滤 | NOT_STARTED |
 | TASK-10 | 实体标注状态可视化 | 09 | 区分未标注与不存在；严格过滤不等于全文搜索 | 部分标注语料、来源片段、状态/警示与过滤语义 | NOT_STARTED |
@@ -162,9 +162,11 @@
 
 ### TASK-07：文献删除 UI
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
+- 状态：IN_PROGRESS；开始 commit：`f00374859eb629a445e55102cf3c71e978b742e6`；最终实现 commit：未产生。
+- 修改目标：文献列表删除、只读预览与明确确认、清理进度/失败指导/显式重试、列表刷新、独立副本提示；历史来源失效与缓存陈旧响应保护。只消费 TASK-06，后端/迁移/锁文件不改。
+- 涉及文件 / 新增测试：前端 API/Knowledge/删除状态与确认组件、引用/历史详情更新、Rust 固定路由白名单；Playwright 确认/取消/版本冲突/失联对账/清理失败与其他文献和会话保留、来源失效与迟到响应；transport/Rust 正负控制。
+- 实际验证：npm ci/lint/check/build PASS；14 个新增浏览器用例，全量最终 61 passed（0 failed/skipped，58.9s），12 transport PASS；rustfmt 1.90 PASS、截图人工检查 PASS。本地没有 Cargo，编译/单元测试/Clippy/Windows 安装包/Linux GUI 由实际 Desktop CI 验证，待提交前仍 IN_PROGRESS。后端/锁/schema 没有变更；真实检索排除/PG/文件/RQ 隔离由已验收 TASK-06 证明。
+- 涉及文件与完整证据：[task-07-evidence.json](task-07-evidence.json)、[使用与边界](../paper-deletion-ui.md)。前置仅文档验收 f003748 的四个 workflow 37917954357/37917954320/37917961856/37917961675 已全部 completed/SUCCESS，完整 SHA 和十个 job 核对。当前实现 SHA/CI 尚未产生，TASK-08 未开始。
 - 修改目标、依赖、验收计划：见上表 TASK-07；前置门禁 06。
 - 风险与已知限制：仅消费已验收删除协议。
 

@@ -1,0 +1,197 @@
+{
+  "task": "TASK-07",
+  "status": "IN_PROGRESS",
+  "start_commit": "f00374859eb629a445e55102cf3c71e978b742e6",
+  "implementation_commit": null,
+  "changed_files": [
+    "frontend/src/api.ts",
+    "frontend/src/Knowledge.tsx",
+    "frontend/src/PaperDeletion.tsx",
+    "frontend/src/chat/ResultPanel.tsx",
+    "frontend/src/chat/useRunEvents.ts",
+    "frontend/src/chat/useConversationMessages.ts",
+    "frontend/src/components.tsx",
+    "frontend/src/errors.ts",
+    "frontend/src/style.css",
+    "frontend/src-tauri/src/bridge.rs",
+    "frontend/tests/paper-deletion.spec.ts",
+    "frontend/tests/chat.spec.ts",
+    "frontend/tests/transport/transport.test.ts",
+    "docs/paper-deletion-ui.md",
+    "docs/product-improvement/PROGRESS.md",
+    "docs/product-improvement/task-07-evidence.json",
+    "docs/stage-log.md"
+  ],
+  "scope": "Deletion UI, historical source-unavailability and stale-client detail recovery; consume accepted TASK-06. No backend, migrations, dependencies or lock changes.",
+  "scientific_quality": "NOT MEASURED",
+  "windows_11_human_acceptance": "NOT EXECUTED",
+  "fixtures": "MOCK HTTP ONLY / NOT A BENCHMARK",
+  "changes": [
+    "Read-only fresh Paper/preview version match; modal explicit retained-copy acknowledgement, cancel/Escape before mutation no writes, in-flight duplicate/cancel protection; actions remain visible.",
+    "Confirmed removal immediately excludes source from list; distinct asynchronous cleanup status, safe guidance, manual queued/failed/cancelled retry via existing Run API.",
+    "Persist at most 20 UUID IDs for read-only ledger recovery; no credentials/text/bodies or secondary persisted job queue. Ambiguous mutation/retry outcomes reconcile without replay.",
+    "Typed availability flags in message/presentation/Run/Evidence; historical status/prose retained and no current verification badge for unavailable sources.",
+    "Deleted citation non-interactive, no old quote/PDF; other source usable; each citation open fresh-reads one Run. Message revision cancels old request, invalidates terminal cache and old events, remounts quote view.",
+    "Focus/online/visibility targeted reconciliation of at most 50 displayed citation-bearing messages, no periodic whole-history polling or eager Run downloads.",
+    "Native fixed UUID DELETE and GET preview/status/POST retry whitelist, invalid method/path/query controls; transport preserves explicit version/scope/acknowledgement and never forwards authorization."
+  ],
+  "tests": {
+    "new_playwright": 14,
+    "playwright": 61,
+    "failures": 0,
+    "skipped": 0,
+    "seconds": 58.9,
+    "transport": 12,
+    "new_transport": 1,
+    "new_rust_contract_test": 1,
+    "focused": "13 passed, 13.8s; subsequent 14 deletion-only passed, 11.1s.",
+    "prior_full": "58 passed, 56.5s; expanded 61 passed, 59.5s before visual footer adjustment.",
+    "final": "61 passed, 58.9s after footer adjustment with viewport and actual request-aborted/old-page completion assertions.",
+    "truth": "Browser fixture proves UI only; actual source exclusion/PG rollback/RQ/file isolation proven by TASK-06, not synthetic browser responses."
+  },
+  "checks": {
+    "npm_ci": "PASS, locked dependency tree",
+    "frontend_lint": "PASS",
+    "frontend_typecheck": "PASS",
+    "frontend_build": "PASS, existing Rollup annotation and bundle-size warnings",
+    "transport": "PASS, 12/0 failed/skipped",
+    "rustfmt": "PASS, verified Rust 1.90 formatter, bridge file",
+    "cargo_local": "NOT EXECUTED: native compile/test/clippy run by actual Desktop CI; local cargo not installed.",
+    "native_ci": "NOT EXECUTED: await implementation workflows.",
+    "backend_local": "No new Python execution required: backend unchanged; previous accepted 723/516 unit/207 integration and current CI will revalidate.",
+    "visual_review": "PASS: inspected confirmation and completed-status screenshots; footer remains visible.",
+    "git_diff_check": "PASS"
+  },
+  "evidence_hashes": {
+    "browser-release.log": "cc27f512c961d4f0c32bb34b9d9d0c4668d7ac99d6d263d80b3856d3d0bc41ca",
+    "lint-release.log": "7183314da952c79f266bb4e2d9d91c1c6490404a08d1d6bdccd44f49cc91974a",
+    "check-layout.log": "1dae3f3becbd93cbf7a98a4ca872730f0d0d3433a39919dede00c7ac5f1b12a4",
+    "transport.log": "667e250a0fceb22b22957a220cbd2b5869dd7c8daf4b0cbdd2f2d8831102dcbb",
+    "rustfmt.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "gate": {
+    "prior_acceptance_ci": [
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "f00374859eb629a445e55102cf3c71e978b742e6",
+        "id": 37917961856,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113778683375,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917961856/job/113778683375"
+          },
+          {
+            "conclusion": "success",
+            "id": 113778683627,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917961856/job/113778683627"
+          },
+          {
+            "conclusion": "success",
+            "id": 113778683679,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917961856/job/113778683679"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917961856"
+      },
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "f00374859eb629a445e55102cf3c71e978b742e6",
+        "id": 37917961675,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113778682697,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917961675/job/113778682697"
+          },
+          {
+            "conclusion": "success",
+            "id": 113778682954,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917961675/job/113778682954"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917961675"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "f00374859eb629a445e55102cf3c71e978b742e6",
+        "id": 37917954357,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113778655563,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917954357/job/113778655563"
+          },
+          {
+            "conclusion": "success",
+            "id": 113778655871,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917954357/job/113778655871"
+          },
+          {
+            "conclusion": "success",
+            "id": 113778656007,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917954357/job/113778656007"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917954357"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "f00374859eb629a445e55102cf3c71e978b742e6",
+        "id": 37917954320,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113778655621,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917954320/job/113778655621"
+          },
+          {
+            "conclusion": "success",
+            "id": 113778655857,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917954320/job/113778655857"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917954320"
+      }
+    ],
+    "prior_acceptance_ci_status": "All four exact-SHA workflows and ten jobs completed/SUCCESS.",
+    "current_ci": "NOT EXECUTED",
+    "next_task": "TASK-08 NOT_STARTED pending TASK-07 actual CI gate."
+  },
+  "limitations": [
+    "Independent caches/downloads/backups/provider retention and historical prose require user management; not all-copy erasure.",
+    "Local ID recovery is best effort when browser storage exists; clearing/disabling storage, changing clients or more than 20 records drops local hints, not server ledger.",
+    "External changes refresh on bounded focus reconciliation and citation open; no continuous cross-window history synchronization.",
+    "Real scientific quality, paid inference, actual Windows 11 human installation/GUI not measured."
+  ],
+  "pr": "https://github.com/maczhouyi-del/RAGSystem/pull/1",
+  "review_state": "draft, unmerged"
+}
