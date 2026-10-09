@@ -23,7 +23,11 @@ from ragagent.domain.research import (
     SearchResult,
     VerificationResponse,
 )
-from ragagent.evaluation.conversation import evaluate_conversation
+from ragagent.evaluation.conversation import (
+    _CurrentTurnSearch,
+    _turn_metrics,
+    evaluate_conversation,
+)
 from ragagent.evaluation.conversation_schema import (
     ConversationEvaluationCase,
     ConversationEvaluationDataset,
@@ -38,6 +42,50 @@ from tests.unit.test_generation_evaluation import RecordingProvider
 from tests.unit.test_graphs import Search, claims, plan, verdict
 
 T = TypeVar("T", bound=BaseModel)
+
+
+@pytest.mark.parametrize(
+    ("output", "expected"),
+    [
+        ("Correct training result. [E:50000000-0000-4000-8000-000000000001]", 1.0),
+        ("It uses 500 participants. [E:50000000-0000-4000-8000-000000000001]", 0.0),
+        ("The identifier is 50000000-0000-4000-8000-000000000001.", 0.0),
+        ("Correct result. [E:50000000-0000-4000-8000-000000000002]", 0.0),
+        ("Correct result. [E:500 participants]", 0.0),
+    ],
+)
+def test_memory_isolation_excludes_only_current_evidence_citation_markers(
+    output: str, expected: float
+) -> None:
+    source = evidence(eid="50000000-0000-4000-8000-000000000001")
+    search = _CurrentTurnSearch(Search())
+    search.evidence[source.evidence_id] = source
+    row: dict[str, Any] = {
+        "evidence": [source.model_dump(mode="json")],
+        "context": {
+            "history_message_ids": [],
+            "memory_ids": [],
+            "estimated_context_tokens": 1,
+            "max_context_tokens": 100,
+            "summary_used": False,
+        },
+        "contextualized_query": "What training method?",
+        "actual_output": output,
+        "metrics": {
+            "answer_completeness": 1.0,
+            "citation_precision": 1.0,
+            "citation_recall": 1.0,
+            "citation_completeness": 1.0,
+            "unsupported_claim_rate": 0.0,
+            "refusal_correctness": 0.0,
+            "latency_ms": 0.0,
+            "judge_latency_ms": 0.0,
+        },
+    }
+    _turn_metrics(turn(forbidden_answer_fragments=["500"]), row, search)
+    assert row["dimension_metrics"]["memory_isolation"]["memory_isolation_accuracy"] == expected
+    assert row["structural_checks"]["forbidden_history_answer_absent"] is bool(expected)
+    assert row["actual_output"] == output
 
 
 def turn(identifier: str = "t1", **values: Any) -> ConversationEvaluationTurn:

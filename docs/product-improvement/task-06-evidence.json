@@ -21,12 +21,12 @@
   "tests": {
     "added_unit": 15,
     "added_integration": 16,
-    "total": 718,
-    "unit": 511,
+    "total": 723,
+    "unit": 516,
     "integration": 207,
     "failures": 0,
     "skipped": 0,
-    "seconds": 43.27,
+    "seconds": 42.17,
     "upstream_warnings": 1,
     "focused_with_existing_migration": {
       "passed": 31,
@@ -59,8 +59,14 @@
         "result": "Affected checks 1 failed / 66 passed",
         "cause": "One evaluation constructor mock still rejected new commit_results keyword.",
         "fix": "Update constructor interface, final full 717 passed."
+      },
+      {
+        "result": "c1f1e3 PR CI 37916026331 backend: 1 failed / 717 passed; other nine exact-SHA jobs SUCCESS.",
+        "cause": "Memory-isolation metric searched renderer-added random Evidence UUID for forbidden numeric prose, reproducible with UUID containing 500.",
+        "fix": "Exclude only current evidence citation markers from prose scan; preserve original output, unknown/malformed markers and prose UUIDs. Five deterministic unit controls and forced UUID in both real-PG RAG/Research cases."
       }
-    ]
+    ],
+    "added_regression_unit": 5
   },
   "checks": {
     "uv_sync_locked": "PASS, 109 core/dev packages; lock unchanged",
@@ -83,7 +89,7 @@
       "models_called": false,
       "protected_local_smoke": "NOT EXECUTED: detached-process runtime credential inaccessible; protected tests run locally via TestClient and in CI."
     },
-    "pytest_junit_sha256": "c9349f891f20476a7d25dbd452ed98d159e4d342abfa3aa67ec3bea63365ec79",
+    "pytest_junit_sha256": "42f27c7ae3d09d7a47b68fe6abb455ce6d755b228f240a2fa61d1728d59d3026",
     "native_desktop_ci": "PASS: actual Rust check/test/clippy; Windows MSI/NSIS and Linux native GUI smoke on exact implementation SHA. Not human Windows 11 acceptance."
   },
   "gate": {
@@ -95,7 +101,7 @@
       37895509171
     ],
     "prior_doc_ci_status": "All completed/SUCCESS with matching exact SHA",
-    "current_ci": "Pending follow-up implementation; original implementation and acceptance-doc commits passed all four actual workflows.",
+    "current_ci": "Awaiting recovery commit; c1f1e3 PR CI failure preserved, no blind rerun.",
     "next_task": "TASK-07 remains NOT_STARTED; no frontend code changed before follow-up CI gate.",
     "workflow_ids": [
       37914217426,
@@ -234,6 +240,126 @@
     "local_checks": "718 passed, 511 unit / 207 integration, zero skips/failures, 43.27s; Ruff format/check, mypy 82 files PASS.",
     "new_test": "Real PG API with old message lacking presentation and future old timestamp; two existing message timestamp assertions.",
     "frontend_changes": false,
+    "implementation_commit": "c1f1e3a6024cdec0202ad5266125027d76fa17d1",
+    "ci": "PR CI FAILURE; other three workflows SUCCESS; exact evidence retained.",
+    "workflows": [
+      {
+        "conclusion": "failure",
+        "event": "pull_request",
+        "headSha": "c1f1e3a6024cdec0202ad5266125027d76fa17d1",
+        "id": 37916026331,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113772289208,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916026331/job/113772289208"
+          },
+          {
+            "conclusion": "success",
+            "id": 113772289465,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916026331/job/113772289465"
+          },
+          {
+            "conclusion": "failure",
+            "id": 113772289585,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916026331/job/113772289585"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916026331"
+      },
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "c1f1e3a6024cdec0202ad5266125027d76fa17d1",
+        "id": 37916026190,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113772288580,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916026190/job/113772288580"
+          },
+          {
+            "conclusion": "success",
+            "id": 113772288919,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916026190/job/113772288919"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916026190"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "c1f1e3a6024cdec0202ad5266125027d76fa17d1",
+        "id": 37916020890,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113772271317,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916020890/job/113772271317"
+          },
+          {
+            "conclusion": "success",
+            "id": 113772271549,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916020890/job/113772271549"
+          },
+          {
+            "conclusion": "success",
+            "id": 113772271696,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916020890/job/113772271696"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916020890"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "c1f1e3a6024cdec0202ad5266125027d76fa17d1",
+        "id": 37916020892,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113772271891,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916020892/job/113772271891"
+          },
+          {
+            "conclusion": "success",
+            "id": 113772272012,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916020892/job/113772272012"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916020892"
+      }
+    ]
+  },
+  "ci_recovery": {
+    "scope": "Necessary serial TASK-06 CI recovery of an existing conversation evaluation metric defect; no TASK-07 or frontend changes.",
+    "red_control": "1 failed / 4 passed before fix; citation-marker false positive reproduced.",
+    "focused": "87 passed, 2.42s",
+    "local": "723 passed, 516 unit / 207 integration, zero skips/failures, 42.17s; Ruff format/check and mypy 82 PASS.",
     "implementation_commit": null,
     "ci": "NOT EXECUTED"
   }

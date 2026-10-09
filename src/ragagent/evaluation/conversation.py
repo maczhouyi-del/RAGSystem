@@ -44,7 +44,7 @@ from ragagent.evaluation.conversation_schema import (
 from ragagent.evaluation.generation import JUDGE_PROMPT, JUDGE_VERSION, _generation_case
 from ragagent.evaluation.metrics import average
 from ragagent.providers.chat import ChatProvider
-from ragagent.retrieval.evidence import exact_span
+from ragagent.retrieval.evidence import CITATION, exact_span
 from ragagent.retrieval.service import SearchPort
 from ragagent.settings import Settings
 
@@ -91,9 +91,14 @@ def _turn_metrics(
         and item.chunk_id not in source_ids
         for item in evidence
     )
+    # Renderer-added source IDs are provenance, not scientific answer text.
+    # Unknown/malformed markers and UUIDs in ordinary prose remain observable.
+    source_ids_in_answer = {item.evidence_id for item in evidence} & retrieved.keys()
+    answer_text = CITATION.sub(
+        lambda match: "" if match[1] in source_ids_in_answer else match[0], row["actual_output"]
+    )
     forbidden_absent = not any(
-        phrase.casefold() in row["actual_output"].casefold()
-        for phrase in turn.forbidden_answer_fragments
+        phrase.casefold() in answer_text.casefold() for phrase in turn.forbidden_answer_fragments
     )
     budget = context["estimated_context_tokens"] <= context["max_context_tokens"]
     resolved = _contains_all(query, turn.expected_context_terms)

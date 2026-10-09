@@ -37,6 +37,7 @@ from ragagent.evaluation.schema import CitationPair, RAGJudgment
 from ragagent.graphs.state import AnalysisResult, ResearchPlan, SubTask
 from ragagent.providers import chat
 from ragagent.providers.chat import MockProvider
+from ragagent.retrieval.evidence import CITATION, parse_citations
 from ragagent.retrieval.service import HybridRetriever
 from ragagent.settings import Settings
 from tests.integration.test_retrieval import Embedder, FixtureReranker, populate
@@ -321,7 +322,9 @@ async def test_comparison_followup_uses_two_real_papers_instead_of_historical_wi
 async def test_conversation_evaluation_real_retrieval_and_local_context_isolation(
     empty_db: Session, tmp_path: Path, mode: str
 ) -> None:
-    pid, cid = populate(empty_db)
+    # This chunk deterministically yields an Evidence UUID containing "500".
+    # The numeric memory oracle must inspect answer prose, not source identifiers.
+    pid, cid = populate(empty_db, first_chunk_id="00000000-0000-0000-0000-000000000041")
     before_runs = empty_db.scalar(select(func.count()).select_from(Run))
     query = "What training method does it use?"
     labeled_turn = turn(
@@ -401,7 +404,8 @@ async def test_conversation_evaluation_real_retrieval_and_local_context_isolatio
     assert row["evidence"][0]["paper"]["paper_id"] == pid
     assert row["context"]["used_message_ids"] == ["m1"]
     assert row["summary"]["through_ordinal"] >= 0
-    assert "500" not in row["actual_output"]
+    assert parse_citations(row["actual_output"]) == ["bdf15558-57ca-500d-b5fd-f0f22af528f0"]
+    assert "500" not in CITATION.sub("", row["actual_output"])
     assert row["structural_checks"]["evidence_from_current_retrieval"] is True
     assert row["usage"]["retriever"]["calls"] == 1
     assert before_runs == empty_db.scalar(select(func.count()).select_from(Run))
