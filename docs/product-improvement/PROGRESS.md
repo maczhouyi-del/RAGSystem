@@ -32,7 +32,7 @@
 | TASK-08 | 批量 PDF 导入 | 07 | 复用单篇 API/ingestion/outbox，限制并发 | 重复/失败/断网/重试/刷新/并发；上传与索引状态分离 | PASSED |
 | TASK-09 | 论文分组与标签 | 08 | 后端检索范围；不复制 PDF/Embedding | 关系迁移/CRUD/删除分组不删论文/RAG 与 Research 过滤 | PASSED |
 | TASK-10 | 实体标注状态可视化 | 09 | 区分未标注与不存在；严格过滤不等于全文搜索 | 部分标注语料、来源片段、状态/警示与过滤语义 | PASSED |
-| TASK-11 | 实体提取与人工校正 | 10 | 保守带来源提取；费用显式、重试幂等、同名消歧 | 证据关联/校正持久化/严格过滤/重复导入；实际质量独立测量 | IN_PROGRESS |
+| TASK-11 | 实体提取与人工校正 | 10 | 保守带来源提取；费用显式、重试幂等、同名消歧 | 证据关联/校正持久化/严格过滤/重复导入；实际质量独立测量 | PASSED |
 | TASK-12 | 更精确 PDF 来源定位 | 11 | 保留 stable Evidence ID；旧索引兼容；不可伪造 bbox | 文本/表格/公式 PDF、无坐标降级、迁移兼容 | NOT_STARTED |
 | TASK-13 | 引用与 PDF 阅读 | 12 | 复用 source metadata/受限 bridge；新增依赖先许可证审查 | 正确论文/页/多引用/表格/缺坐标降级，Web/Desktop | NOT_STARTED |
 | TASK-14 | 结构化研究报告生成 | 13；03 提供评测基础 | 扩展确定性 synthesis；保留 Reviewer、单位/实验条件边界 | 多论文/矛盾/不充分证据/重试；人工案例与 mock 分开 | NOT_STARTED |
@@ -201,11 +201,11 @@
 
 ### TASK-11：实体提取与人工校正
 
-- 状态：IN_PROGRESS；开始 commit：`09233791235a586592942d28b7c281a2f838c461`；最终实现 commit：待产生。
+- 状态：PASSED；开始 commit：`09233791235a586592942d28b7c281a2f838c461`；最终实现 commit：`25f4ff06398638cf179ba7727b4a9ee48a5fe237`。
 - 方案：本地保守规则只生成有明确原文跨度的候选，不默认调用模型；人工确认后才新增严格实体链接，拒绝/修改按当前论文与片段持久化，不全局改名混淆其他论文。显式来源别名按论文/片段记录，不做自由同义词猜测。
 - 持久化与任务：复用既有 Run/outbox/ingestion 队列，不另建任务系统；当前原文摘要、抽取版本、候选版本和人工审阅区分，失败记录保留、重复请求复用/幂等；来源删除与迟到发布保护继续有效。原始 PDF/Chunk/Evidence 不修改。
 - 当前实现：0012 来源候选、乐观版本、人工确认/拒绝/校正/局部旧链接移除/全类型审阅，本地规则 extractor 和既有 Run/outbox/RQ ingestion worker；前端懒加载与轮询、Unicode 跨度、超时只读恢复，native 固定路径/严格分页查询。0012 迁移保留旧链接，保护有数据时降级，源删除取消与级联有效。
-- 验证：797 Python（549 unit /248 PostgreSQL integration、0 skipped/failed、116.39s）；新增15 unit/14 integration，包含两个独立数据库连接并发和真实 Redis/RQ worker。locked sync/Ruff/mypy 91/npm ci/lint/check/build/transport15/官方 rustfmt PASS；浏览器专项4 PASS，完整95项首次88 PASS/7 FAIL后修正旧面板定位/删除文案，最终95 PASS（1.4m，0 skipped/failed）。实际提交 CI 尚未执行，TASK-12 不得开始。
+- 验证：797 Python（549 unit /248 PostgreSQL integration、0 skipped/failed、116.39s）；新增15 unit/14 integration，包含两个独立数据库连接并发和真实 Redis/RQ worker。locked sync/Ruff/mypy 91/npm ci/lint/check/build/transport15/官方 rustfmt PASS；浏览器专项4 PASS，完整95项首次88 PASS/7 FAIL后修正旧面板定位/删除文案，最终95 PASS（1.4m，0 skipped/failed）。实现提交四个精确 SHA workflow/十个 job completed/SUCCESS：push CI 37940255984 / Desktop 37940255892、PR CI 37940261144 / Desktop 37940261151；实际 Rust/Windows MSI/NSIS/Linux GUI PASS。云运行 schema0012、API/Web/三 worker ready，开发旧记录保留、无模型调用。工程 PASSED，自动进入 TASK-12。
 - 保留失败：worker 过期属性自动 flush、未提交 PG fixture、测试 ACK/Unicode 索引、RQ 清理 subtype/共享旧测试名、React 合成选中事件与旧浏览器嵌套 locator。修复具体原因而非跳过，原始失败日志摘要及哈希见 task-11-evidence.json。
 - 风险：规则覆盖有限，候选不是已确认科研事实；实际模型抽取准确率、真实科研质量仍 NOT MEASURED。用户确认 TASK-17 真实资源未备妥，继续工程任务。
 

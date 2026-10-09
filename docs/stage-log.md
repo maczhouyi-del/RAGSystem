@@ -1162,3 +1162,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-11 完整后端：797 passed（549 unit /248 PG、0 skipped/failed、116.39s），真实两个连接并发只创建一个 Run/outbox 与实际 Redis/RQ worker 零模型执行；原文 Unicode 跨度、别名分别确认、严格 dense/lexical、局部旧链接移除/审阅重复安全、退役取消/级联/迟到保护和 0012 兼容迁移 PASS。前端初次完整88 PASS/7 FAIL：旧 summary 匹配嵌套面板六项、删除说明新增实体提取一项，修正具体定位/说明并保留原行为断言。专项模拟事件3/1后用 mouseup4 PASS；专项命令目录笔误记录并校正。当前完整浏览器复验及实际 CI 未完成，IN_PROGRESS。
 
 - TASK-11 最终本地：797 后端（549 unit /248 real PG、0 skipped/failed）、95 MOCK browser（1.4m、0 skipped/failed）/15 transport 全部 PASS。实际 Redis/RQ worker 与两个独立数据库连接并发、0012 迁移兼容/有损降级拒绝/重升/模型 check PASS；Ruff/mypy91/locked sync/npm ci/lint/check/build/官方 rustfmt PASS。独立提交后须四个精确 SHA workflow/十个 job SUCCESS；科研模型质量仍 NOT MEASURED。
+
+- TASK-11 验收：25f4ff06398638cf179ba7727b4a9ee48a5fe237 的 push CI 37940255984 / Desktop 37940255892、PR CI 37940261144 / Desktop 37940261151 四个 workflow/十个 job completed/SUCCESS、完整 SHA 和实际 native 步骤已核对。797 后端/95 MOCK browser/15 transport 本地 PASS；实际 Windows MSI/NSIS/Linux GUI PASS。云 schema0012、API/Web/三 worker ready，旧开发 Run 保留，无付费/模型调用。工程 PASSED，自动进入 TASK-12；真实模型抽取质量及科研质量 NOT MEASURED，Win11 人工验收 NOT EXECUTED。
