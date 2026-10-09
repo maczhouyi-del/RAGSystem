@@ -29,7 +29,7 @@
 | TASK-05 | 文献元数据修改 | 04 | 复用 PATCH；保护原始来源并检测陈旧编辑 | UI 保存/刷新/冲突/原 PDF 与 chunk 不变 | PASSED |
 | TASK-06 | 安全删除文献后端 | 05 | 先定义 PDF/派生数据/历史证据/缓存/备份生命周期 | PG 事务、文件补偿、迟到 worker、检索排除与历史引用失效 | PASSED |
 | TASK-07 | 文献删除 UI | 06 | 仅消费已验收删除协议 | Playwright 确认/取消/失败/列表与其他数据隔离 | PASSED |
-| TASK-08 | 批量 PDF 导入 | 07 | 复用单篇 API/ingestion/outbox，限制并发 | 重复/失败/断网/重试/刷新/并发；上传与索引状态分离 | IN_PROGRESS |
+| TASK-08 | 批量 PDF 导入 | 07 | 复用单篇 API/ingestion/outbox，限制并发 | 重复/失败/断网/重试/刷新/并发；上传与索引状态分离 | PASSED |
 | TASK-09 | 论文分组与标签 | 08 | 后端检索范围；不复制 PDF/Embedding | 关系迁移/CRUD/删除分组不删论文/RAG 与 Research 过滤 | NOT_STARTED |
 | TASK-10 | 实体标注状态可视化 | 09 | 区分未标注与不存在；严格过滤不等于全文搜索 | 部分标注语料、来源片段、状态/警示与过滤语义 | NOT_STARTED |
 | TASK-11 | 实体提取与人工校正 | 10 | 保守带来源提取；费用显式、重试幂等、同名消歧 | 证据关联/校正持久化/严格过滤/重复导入；实际质量独立测量 | NOT_STARTED |
@@ -172,12 +172,12 @@
 
 ### TASK-08：批量 PDF 导入
 
-- 状态：IN_PROGRESS；开始 commit：`9f42df0882cc359f4d582bd49ca115b20d92dfd2`；最终实现 commit：待独立提交。
+- 状态：PASSED；开始 commit：`9f42df0882cc359f4d582bd49ca115b20d92dfd2`；最终实现 commit：`b8a4d3bc4b06323528af085c096354c8c9a77d37`。
 - 修改：复用 SHA 去重与 Run/outbox/RQ；明确回执 ID/复用标记，多选/拖拽、两个上传并发、独立上传与解析阶段、失败手动重试/成功保留、ID-only 刷新恢复；并发重试复用待执行 Run。无新持久化任务系统、依赖锁或迁移修改。
 - 涉及文件、测试及命令：[完整证据](task-08-evidence.json)、[使用与边界](../batch-pdf-imports.md)。新增 1 项真实 PG 并发重试和 9 项浏览器用例，扩展真实上传回执/去重断言。命令 uv sync --locked、uv run ruff format/check、uv run mypy src、uv run pytest、npm ci/lint/check/test:e2e/test:transport；e2e 包含 build。
-- 实际验证：locked sync 109 包，Ruff、mypy 82、npm ci/lint/check/build PASS；724 pytest（516 unit /208 integration、0 skipped、67.72s）、70 Playwright（0 skipped、报告 1.2m）和 12 transport PASS；截图已检查。实际新提交 CI 尚未执行；前置 9f42df0 四个 workflow/十个 job 全部 completed/SUCCESS。
+- 实际验证：locked sync 109 包，Ruff、mypy 82、npm ci/lint/check/build PASS；724 pytest（516 unit /208 integration、0 skipped、67.72s）、70 Playwright（0 skipped、报告 1.2m）和 12 transport PASS；截图已检查。实现四个 workflow（push CI 37922681767 / Desktop 37922681780；PR CI 37922686606 / Desktop 37922686602）和十个 job 已全部 completed/SUCCESS，完整 SHA 核对；前置 9f42df0 四个 workflow/十个 job 全部 completed/SUCCESS。
 - 保留失败：首轮 14 Python 比较失败与浏览器刷新 1 失败，修复并完整回归；GitHub 一度 401，平台认证恢复后 API 和 Git 读取成功，未提取或重配凭据。详情比较仍全字段断言。
-- 风险：最近 50 UUID 读取提示恢复，未上传 File 不持久化；Run 历史查询性能/峰值内存未测量。科学质量 NOT MEASURED、Win11 人工 GUI NOT EXECUTED。适用 CI 通过前不执行 TASK-09。
+- 风险：最近 50 UUID 读取提示恢复，未上传 File 不持久化；Run 历史查询性能/峰值内存未测量。科学质量 NOT MEASURED、Win11 人工 GUI NOT EXECUTED。TASK-08 工程 PASSED；按授权记录后自动执行 TASK-09。
 
 ### TASK-09：论文分组与标签
 

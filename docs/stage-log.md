@@ -1130,3 +1130,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 验证：uv locked sync 109 包，Ruff format/check、mypy 82、npm ci/lint/check/build PASS；724 pytest（516 unit /208 integration，0 skipped，67.72s），70 browser（0 skipped，报告 1.2m）/12 transport PASS；截图 PASS。真实 PostgreSQL，未使用 SQLite。
 - 修复：14 全响应比较失败来自 list/detail 新指针差异，统一详情 fixture 并核对真实回执 ID，保留完整字段保护断言；恢复行 generation undefined/0 导致 1 browser 失败，统一默认值后完整 PASS。平台认证短暂 401，后续 API/Git 读取恢复，无凭据提取或绕代理。
 - 边界：浏览器 scripted 完成不证明模型/解析质量；历史查询性能、峰值内存、科研质量 NOT MEASURED，Win11 人工 GUI NOT EXECUTED。TASK-08 实现 CI 待实际提交检查，TASK-09 NOT_STARTED。
+
+- TASK-08 验收：`b8a4d3bc4b06323528af085c096354c8c9a77d37` 的 push CI 37922681767 / Desktop 37922681780、PR CI 37922686606 / Desktop 37922686602 四个 workflow 和十个 job 全部 completed/SUCCESS，完整 SHA 核对；实际 Windows MSI/NSIS、Rust format/check/test/clippy、Linux GUI smoke PASS。云环境加载新代码、API/Web/三 worker ready，保留开发数据、无模型请求。工程 PASSED，自动进入 TASK-09；科研质量和 Win11 人工验收仍未测。
