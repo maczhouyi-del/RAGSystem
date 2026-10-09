@@ -1150,3 +1150,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 当前状态 IN_PROGRESS；TASK-11 未开始。真实模型抽取质量、真实科研质量/人工 Win11 GUI 未测量，用户确认 TASK-17 真实资源未备妥。
 
 - TASK-10 最终本地后端：768 passed（534 unit /234 integration、0 skipped/failed、54.90s），Ruff format/check 与 mypy 86 PASS；退役来源 410 和审阅 CASCADE 实际验证。最终前端 91 MOCK browser/14 transport PASS，构建/格式/type PASS，官方 rustfmt PASS。状态 IN_PROGRESS，等待新实现四个实际 workflow/十个 job 门禁。
+
+- TASK-10 验收：57bb3b5c979e5cf90264ed9ae8b2ad7a1022e7a0 的 push CI 37930288053 / Desktop 37930288107、PR CI 37930293477 / Desktop 37930293482 四个实际 workflow/十个 job completed/SUCCESS、完整 SHA 与实际 native 步骤核对。768 后端/91 MOCK browser/14 transport 本地 PASS；实际 Windows MSI/NSIS/Linux GUI smoke PASS。工程 PASSED，自动进入 TASK-11。真实科研/模型抽取质量和 Win11 人工验收仍未测；用户确认 TASK-17 真实资源未备妥。
