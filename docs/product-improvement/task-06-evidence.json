@@ -1,8 +1,8 @@
 {
   "task": "TASK-06",
-  "status": "IN_PROGRESS",
+  "status": "PASSED",
   "start_commit": "ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f",
-  "implementation_commit": null,
+  "implementation_commit": "f8640d091d895dd7c19ecd230f21bedbf4b12f48",
   "scope": "Backend only: confirmed current-library removal, source retirement, history redaction and durable file/Redis cleanup. No frontend/Rust/lock changes.",
   "scientific_quality": "NOT MEASURED",
   "windows_11_human_acceptance": "NOT EXECUTED",
@@ -101,13 +101,13 @@
       37895509171
     ],
     "prior_doc_ci_status": "All completed/SUCCESS with matching exact SHA",
-    "current_ci": "Awaiting recovery commit; c1f1e3 PR CI failure preserved, no blind rerun.",
-    "next_task": "TASK-07 remains NOT_STARTED; no frontend code changed before follow-up CI gate.",
+    "current_ci": "PASS: all four exact-SHA workflows and ten jobs completed/SUCCESS.",
+    "next_task": "TASK-07 may start after recording this acceptance.",
     "workflow_ids": [
-      37914217426,
-      37914219092,
-      37914222359,
-      37914222404
+      37917294006,
+      37917298835,
+      37917299180,
+      37917294017
     ],
     "previous_workflows": [
       {
@@ -219,6 +219,118 @@
         ],
         "status": "completed",
         "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37914222404"
+      }
+    ],
+    "workflows": [
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "f8640d091d895dd7c19ecd230f21bedbf4b12f48",
+        "id": 37917294006,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113776488185,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917294006/job/113776488185"
+          },
+          {
+            "conclusion": "success",
+            "id": 113776488493,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917294006/job/113776488493"
+          },
+          {
+            "conclusion": "success",
+            "id": 113776488502,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917294006/job/113776488502"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917294006"
+      },
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "f8640d091d895dd7c19ecd230f21bedbf4b12f48",
+        "id": 37917298835,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113776503428,
+            "name": "compose",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917298835/job/113776503428"
+          },
+          {
+            "conclusion": "success",
+            "id": 113776503607,
+            "name": "frontend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917298835/job/113776503607"
+          },
+          {
+            "conclusion": "success",
+            "id": 113776503631,
+            "name": "backend",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917298835/job/113776503631"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917298835"
+      },
+      {
+        "conclusion": "success",
+        "event": "pull_request",
+        "headSha": "f8640d091d895dd7c19ecd230f21bedbf4b12f48",
+        "id": 37917299180,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113776504749,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917299180/job/113776504749"
+          },
+          {
+            "conclusion": "success",
+            "id": 113776505197,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917299180/job/113776505197"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917299180"
+      },
+      {
+        "conclusion": "success",
+        "event": "push",
+        "headSha": "f8640d091d895dd7c19ecd230f21bedbf4b12f48",
+        "id": 37917294017,
+        "jobs": [
+          {
+            "conclusion": "success",
+            "id": 113776488233,
+            "name": "windows-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917294017/job/113776488233"
+          },
+          {
+            "conclusion": "success",
+            "id": 113776488356,
+            "name": "linux-desktop",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917294017/job/113776488356"
+          }
+        ],
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37917294017"
       }
     ]
   },
@@ -360,7 +472,7 @@
     "red_control": "1 failed / 4 passed before fix; citation-marker false positive reproduced.",
     "focused": "87 passed, 2.42s",
     "local": "723 passed, 516 unit / 207 integration, zero skips/failures, 42.17s; Ruff format/check and mypy 82 PASS.",
-    "implementation_commit": null,
-    "ci": "NOT EXECUTED"
+    "implementation_commit": "f8640d091d895dd7c19ecd230f21bedbf4b12f48",
+    "ci": "All four exact-SHA workflows and all ten jobs completed/SUCCESS."
   }
 }

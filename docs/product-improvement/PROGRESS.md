@@ -27,7 +27,7 @@
 | TASK-03 | 可复现科研验收框架 | 02 | 复用 Evaluation；区分 synthetic 与人工金标 | 指标/来源身份/逐例回放；无金标真实质量 NOT MEASURED | PASSED |
 | TASK-04 | 文献搜索、排序和分页 | 03 | 保留旧 /api/papers；已有分页需扩展 | 至少 200 篇 fixture，搜索/筛选/稳定排序/总数/兼容 | PASSED |
 | TASK-05 | 文献元数据修改 | 04 | 复用 PATCH；保护原始来源并检测陈旧编辑 | UI 保存/刷新/冲突/原 PDF 与 chunk 不变 | PASSED |
-| TASK-06 | 安全删除文献后端 | 05 | 先定义 PDF/派生数据/历史证据/缓存/备份生命周期 | PG 事务、文件补偿、迟到 worker、检索排除与历史引用失效 | IN_PROGRESS |
+| TASK-06 | 安全删除文献后端 | 05 | 先定义 PDF/派生数据/历史证据/缓存/备份生命周期 | PG 事务、文件补偿、迟到 worker、检索排除与历史引用失效 | PASSED |
 | TASK-07 | 文献删除 UI | 06 | 仅消费已验收删除协议 | Playwright 确认/取消/失败/列表与其他数据隔离 | NOT_STARTED |
 | TASK-08 | 批量 PDF 导入 | 07 | 复用单篇 API/ingestion/outbox，限制并发 | 重复/失败/断网/重试/刷新/并发；上传与索引状态分离 | NOT_STARTED |
 | TASK-09 | 论文分组与标签 | 08 | 后端检索范围；不复制 PDF/Embedding | 关系迁移/CRUD/删除分组不删论文/RAG 与 Research 过滤 | NOT_STARTED |
@@ -145,7 +145,7 @@
 
 ### TASK-06：安全删除文献后端
 
-- 状态：IN_PROGRESS（原实现已通过；消息版本补修的 PR CI 揭示既有评测数字/引用 ID 误判，修复待验收）；开始 commit：`ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f`；原实现 commit：`da9ba0d24404ca7a72d1712bf32bca03c18caacc`。
+- 状态：PASSED（原实现、消息版本补修和 CI 评测修复均验收）；开始 commit：`ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f`；原实现 commit：`da9ba0d24404ca7a72d1712bf32bca03c18caacc`。
 - 生命周期设计：[安全删除](../paper-deletion.md)。仅本任务后端/数据/测试/文档；前端留给 TASK-07。
 - 最小实现：0009 删除账本；确认/版本核对、事务退休与 Run/outbox 清理；现有 retrieval/ingestion/graph/evaluation 来源发布保护；历史结构化来源脱敏/当前验证失效；受管文件和 Redis 分阶段失败重试。仅删除关联无引用作者/实体，共享数据及会话正文保留。
 - 涉及文件：domain/deletion、db/models 与 0009、api/deletions/papers/evaluations/app、deletion/history/guards/files/service、jobs/queues/worker、ingestion/service、retrieval/service、evaluation/artifacts/retrieval；三份删除专项测试、迁移测试和五份原测试替身接口适配；API/data-model/lifecycle/stage/progress/evidence。前端、Rust、依赖锁未改。
@@ -156,7 +156,7 @@
 - 云运行实例：保留已有一条 failed Run 和零论文；0006→0009 升级、任务自有 API/三 worker/web 重启后公共 health=ok / ready=ready。未调用模型；受保护本地额外 smoke 未执行（独立进程运行时 token 不可读），既有 TestClient/实际 CI 受保护接口验证另有记录。
 - 接入补修：来源元数据失效必须推进 Message.updated_at，防止迟到旧响应覆盖客户端失效状态；同时在消息 metadata 根级标记 unavailable，兼容无 presentation 的旧记录。PG 用例新增正常/无 Run 消息的时间推进断言；仅继续修改 TASK-06，TASK-07 仍未修改前端/未开始。
 - 影响/风险：新检索无已删除来源，文件/Redis 失败不会恢复 Paper；历史 job 状态保留实际结果，引用的当前验证失效。删除事务扫描历史，尚无大库延迟测量；POSIX 后端文件清理，原生 Windows Python 未支持；正文、缓存、导出/备份和外部服务留存不承诺抹除，必须由用户另行管理。真实科学质量未测。
-- CI 恢复：`c1f1e3a6024cdec0202ad5266125027d76fa17d1` 的 [PR CI 37916026331](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916026331) backend 1 failed / 717 passed，其余九个 job SUCCESS。日志通过官方 gh log-failed 取得；原始单 job blob 重定向拒绝未通过绕过代理解决。确定性单元负对照复现 1 failed / 4 passed：正确答案的 Evidence UUID 含 500。仅排除当前来源引用标记，正文/未知或错误引用仍检测，原始输出不改；五个单位对照与 RAG/Research 实际 PG 固定含 500 UUID 验证。专项 87 passed，全量 723 passed；新提交实际 CI 待验收，未重跑失败 workflow，TASK-07 仍 NOT_STARTED。
+- CI 恢复：`c1f1e3a6024cdec0202ad5266125027d76fa17d1` 的 [PR CI 37916026331](https://github.com/maczhouyi-del/RAGSystem/actions/runs/37916026331) backend 1 failed / 717 passed，其余九个 job SUCCESS。日志通过官方 gh log-failed 取得；原始单 job blob 重定向拒绝未通过绕过代理解决。确定性单元负对照复现 1 failed / 4 passed：正确答案的 Evidence UUID 含 500。仅排除当前来源引用标记，正文/未知或错误引用仍检测，原始输出不改；五个单位对照与 RAG/Research 实际 PG 固定含 500 UUID 验证。专项 87 passed，全量 723 passed；恢复提交 `f8640d091d895dd7c19ecd230f21bedbf4b12f48` 的 push CI 37917294006 / Desktop 37917294017、PR CI 37917298835 / Desktop 37917299180 全部 completed/SUCCESS，四个完整 SHA 与十个实际 job 核对；Rust check/test/clippy、Windows MSI/NSIS、Linux GUI smoke PASS。未重跑失败 workflow；TASK-06 PASSED，记录后按授权执行 TASK-07。
 - 修改目标、依赖、验收计划：见上表 TASK-06；前置门禁 05。
 - 风险与已知限制：先定义 PDF/派生数据/历史证据/缓存/备份生命周期。
 
