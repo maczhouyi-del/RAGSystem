@@ -1063,3 +1063,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 实际验证：npm ci/lint/check/build、39 项 Playwright（0 skipped、41.5s）、10 项 transport（0 skipped）通过；合成 UI 截图已检查。测试明确 MOCK HTTP/SSE；未执行真实 PDF 解析、付费 API、科研质量、Win11 人工操作。
 - 保留失败：旧 fixture 缺诊断路由造成 12 项聊天失败，补齐模拟后原断言通过；超时场景 1 failed/38 passed，修复取消/超时 busy 与离线自动轮询，完整重跑 39 pass。详见 task-02-evidence.json，没有删测试或降低断言。
 - CI 待对应提交的实际检查；用户已授权通过后自动开始 TASK-03。
+
+- TASK-02 验收：实现 `088e8be7a12b6d1f0fbbb9c33fdabe448e39ac0b` 的 push CI 37886916945 / Desktop 37886916939、PR CI 37886921280 / Desktop 37886921287 四个 workflow 全部 completed/SUCCESS，完整 SHA 与所有 job 已匹配。39 项浏览器/10 transport 本地通过、Linux 原生 GUI smoke 和 Windows MSI/NSIS CI 通过；工程 PASSED。真实科研质量/Win11 人工 GUI 仍未测，按授权自动开始 TASK-03。
