@@ -166,6 +166,7 @@ fn library_query(query: &str) -> bool {
                     && !value.contains('\u{fffd}')
             }
             "year" => numeric(1000, 2100),
+            "group" | "tag" => uuid(&value),
             "limit" => numeric(1, 200),
             "offset" => numeric(0, 1_000_000),
             "status" => matches!(
@@ -203,6 +204,34 @@ fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
         return Err("invalid_local_path".into());
     }
     if let Some(query) = query {
+        if route == "/api/collections" {
+            let mut names = Vec::new();
+            let valid = !query.is_empty()
+                && query.split('&').all(|entry| {
+                    let Some((key, value)) = entry.split_once('=') else {
+                        return false;
+                    };
+                    if names.contains(&key) {
+                        return false;
+                    }
+                    names.push(key);
+                    !value.is_empty()
+                        && value.bytes().all(|b| b.is_ascii_digit())
+                        && value.parse::<u32>().is_ok_and(|n| match key {
+                            "limit" => (1..=200).contains(&n),
+                            "offset" => n <= 1_000_000,
+                            _ => false,
+                        })
+                });
+            return if valid {
+                Ok((route, Some(query)))
+            } else {
+                Err("invalid_local_query".into())
+            };
+        }
+        if route.split('/').any(|part| part == "collections") {
+            return Err("invalid_local_query".into());
+        }
         if search {
             return if library_query(query) {
                 Ok((route, Some(query)))
@@ -253,6 +282,12 @@ pub fn validate_request(path: &str, method: &str) -> Result<(), String> {
         ["api", "providers", "test"] => method == "POST",
         ["api", "papers"] => method == "GET",
         ["api", "papers", "search"] => method == "GET",
+        ["api", "collections"] => matches!(method, "GET" | "POST"),
+        ["api", "collections", id] if uuid(id) => matches!(method, "GET" | "PATCH" | "DELETE"),
+        ["api", "papers", id, "collections"] if uuid(id) => method == "GET",
+        ["api", "papers", id, "collections", collection] if uuid(id) && uuid(collection) => {
+            matches!(method, "PUT" | "DELETE")
+        }
         ["api", "papers", "upload" | "arxiv"] => method == "POST",
         ["api", "papers", id] if uuid(id) => matches!(method, "GET" | "PATCH" | "DELETE"),
         ["api", "papers", id, "deletion-preview" | "deletion"] if uuid(id) => method == "GET",
@@ -619,6 +654,41 @@ mod tests {
             "GET"
         )
         .is_err());
+    }
+
+    #[test]
+    fn organization_routes_and_search_scope_are_fixed_uuid_resources() {
+        let collection = format!("/api/collections/{ID}");
+        let member = format!("/api/papers/{ID}/collections/{ID}");
+        for method in ["GET", "POST"] {
+            assert!(validate_request("/api/collections", method).is_ok());
+        }
+        for method in ["GET", "PATCH", "DELETE"] {
+            assert!(validate_request(&collection, method).is_ok());
+        }
+        for method in ["PUT", "DELETE"] {
+            assert!(validate_request(&member, method).is_ok());
+        }
+        assert!(validate_request(&format!("/api/papers/{ID}/collections"), "GET").is_ok());
+        assert!(validate_request("/api/collections?limit=200&offset=200", "GET").is_ok());
+        assert!(
+            validate_request(&format!("/api/papers/search?group={ID}&tag={ID}"), "GET").is_ok()
+        );
+        for path in [
+            "/api/collections/invalid",
+            "/api/collections?limit=0",
+            "/api/collections?limit=201",
+            "/api/collections?limit=2&limit=2",
+            "/api/collections?url=http://evil",
+            "/api/papers/search?group=invalid",
+            "/api/papers/search?tag=invalid",
+        ] {
+            assert!(validate_request(path, "GET").is_err(), "{path}");
+        }
+        assert!(validate_request(&member, "POST").is_err());
+        assert!(validate_request(&member, "GET").is_err());
+        assert!(validate_request(&format!("{collection}?limit=1"), "GET").is_err());
+        assert!(validate_request(&format!("{member}?offset=1"), "DELETE").is_err());
     }
     #[test]
     fn requests_are_local_and_scoped() {

@@ -30,6 +30,8 @@ from ragagent.db.models import (
     Metric,
     Paper,
     PaperAuthor,
+    PaperCollection,
+    PaperCollectionMember,
     PaperDeletion,
     Run,
     new_id,
@@ -299,6 +301,18 @@ def search_papers(
         statement = statement.where(Paper.year == query.year)
     if query.status is not None:
         statement = statement.where(Paper.status == query.status)
+    for collection_id, kind in [(query.group, "group"), (query.tag, "tag")]:
+        if collection_id is not None:
+            statement = statement.where(
+                select(PaperCollectionMember.paper_id)
+                .join(PaperCollection)
+                .where(
+                    PaperCollectionMember.paper_id == Paper.id,
+                    PaperCollection.id == str(collection_id),
+                    PaperCollection.kind == kind,
+                )
+                .exists()
+            )
     matching = statement.cte("matching_papers")
     total = select(func.count().label("total")).select_from(matching).cte("matching_total")
     sort_column = Paper.created_at if query.sort == "created_at" else Paper.year

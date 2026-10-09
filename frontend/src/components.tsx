@@ -3,6 +3,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { isDesktop, openPaperPdf } from "./transport";
 import type { Evidence, SourceStatus, SupportingPair } from "./api";
+import { OrganizationFilters } from "./Collections";
 export const sourceStatusLabels: Record<SourceStatus, string> = {
   unknown: "来源状态未核验",
   active: "来源状态：已标记有效",
@@ -35,6 +36,8 @@ export function SourceProvenance({
 }
 export type Filters = {
   paper_ids: string[];
+  group_ids: string[];
+  tag_ids: string[];
   authors: string[];
   venues: string[];
   sections: string[];
@@ -47,6 +50,8 @@ export type Filters = {
 };
 export const emptyFilters: Filters = {
   paper_ids: [],
+  group_ids: [],
+  tag_ids: [],
   authors: [],
   venues: [],
   sections: [],
@@ -99,6 +104,7 @@ export function FilterEditor({
   return (
     <details>
       <summary>文献过滤条件（同字段 OR，不同字段 AND）</summary>
+      <OrganizationFilters value={value} onChange={onChange} />
       <div className="grid">
         {fields.map((key) => (
           <label key={key}>

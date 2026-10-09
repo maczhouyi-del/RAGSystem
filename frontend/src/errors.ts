@@ -1,5 +1,10 @@
 /** Recovery guidance. Unrecognized remote text is never echoed. */
 const guidance: Record<string, string> = {
+  collection_not_found:
+    "分组或标签已不存在。保留的检索范围会返回空结果，请明确重选范围。",
+  collection_name_conflict: "同类型已有这个名称，请换名或刷新后使用已有项。",
+  collection_version_conflict: "分组或标签已被修改，请刷新确认最新名称后重试。",
+  collection_confirmation_mismatch: "确认的分组或标签不匹配，请重新读取。",
   invalid_pdf: "文件没有有效的 PDF 标识，请重新选择 PDF。",
   pdf_too_large: "PDF 超过允许的大小，请拆分文件或核对后端上传限制。",
   paper_not_retryable: "论文正在处理或已完成，请先读取最新状态，勿重复索引。",

@@ -7,6 +7,20 @@ export const SourceStatus = z.enum([
   "withdrawn",
   "retracted",
 ]);
+export const Collection = z.object({
+  id: z.string().uuid(),
+  kind: z.enum(["group", "tag"]),
+  name: z.string(),
+  version: z.number().int().positive(),
+  paper_count: z.number().int().nonnegative(),
+});
+export type Collection = z.infer<typeof Collection>;
+export const CollectionPage = z.object({
+  items: z.array(Collection),
+  total: z.number().int().nonnegative(),
+  limit: z.number().int().positive(),
+  offset: z.number().int().nonnegative(),
+});
 export type SourceStatus = z.infer<typeof SourceStatus>;
 export const SourceMetadata = z.object({
   arxiv_id: z.string().nullable().default(null),
@@ -190,12 +204,12 @@ export async function api<T>(
   path: string,
   schema: z.ZodType<T>,
   body?: unknown,
-  method = "POST",
+  method?: string,
   signal?: AbortSignal,
 ): Promise<T> {
   const response = await request(path, {
     signal,
-    method: body === undefined ? "GET" : method,
+    method: method ?? (body === undefined ? "GET" : "POST"),
     headers:
       body instanceof FormData ? {} : { "Content-Type": "application/json" },
     body:

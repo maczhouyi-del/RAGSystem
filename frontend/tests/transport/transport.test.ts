@@ -253,3 +253,30 @@ test("desktop document opener only accepts local fixed resource URLs", async () 
     await assert.rejects(openLocalResource(path), /local_resource_not_allowed/);
   assert.equal(commands.length, 1);
 });
+
+test("desktop organization scope and individual relations preserve exact verbs and confirmation", async () => {
+  const id = "b27e97ba-0c6b-4ac2-8b1d-0ef2f6a8ef7f";
+  const confirmation = { confirm_collection_id: id, expected_version: 2 };
+  for (const [path, method, body] of [
+    [`/api/papers/search?group=${id}&tag=${id}`, "GET", undefined],
+    [`/api/papers/${id}/collections/${id}`, "PUT", undefined],
+    [`/api/papers/${id}/collections/${id}`, "DELETE", undefined],
+    [`/api/collections/${id}`, "DELETE", JSON.stringify(confirmation)],
+  ] as const) {
+    await request(path, {
+      method,
+      ...(body
+        ? { body, headers: { "Content-Type": "application/json" } }
+        : {}),
+    });
+    const payload = commands.at(-1)!.args.request as {
+      path: string;
+      method: string;
+      body: string | null;
+    };
+    assert.equal(payload.path, path);
+    assert.equal(payload.method, method);
+    if (body) assert.deepEqual(JSON.parse(atob(payload.body!)), confirmation);
+  }
+  assert.ok(!JSON.stringify(commands).includes("Authorization"));
+});

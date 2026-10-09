@@ -3,6 +3,12 @@ import { z } from "zod";
 import { Paper, PaperPage, Run, api } from "./api";
 import type { SourceStatus } from "./api";
 import { PdfImports } from "./PdfImports";
+import {
+  CollectionManager,
+  CollectionOptions,
+  PaperOrganization,
+  useCollections,
+} from "./Collections";
 import { isDesktop, openPaperPdf } from "./transport";
 import { SourceProvenance, sourceStatusLabels } from "./components";
 import {
@@ -22,10 +28,13 @@ const initialFilters = {
   year: "",
   venue: "",
   status: "",
+  group: "",
+  tag: "",
   sort: "created_at",
   direction: "desc",
 };
 export function Knowledge() {
+  const catalog = useCollections();
   const [papers, setPapers] = useState<z.infer<typeof Paper>[]>([]),
     [error, setError] = useState(""),
     [arxiv, setArxiv] = useState(""),
@@ -176,6 +185,7 @@ export function Knowledge() {
       {error && <p role="alert">{error}</p>}
       {sourceNotice && <p role="status">{sourceNotice}</p>}
       <PaperDeletionStatus manager={deletions} />
+      <CollectionManager catalog={catalog} onChanged={() => void refresh()} />
       {deletingPaper && (
         <PaperDeletionDialog
           key={deletingPaper.id}
@@ -195,6 +205,30 @@ export function Knowledge() {
         }}
       >
         <div className="grid">
+          {(["group", "tag"] as const).map((kind) => (
+            <label key={kind}>
+              {kind === "group" ? "筛选论文分组" : "筛选自定义标签"}
+              <select
+                value={filters[kind]}
+                onFocus={() => void catalog.load()}
+                onChange={(event) =>
+                  setFilters((current) => ({
+                    ...current,
+                    [kind]: event.target.value,
+                  }))
+                }
+              >
+                <option value="">
+                  {kind === "group" ? "全部分组" : "全部标签"}
+                </option>
+                <CollectionOptions
+                  items={catalog.items}
+                  kind={kind}
+                  selected={[filters[kind]].filter(Boolean)}
+                />
+              </select>
+            </label>
+          ))}
           {(
             [
               ["title", "搜索论文标题", 1000],
@@ -371,6 +405,12 @@ export function Knowledge() {
                 {p.year} · {p.venue}
                 <MetadataOverrides paper={p} />
                 <OriginalMetadata paper={p} />
+                <PaperOrganization
+                  paper={p}
+                  catalog={catalog}
+                  disabled={deletingPaper !== null || editingPaper !== null}
+                  onChanged={() => void refresh()}
+                />
                 <button
                   aria-label={`编辑 ${p.title} 元数据`}
                   disabled={

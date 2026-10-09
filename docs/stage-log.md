@@ -1132,3 +1132,10 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 边界：浏览器 scripted 完成不证明模型/解析质量；历史查询性能、峰值内存、科研质量 NOT MEASURED，Win11 人工 GUI NOT EXECUTED。TASK-08 实现 CI 待实际提交检查，TASK-09 NOT_STARTED。
 
 - TASK-08 验收：`b8a4d3bc4b06323528af085c096354c8c9a77d37` 的 push CI 37922681767 / Desktop 37922681780、PR CI 37922686606 / Desktop 37922686602 四个 workflow 和十个 job 全部 completed/SUCCESS，完整 SHA 核对；实际 Windows MSI/NSIS、Rust format/check/test/clippy、Linux GUI smoke PASS。云环境加载新代码、API/Web/三 worker ready，保留开发数据、无模型请求。工程 PASSED，自动进入 TASK-09；科研质量和 Win11 人工验收仍未测。
+
+## TASK-09 论文分组与标签（2026-10-09）
+
+- 修改：domain 组织契约/UUID 范围，PaperCollection/Member 与 0010 迁移、目录/关系 API，论文列表及 dense/lexical scope；Collections/Knowledge/FilterEditor/API 显式方法、Rust 受限路由/查询，真实 PG/图/浏览器/transport/bridge 覆盖与文档/证据。无依赖锁或第二任务系统修改，不复制 PDF/vector/Evidence。
+- 验证：locked sync 109、Ruff format/check、mypy 84、npm ci/lint/check/build、官方 rustfmt、真实升级/模型 check/有损降级拒绝/重升 PASS；749 pytest（525 unit /224 PG、0 skipped、63.65s）、82 browser（报告 1.2m、0 skipped）/13 transport PASS；最终截图检查。
+- 保留失败：首轮 browser 5/6、第二轮 3/8；pending checkbox 与旧发送 locator 修正，实际 api bodyless PUT/DELETE 被改 GET 的错误修复，服务器读回确认断言保留。Ruff SQL 长行/局部导入组修复。没有跳过或移除测试。
+- 边界：当前检索快照成员范围，名称版本不冻结关联数；大库性能/真实模型科研质量未测，Win11 人工 GUI 未执行；MOCK HTTP 不证明真实科研表现。本任务实际 CI 待提交；TASK-10 未开始。

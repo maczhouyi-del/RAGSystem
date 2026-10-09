@@ -83,6 +83,31 @@ class Paper(Base):
     )
 
 
+class PaperCollection(Base):
+    __tablename__ = "paper_collections"
+    __table_args__ = (
+        CheckConstraint("kind IN ('group', 'tag')", name="ck_paper_collections_kind"),
+        CheckConstraint("version >= 1", name="ck_paper_collections_version"),
+        UniqueConstraint("kind", "name_key", name="uq_paper_collections_kind_name"),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    kind: Mapped[Literal["group", "tag"]] = mapped_column(String(16))
+    name: Mapped[str] = mapped_column(String(80))
+    name_key: Mapped[str] = mapped_column(Text)
+    version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+
+
+class PaperCollectionMember(Base):
+    __tablename__ = "paper_collection_members"
+    __table_args__ = (Index("ix_collection_members_collection_paper", "collection_id", "paper_id"),)
+    paper_id: Mapped[str] = mapped_column(
+        ForeignKey("papers.id", ondelete="CASCADE"), primary_key=True
+    )
+    collection_id: Mapped[str] = mapped_column(
+        ForeignKey("paper_collections.id", ondelete="CASCADE"), primary_key=True
+    )
+
+
 class Author(Base):
     __tablename__ = "authors"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)

@@ -2,6 +2,7 @@
 
 from typing import Literal
 from unicodedata import category
+from uuid import UUID
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, StrictBool, field_validator
 
@@ -28,6 +29,8 @@ class PaperSearchQuery(SensitiveInput):
     year: int | None = Field(default=None, ge=1000, le=2100)
     venue: str | None = Field(default=None, min_length=1, max_length=256)
     status: Literal["queued", "parsing", "indexing", "indexed", "failed"] | None = None
+    group: UUID | None = None
+    tag: UUID | None = None
     sort: Literal["created_at", "year"] = "created_at"
     direction: Literal["asc", "desc"] = "desc"
     limit: int = Field(default=50, ge=1, le=200)

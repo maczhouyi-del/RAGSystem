@@ -709,3 +709,23 @@ footer {
   background: #e8f0f4;
   border-color: #165674;
 }
+
+.paper-organization label.inline {
+  align-items: center;
+  flex-wrap: nowrap;
+  margin-top: 8px;
+}
+.paper-organization input[type="checkbox"] {
+  width: auto;
+  flex: 0 0 auto;
+  margin: 0;
+}
+.collection-list > li {
+  border-bottom: 1px solid #d9e3e7;
+  padding: 12px 0;
+}
+.collection-confirmation {
+  width: min(620px, calc(100vw - 48px));
+  max-height: 80dvh;
+  overflow-y: auto;
+}

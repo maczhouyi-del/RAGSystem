@@ -14,6 +14,7 @@ from starlette.exceptions import HTTPException
 from ragagent import __version__
 from ragagent.api import (
     auth,
+    collections,
     conversations,
     deletions,
     diagnostics,
@@ -53,6 +54,7 @@ app = LocalAPI(
 app.include_router(auth.router)
 app.include_router(diagnostics.router)
 app.include_router(papers.router)
+app.include_router(collections.router)
 app.include_router(deletions.router)
 app.include_router(runs.router)
 app.include_router(providers.router)
