@@ -5,6 +5,7 @@ from typing import Any, Protocol
 from ragagent.domain.documents import contextual_text
 from ragagent.domain.research import Candidate
 from ragagent.errors import ProviderError
+from ragagent.providers.chat import Usage
 from ragagent.providers.model_identity import LocalModelIdentity
 
 
@@ -17,6 +18,7 @@ class Reranker(Protocol):
 class CrossEncoderReranker:
     def __init__(self, model: str, revision: str | None = None) -> None:
         self.model_name = model
+        self.usage = Usage(configured_model=model, cost_basis="local_service")
         self.identity = LocalModelIdentity(model, revision)
         self._model: Any = None
         self._load_lock = threading.Lock()
@@ -58,7 +60,14 @@ class CrossEncoderReranker:
     async def rerank(self, query: str, candidates: list[Candidate], top_k: int) -> list[Candidate]:
         if not candidates:
             return []
+        self.usage.begin_call()
         try:
-            return await asyncio.to_thread(self._rank, query, candidates, top_k)
+            ranked = await asyncio.to_thread(self._rank, query, candidates, top_k)
+        except asyncio.CancelledError:
+            self.usage.record_cost(0.0)
+            raise
         except Exception:
+            self.usage.record_cost(0.0)
             raise ProviderError("reranking_failed") from None
+        self.usage.record_cost(0.0)
+        return ranked

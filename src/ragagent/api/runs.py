@@ -12,9 +12,47 @@ from ragagent.api.schemas import QueryRequest, ResearchRequest, RunResponse
 from ragagent.db.models import ExecutionEvent, Message, Run
 from ragagent.db.session import session_factory
 from ragagent.domain.exports import export_run
+from ragagent.domain.run_metrics import RunMetrics, run_metrics
 from ragagent.jobs import TERMINAL_STATUSES, cancel_run
 
 router = APIRouter(tags=["runs"])
+
+
+@router.get("/api/runs/{run_id}/metrics")
+def metrics(run_id: UUID, db: DB) -> RunMetrics:
+    # Project accounting only: historical scientific result/event bodies stay unloaded.
+    record = db.execute(
+        select(
+            Run.id,
+            Run.kind,
+            Run.status,
+            Run.error_code,
+            Run.created_at,
+            Run.result["usage"],
+            Run.result["usage_scope"],
+        ).where(Run.id == str(run_id))
+    ).first()
+    if record is None:
+        raise HTTPException(404, "run_not_found")
+    timings = db.execute(
+        select(
+            ExecutionEvent.node,
+            ExecutionEvent.created_at,
+            ExecutionEvent.payload["execution_timing"],
+        )
+        .where(ExecutionEvent.run_id == str(run_id))
+        .order_by(ExecutionEvent.id)
+    ).all()
+    return run_metrics(
+        run_id=record[0],
+        kind=record[1],
+        status=record[2],
+        error_code=record[3],
+        created_at=record[4],
+        usage=record[5],
+        usage_scope=record[6],
+        events=[(row[0], row[1], row[2]) for row in timings],
+    )
 
 
 @router.get("/api/runs/{run_id}/exports/{filename}")

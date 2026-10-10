@@ -20,7 +20,7 @@ class LocalEmbedder:
         self.model_name = model
         self.dimension = dimension
         self.identity = LocalModelIdentity(model, revision)
-        self.usage = Usage()
+        self.usage = Usage(configured_model=model, cost_basis="local_service")
         self._model: Any = None
         self._load_lock = threading.Lock()
 
@@ -62,11 +62,16 @@ class LocalEmbedder:
         return vectors
 
     async def embed(self, texts: list[str]) -> list[list[float]]:
+        self.usage.begin_call()
         try:
             vectors = await asyncio.to_thread(self._encode, texts)
             self.usage.record_cost(0.0)
             return vectors
+        except asyncio.CancelledError:
+            self.usage.record_cost(0.0)
+            raise
         except Exception:
+            self.usage.record_cost(0.0)
             raise ProviderError("local_embedding_failed") from None
 
 
@@ -84,7 +89,7 @@ class LiteLLMEmbedder:
         self.api_base = embedding_endpoint(model, api_base)
         self.revision = revision
         self.api_key_env = api_key_env
-        self.usage = Usage()
+        self.usage = Usage(configured_model=model, cost_basis="sdk_estimate")
 
     @property
     def fingerprint(self) -> str:
@@ -132,12 +137,12 @@ class LiteLLMEmbedder:
             )
             response_usage = getattr(response, "usage", None)
             tokens = (
-                response_usage.get("prompt_tokens", 0)
+                response_usage.get("prompt_tokens")
                 if isinstance(response_usage, dict)
-                else getattr(response_usage, "prompt_tokens", 0)
+                else getattr(response_usage, "prompt_tokens", None)
             )
-            if isinstance(tokens, int) and tokens >= 0:
-                self.usage.prompt_tokens += tokens
+            # Embedding has no completion generation; zero is a structural count.
+            self.usage.record_tokens(tokens, 0)
             self.usage.record_cost(cost)
             vectors = [row["embedding"] for row in sorted(response.data, key=lambda r: r["index"])]
             validate_vectors(vectors, len(texts), self.dimension)

@@ -41,6 +41,22 @@ afterEach(() => {
   Object.assign(globalThis, { isTauri: false });
 });
 
+test("desktop metrics reads use the authenticated local bridge and honor cancellation", async () => {
+  const path = "/api/runs/00000000-0000-4000-8000-000000000016/metrics";
+  const response = await request(path);
+  assert.equal(response.status, 200);
+  assert.equal(commands[0].command, "api_request");
+  assert.equal((commands[0].args.request as { path: string }).path, path);
+  assert.equal((commands[0].args.request as { method: string }).method, "GET");
+  const count = commands.length;
+  const controller = new AbortController();
+  controller.abort();
+  await assert.rejects(request(path, { signal: controller.signal }), {
+    name: "AbortError",
+  });
+  assert.equal(commands.length, count);
+});
+
 test("desktop report exports send only a fixed route to the native saver", async () => {
   const id = "00000000-0000-4000-8000-000000000015";
   native = async () => ({

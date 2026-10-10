@@ -336,6 +336,7 @@ pub fn validate_request(path: &str, method: &str) -> Result<(), String> {
             matches!(method, "GET" | "POST")
         }
         ["api", "runs" | "rag" | "research", id] if uuid(id) => method == "GET",
+        ["api", "runs", id, "metrics"] if uuid(id) => method == "GET" && query.is_none(),
         ["api", "runs", id, "cancel"] if uuid(id) => method == "POST",
         ["api", "evaluations", "retrieval" | "rag" | "multi-agent" | "conversation"] => {
             method == "POST"
@@ -692,6 +693,23 @@ mod tests {
             "GET"
         )
         .is_err());
+    }
+
+    #[test]
+    fn metrics_route_is_read_only_and_has_no_query_or_remote_destination() {
+        let route = format!("/api/runs/{ID}/metrics");
+        assert!(validate_request(&route, "GET").is_ok());
+        for method in ["POST", "PUT", "DELETE", "PATCH"] {
+            assert!(validate_request(&route, method).is_err());
+        }
+        for path in [
+            format!("{route}?after=1"),
+            format!("{route}?url=http://evil"),
+            format!("http://evil{route}"),
+            "/api/runs/not-uuid/metrics".into(),
+        ] {
+            assert!(validate_request(&path, "GET").is_err());
+        }
     }
 
     #[test]

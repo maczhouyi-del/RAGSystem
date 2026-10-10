@@ -1210,3 +1210,12 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-15 初始实现 f134b24：pushCI38020303629及pushDesktop38020303643/PRDesktop38020306091 SUCCESS；PRCI38020306080前端115PASS/1旧TASK-14 unfinished MOCK FAIL，backend/compose SUCCESS，9/10job通过。旧共享SSE会自动完成与运行中前提矛盾；固定未完成SSE并等待实际请求，保留运行中/无表无事实检查、新增无导出按钮与Run仍running检查。恢复旧自动完成确定性预期FAIL；修正后2专项/116全量browserPASS（1.5m），不盲重跑旧CI。生产/后端未改变，既有915Python/18transport结果适用；修正提交需新精确门禁。
 
 - TASK-15 工程验收（2026-10-10 Asia/Shanghai）：55cda0b6b2038d184dd6f89f405745e0fbcb6128 push CI38020898598 / Desktop38020898554、PR CI38020902166 / Desktop38020902249，四workflow/十job completed/SUCCESS，完整SHA及native实际步骤核对。915后端（646 unit/269 PG）、116 MOCK browser/18transport PASS；原失败保留。生产代码与f134b24相同，云ready/旧Run保留/0模型调用。工程PASSED，自动进入TASK-16；Win11人工保存NOT EXECUTED，科研质量NOT MEASURED。
+
+## TASK-16 模型费用、延迟与任务状态（2026-10-10 Asia/Shanghai）
+
+- 开始f3bd798，TASK-15精确SHA四workflow/十jobSUCCESS，验收已推送。模型/Token/费用basis/完整性补入现有Usage与Evaluation，Run/Event只读metrics投影及单调时钟完成节点区间；UI按需与有限活动读取、本地刷新无模型调用。无DDL/依赖/队列变化。
+- 初稿mypy2类型错误修复；首次48专项中47PASS/1FAIL/1teardownERROR，测试误替换全局monotonic污染asyncio；改为worker私有模块引用，断言保留。初次patch格式上下文失配未修改文件，随后按实际格式完成。Ruff/mypy96/前端check与19transport通过；完整回归待执行，状态IN_PROGRESS。
+
+- TASK-16 后端最终965 PASS（688 unit/277 PG、0 skipped/failed、71.29s）；首次963 PASS后审查补本地reranker快照/Token Unknown与计数完整性边界，再完整复验。首次全量前端117PASS/6FAIL，生产UI新增metrics和export key冲突导致重复控件，实际修复独立key并增加完整详情加载后的单控件断言；修正专项15PASS，全量待完成。首次修正命令目录误指定未改文件、构建仍旧key，8PASS/6FAIL保留；正确路径/set -e已完成修正。无断言删除，0模型调用/权重下载，真实费用/质量仍未测。
+
+- TASK-16 最终本地：965 backend（688 unit/277 real PG、0 skipped/failed）、124 MOCK browser（1.6m、0 failed/skipped）/19transport全PASS；Ruff/mypy96/locked sync/npm ci/lint/check/build/官方Rustfmt PASS。所有失败与修正保留，工程IN_PROGRESS，独立提交后需四个精确实现workflow/十job与native步骤SUCCESS。

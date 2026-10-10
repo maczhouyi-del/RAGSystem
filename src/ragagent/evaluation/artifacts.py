@@ -109,6 +109,10 @@ def usage_delta(previous: dict[str, Any], current: dict[str, Any]) -> dict[str, 
             "in_flight_calls",
         )
     }
+    for key in ("prompt_token_reports", "completion_token_reports"):
+        result[key] = current.get(key, 0) - previous.get(key, 0)
+    for key in ("configured_model", "cost_basis"):
+        result[key] = current.get(key)
     result["accounting_available"] = current["accounting_available"]
     for key in ("provider_models", "system_fingerprints"):
         result[key] = list(dict.fromkeys([*previous.get(key, []), *current.get(key, [])]))
@@ -161,6 +165,15 @@ def workflow_usage(usage: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """Sum chat and retrieval embedding costs, excluding the separate judge."""
     workflow = [value for name, value in usage.items() if name != "judge"]
     return {
+        "token_totals_complete": bool(workflow)
+        and all(
+            value.get("calls", 0) > 0
+            and value.get("prompt_token_reports", 0) == value["calls"]
+            and value.get("completion_token_reports", 0) == value["calls"]
+            for value in workflow
+        ),
+        "cost_basis": {name: value.get("cost_basis", "unknown") for name, value in usage.items()},
+        "exact_provider_bill": None,
         "total_workflow_tokens": sum(
             value["prompt_tokens"] + value["completion_tokens"] for value in workflow
         ),

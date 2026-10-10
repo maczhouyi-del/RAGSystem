@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import hashlib
 import logging
+import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -94,7 +95,9 @@ def track_usage(
     usage = getattr(adapter, "usage", None)
     if isinstance(usage, Usage):
         # Local model adapters retain weights across jobs, but accounting is per Run.
-        usage = adapter.usage = Usage()
+        usage = adapter.usage = Usage(
+            configured_model=usage.configured_model, cost_basis=usage.cost_basis
+        )
         tracked[name] = usage
         usage.on_update = lambda _: persist_usage(session, run, tracked)
 
@@ -111,13 +114,28 @@ def event(session: Session, run: Run, node: str, payload: dict[str, Any]) -> Non
 async def graph_events(
     graph: Runnable[Any, Any], state: T, session: Session, run: Run, recursion_limit: int
 ) -> T:
+    previous_tick = time.monotonic()
     async for updates in graph.astream(
         state, {"recursion_limit": recursion_limit}, stream_mode="updates"
     ):
         for node, update in updates.items():
             data = jsonable_encoder(update)
             state = type(state).model_validate({**state.model_dump(), **data})
-            event(session, run, node, data)
+            tick = time.monotonic()
+            # A completed node interval includes orchestration; not pure inference time.
+            event(
+                session,
+                run,
+                node,
+                {
+                    **data,
+                    "execution_timing": {
+                        "elapsed_seconds": tick - previous_tick,
+                        "basis": "node_interval",
+                    },
+                },
+            )
+            previous_tick = time.monotonic()
     return state
 
 
@@ -313,10 +331,12 @@ async def execute_async(run_id: str) -> None:
                     track_usage(session, run, tracked, name, adapter)
                 embedder = make_embedder(settings)
                 track_usage(session, run, tracked, "embedding", embedder)
+                reranker = make_reranker(settings)
+                track_usage(session, run, tracked, "reranker", reranker)
                 search = HybridRetriever(
                     session,
                     embedder,
-                    make_reranker(settings),
+                    reranker,
                     settings.candidate_top_n,
                     settings.evidence_top_k,
                     settings.rrf_k,
@@ -396,10 +416,12 @@ async def execute_async(run_id: str) -> None:
                     validate_references(dataset, session)
                 embedder = make_embedder(settings)
                 track_usage(session, run, tracked, "embedding", embedder)
+                reranker = make_reranker(settings)
+                track_usage(session, run, tracked, "reranker", reranker)
                 search = HybridRetriever(
                     session,
                     embedder,
-                    make_reranker(settings),
+                    reranker,
                     settings.candidate_top_n,
                     settings.evidence_top_k,
                     settings.rrf_k,

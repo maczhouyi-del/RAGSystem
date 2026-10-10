@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { Run, api } from "./api";
+import { RunMetrics } from "./RunMetrics";
 import { Json } from "./components";
 import { isDesktop, openLocalResource, stream } from "./transport";
 
@@ -136,6 +137,7 @@ export function Evaluation() {
       {error && <p role="alert">{error}</p>}
       {run && (
         <>
+          <RunMetrics key={run.id} runId={run.id} status={run.status} />
           <p>
             状态：{run.status}
             {run.error_code && ` · ${run.error_code}`}
