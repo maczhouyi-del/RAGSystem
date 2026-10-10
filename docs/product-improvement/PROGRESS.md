@@ -37,7 +37,7 @@
 | TASK-13 | 引用与 PDF 阅读 | 12 | 复用 source metadata/受限 bridge；新增依赖先许可证审查 | 正确论文/页/多引用/表格/缺坐标降级，Web/Desktop | PASSED |
 | TASK-14 | 结构化研究报告生成 | 13；03 提供评测基础 | 扩展确定性 synthesis；保留 Reviewer、单位/实验条件边界 | 多论文/矛盾/不充分证据/重试；人工案例与 mock 分开 | PASSED |
 | TASK-15 | 报告与比较结果导出 | 14；05 元数据；13 来源 | Markdown/CSV/BibTeX/引用清单，安全文件名与下载 | 旧会话/数字/条件/Evidence ID/缺字段/中文/特殊字符 | PASSED |
-| TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | IN_PROGRESS |
+| TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | BLOCKED |
 | TASK-17 | RAG 与 Research 对照评测 | 16；03 框架及人工金标/模型条件 | 同语料/问题/范围/配置，不预设 Research 更优 | 真实失败逐例记录；无真实资源 BLOCKED / NOT MEASURED | NOT_STARTED |
 | TASK-18 | 最终安装方案与完整部署 | 17；01/02 诊断引导 | 先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI | 实际 Windows artifact/哈希、版本/auth/升级备份卸载；人工平台单列 | NOT_STARTED |
 | TASK-19 | 科研用户端到端验收 | 18；03/17 真实评测资源 | 停止新功能；A–L 全场景，工程与人工证据分开 | 全新 Win11、20 PDF、数值/比较/记忆/删除/报告/恢复/升级/跨语言 | NOT_STARTED |
@@ -250,13 +250,16 @@
 
 ### TASK-16：模型费用、延迟与任务状态
 
-- 状态：IN_PROGRESS；开始 commit：`f3bd798f91a6bf5647a36ec067bb4195a485dd21`；最终实现 commit：待产生。
+- 状态：BLOCKED（CI门禁/云网络）；开始 commit：`f3bd798f91a6bf5647a36ec067bb4195a485dd21`；最终实现 commit：`f2423e56bf750164808b07983f035a112a9a476b`。
 - 前置：TASK-15 修正实现55cda0b四个精确SHA workflow/十个job全部SUCCESS，独立验收已推送。
 - 实现：现有Run/Usage/Event只读投影，冻结配置/返回模型，SDK估算与精确账单区分；Token已知子总量与完整性、缺失Unknown不伪造零；单调时钟完成节点区间，不声称纯推理时间。聊天/评测按需展开统计，活动读取最多60次、关面板/切换取消，终态支持手动读取迟到费用；不调用模型。
 - 新增验证：实际SDK MOCK usage缺失/零/非法值、真实PG只读/状态/取消后补账/新调度拒绝、浏览器刷新/SSE/重试兼容、native仅GET固定UUID无query路径。
 - 初稿mypy2类型错误已修复。首次专项47PASS/1FAIL/1teardownERROR：测试monkeypatch全局time.monotonic影响asyncio时钟，改为替换worker模块自己的time引用，科学与计时断言保留；完整验证与CI待执行。
-- 验证进度：新42unit/8PG，最终965后端（688 unit/277 real PG，0 skipped/failed、71.29s）PASS，首次963 PASS后补reranker和非法计数完整性再执行全量。初始前端117PASS/6FAIL，查明新增metrics与export sibling key相同导致旧报告详情刷新时控件重复；修正独立key，新增详情实际加载后仅1控件断言，15专项及124全量browser PASS（1.6m、0 failed/skipped）；等待精确实现CI门禁，TASK-17/18尚未实施。19transport/Ruff/mypy96/locked sync/npm ci/lint/check/build/rustfmt PASS，截图已检查。
+- 验证进度：新42unit/8PG，最终965后端（688 unit/277 real PG，0 skipped/failed、71.29s）PASS，首次963 PASS后补reranker和非法计数完整性再执行全量。初始前端117PASS/6FAIL，查明新增metrics与export sibling key相同导致旧报告详情刷新时控件重复；修正独立key，新增详情实际加载后仅1控件断言，15专项及124全量browser PASS（1.6m、0 failed/skipped）；精确实现CI：push CI38022345968 / Desktop38022345897与PR CI38022349421（attempt2）SUCCESS，PR Desktop38022349417中Windows SUCCESS/Linux rustup安装FAIL，9/10 job SUCCESS；未通过门禁。PR Compose首轮Debian连接失败，诊断后新runner重跑成功，原失败保留。云代理api.github.com CONNECT403阻止余下日志诊断/重跑；GitHub网页步骤/完整SHA已核对，Linux实际原因尚未取得、该job原生检查全部skipped。TASK-17/18尚未实施。19transport/Ruff/mypy96/locked sync/npm ci/lint/check/build/rustfmt PASS，截图已检查。
 - 限制：0实际模型调用/模型权重下载；真实费用/科学质量NOT MEASURED，Win11人工NOT EXECUTED。
+
+- 云运行：API/Web/三worker ready、schema0012、旧开发失败Run UUID/创建时间核对保留、0模型调用。配置工具已保存网络草稿（api.github.com、productionresultssa9/sa18.blob.core.windows.net），保留package_managers preset；requires_publish=true、尚未应用/发布。需要环境设置审核保存并发布后验证访问，不能绕过代理/TLS或自动发布。
+- 继续步骤：恢复 GitHub API 后，读取PR Desktop38022349417/Linux job114125856277的具体rustup失败日志，诊断后修复或重跑；必须获得同实现SHA四workflow/十job与原生步骤成功，再独立验收提交并自动继续TASK-17资源阻塞记录和TASK-18工程。真实评测资源用户已确认未备妥，无需重复询问。
 
 ### TASK-17：RAG 与 Research 对照评测
 
