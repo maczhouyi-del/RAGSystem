@@ -200,6 +200,10 @@ fn prune_documents(directory: &std::path::Path, incoming: u64) -> Result<(), Str
 }
 
 fn main() {
+    if std::env::args().any(|arg| arg == "--build-info") {
+        println!("{}", desktop_build_info());
+        return;
+    }
     let (client, credentials) = auth::initialize().expect("local bridge initialization failed");
     if std::env::args().any(|arg| arg == "--check-backend") {
         let result = tauri::async_runtime::block_on(async {

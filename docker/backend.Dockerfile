@@ -4,7 +4,12 @@ COPY --from=ghcr.io/astral-sh/uv:0.12.19 /uv /usr/local/bin/uv
 WORKDIR /app
 ARG RAGAGENT_SOURCE_COMMIT=unknown
 ARG RAGAGENT_BUILD_TIME=unknown
-COPY . .
+# Only application/build inputs, never .git, private runtime files or user data.
+COPY pyproject.toml uv.lock alembic.ini LICENSE ./
+COPY src/ src/
+COPY migrations/ migrations/
+COPY config/agents.yaml config/agents.yaml
+COPY scripts/build_metadata.py scripts/annotation_template.py scripts/audit_evaluation.py scripts/deployment_data.py scripts/
 # Keep installation and cache cleanup in one layer, including on VFS builders.
 RUN --mount=type=secret,id=proxy_ca,required=false \
     if [ -f /run/secrets/proxy_ca ]; then export SSL_CERT_FILE=/run/secrets/proxy_ca; fi; \

@@ -82,6 +82,7 @@ services:
       redis: {condition: service_healthy}
     restart: unless-stopped
   frontend:
+    image: scientific-ragagent-frontend:local
     build:
       context: .
       dockerfile: docker/frontend.Dockerfile

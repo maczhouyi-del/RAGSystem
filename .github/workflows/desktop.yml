@@ -58,6 +58,7 @@ jobs:
           python -m pip install --disable-pip-version-check pyinstaller==6.16.0
           python -m PyInstaller --onefile --console --name RAGSystem-Setup --distpath deployment-dist --workpath deployment-dist/work scripts/local_deploy.py
           python scripts/test_setup_binary.py deployment-dist/RAGSystem-Setup.exe
+          python scripts/test_native_identity.py --desktop frontend/src-tauri/target/release/scientific-ragagent-desktop.exe --assistant deployment-dist/RAGSystem-Setup.exe --platform windows --architecture x86_64
           python scripts/package_deployment.py --assistant deployment-dist/RAGSystem-Setup.exe --platform windows-x86_64 --output deployment-dist/RAGSystem-deployment-windows-x86_64.zip
       - uses: actions/upload-artifact@v4
         with:
@@ -142,6 +143,7 @@ jobs:
           python -m pip install --disable-pip-version-check pyinstaller==6.16.0
           python -m PyInstaller --onefile --console --name RAGSystem-Setup --distpath deployment-dist --workpath deployment-dist/work scripts/local_deploy.py
           python scripts/test_setup_binary.py deployment-dist/RAGSystem-Setup
+          python scripts/test_native_identity.py --desktop frontend/src-tauri/target/release/scientific-ragagent-desktop --assistant deployment-dist/RAGSystem-Setup --platform linux --architecture x86_64
           python scripts/package_deployment.py --assistant deployment-dist/RAGSystem-Setup --platform linux-x86_64 --output deployment-dist/RAGSystem-deployment-linux-x86_64.zip
           python scripts/build_metadata.py --output frontend/src-tauri/target/release/build-metadata.json
           python scripts/artifact_manifest.py --platform linux-x86_64 --bundle frontend/src-tauri/target/release/bundle --metadata frontend/src-tauri/target/release/build-metadata.json --output frontend/src-tauri/target/release/installer-manifest.json
@@ -203,9 +205,11 @@ jobs:
           - runner: macos-15
             arch: aarch64
             native: arm64
+            python: arm64
           - runner: macos-15-intel
             arch: x86_64
             native: x86_64
+            python: x64
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
     defaults:
@@ -221,6 +225,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+          architecture: ${{ matrix.python }}
       - name: Assert actual native CPU architecture and build identity
         working-directory: .
         run: |
@@ -253,6 +258,7 @@ jobs:
           python -m pip install --disable-pip-version-check pyinstaller==6.16.0
           python -m PyInstaller --onefile --console --name RAGSystem-Setup --distpath deployment-dist --workpath deployment-dist/work scripts/local_deploy.py
           python scripts/test_setup_binary.py deployment-dist/RAGSystem-Setup
+          python scripts/test_native_identity.py --desktop frontend/src-tauri/target/release/scientific-ragagent-desktop --assistant deployment-dist/RAGSystem-Setup --platform macos --architecture ${{ matrix.arch }}
           python scripts/package_deployment.py --assistant deployment-dist/RAGSystem-Setup --platform macos-${{ matrix.arch }} --output deployment-dist/RAGSystem-deployment-macos-${{ matrix.arch }}.zip
           python scripts/build_metadata.py --output frontend/src-tauri/target/release/build-metadata.json
           python scripts/artifact_manifest.py --platform macos-${{ matrix.arch }} --bundle frontend/src-tauri/target/release/bundle --metadata frontend/src-tauri/target/release/build-metadata.json --output frontend/src-tauri/target/release/installer-manifest.json

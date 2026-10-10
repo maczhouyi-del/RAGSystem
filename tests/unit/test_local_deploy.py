@@ -183,6 +183,30 @@ class InstallationSafety(unittest.TestCase):
                 self.deployment.restore(self.root, confirm_empty=True)
         call.assert_not_called()
 
+    def test_web_proxy_failure_cannot_report_installation_ready(self):
+        required = [
+            "api",
+            "db",
+            "redis",
+            "worker-interactive",
+            "worker-ingestion",
+            "worker-evaluation",
+            "frontend",
+        ]
+        status = json.dumps([{"Service": name, "State": "running"} for name in required]).encode()
+        with (
+            patch("scripts.local_deploy.urllib.request.build_opener") as client,
+            patch.object(self.deployment, "dc", return_value=status),
+        ):
+            local = client.return_value.open.return_value.__enter__.return_value
+            local.read.return_value = b'{"status":"ready"}'
+            client.return_value.open.side_effect = [
+                client.return_value.open.return_value,
+                OSError("proxy unavailable"),
+            ]
+            with self.assertRaisesRegex(DeployError, "not_ready"):
+                self.deployment.ready(timeout=0)
+
     def test_all_three_workers_required_for_readiness(self):
         with (
             patch("scripts.local_deploy.urllib.request.build_opener") as client,

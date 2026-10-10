@@ -156,6 +156,17 @@ def main():
         stage("restart_and_migration_preserve_data")
         deployment.stop()
         deployment.start(build=False)
+        with browser.open("http://127.0.0.1:8080/api/auth/status", timeout=10) as response:
+            assert not json.load(response)["authenticated"]
+        with browser.open(
+            urllib.request.Request(
+                "http://127.0.0.1:8080/api/auth/session",
+                data=b"",
+                headers={"Authorization": "Bearer " + web},
+            ),
+            timeout=10,
+        ) as response:
+            assert json.load(response)["authenticated"]
         assert request("/api/providers")["agents"] == providers["agents"]
         assert request("/api/papers/" + pid)["status"] == "indexed"
         for rid in runs:

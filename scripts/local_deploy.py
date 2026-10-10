@@ -326,7 +326,9 @@ class Deployment:
                         "health",
                         code="not_ready",
                     )
-                    return
+                    with client.open("http://127.0.0.1:8080/api/ready", timeout=3) as web:
+                        if json.loads(web.read(65536)).get("status") == "ready":
+                            return
             except (OSError, ValueError, DeployError):
                 pass
             if time.monotonic() >= deadline:
@@ -352,6 +354,8 @@ class Deployment:
         args = ["up", "-d", "--wait", "--wait-timeout", "300"]
         if build:
             args.append("--build")
+        else:
+            args.append("--no-build")
         self.dc(*args)
         self.ready()
         print(
@@ -603,7 +607,17 @@ def main() -> int:
     parser.add_argument(
         "action",
         nargs="?",
-        choices=["check", "start", "stop", "pair", "backup", "upgrade", "uninstall", "restore"],
+        choices=[
+            "check",
+            "start",
+            "stop",
+            "pair",
+            "backup",
+            "upgrade",
+            "uninstall",
+            "restore",
+            "identity",
+        ],
     )
     parser.add_argument("--directory", type=Path)
     parser.add_argument(
@@ -622,7 +636,21 @@ def main() -> int:
     )
     deployment = Deployment(root, overlay=args.overlay)
     try:
-        if not args.action:
+        if args.action == "identity":
+            machine = platform.machine().lower()
+            architecture = {"amd64": "x86_64", "arm64": "aarch64"}.get(machine, machine)
+            print(
+                json.dumps(
+                    {
+                        "version": "0.2.0",
+                        "platform": {"Darwin": "macos", "Windows": "windows", "Linux": "linux"}.get(
+                            platform.system(), "unknown"
+                        ),
+                        "architecture": architecture,
+                    }
+                )
+            )
+        elif not args.action:
             wizard(deployment)
         elif args.action == "check":
             deployment.dependencies()
