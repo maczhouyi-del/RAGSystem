@@ -348,3 +348,6 @@ PDF 面板明确目标页，系统查看器可能需要手动跳页。Settings �
 实际测试证据与尚未验证的验收项见 [工程整改报告](ENGINEERING_REVIEW.md)。
 
 实现提交 `f803d824` 的 backend/frontend/Compose 与 Linux/Windows Desktop CI 均已通过。真实未签名 MSI/NSIS 制品及下载后独立核对的 SHA-256 见[工程报告](ENGINEERING_REVIEW.md#final-implementation-ci-and-inspected-windows-artifacts)。多语言真实质量与 Windows 11 人工验收仍未验证。
+
+
+本地测试版完整安装：见[Windows/macOS/Linux安装教程](docs/installation/README.md)。桌面客户端需配合Docker后端与对应部署ZIP；构建/人工平台结果以[交付记录](docs/product-improvement/task-18-delivery.md)为准。真实科研评测后置，目前NOT MEASURED。

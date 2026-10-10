@@ -85,7 +85,7 @@ export function FirstUseGuide({
     } catch {
       message = live
         ? "详细状态暂不可读取：重新检查，或打开本机授权；在 Settings 的诊断中确认数据库、Redis 和 worker。"
-        : "后端不可用：先启动 Docker Desktop / Docker Engine，再在项目目录运行 docker compose up --build；也可运行环境诊断脚本检查端口与依赖。";
+        : "后端不可用：先启动 Docker Desktop / Docker Engine，再打开部署助手选择启动；检查 Docker 状态、端口与依赖，详见安装教程。";
     } finally {
       if (current === sequence.current) {
         active.current = false;

@@ -273,6 +273,10 @@
 
 - 状态：IN_PROGRESS；开始 commit：`c2b0140`；最终实现 commit 尚未产生。
 - ADR：[0008](../adr/0008-complete-local-installation.md)，选择桌面 + 自动化 Docker 后端，提供原生部署助手；普通用户仍需 Docker，明确不宣称免依赖。
+- 涉及文件：local_deploy/deployment_data/package_deployment/artifact_manifest/build_metadata脚本、Compose/private runtime env、既有Settings/Docling worker native模式、Windows/Linux与macOS双架构原生CI、实际Docker MOCK测试、14项离线部署保护测试、安装/升级/卸载/故障/本地评测文档。
+- 已完成本地验证：979 backend（702 unit/277 real PG，0fail/skip、63.43s）、124 browser（1.7m）、19 transport；Ruff/mypy96/npm ci/lint/check/build PASS；实际Linux原生助手build/help/缺Docker路径PASS，Rustfmt PASS。原生客户端/真实Docker工程测试与四workflow门禁尚待实际CI，不标PASSED。
+- 历史失败：初稿Ruff导入/长字符串、npm默认cache只读、uv工具默认home只读，修正明确路径后通过；无删除测试/降低断言。
+- 自动启动与升级不调用模型。真实安装E2E明确用MOCK模型与Docling Native真实文本PDF；扫描/OCR/layout/实际embedding推理与科研质量不以此冒充通过。
 - 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
 - 修改目标、依赖、验收计划：见上表 TASK-18；前置门禁 16；01/02 诊断引导；不依赖17真实金标或模型预算。
 - 风险与已知限制：先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI。

@@ -1,0 +1,20 @@
+# TEST ONLY / MOCK; never include in deployment artifacts.
+services:
+  worker-interactive:
+    image: scientific-ragagent-installation-mock:local
+    build:
+      context: .
+      dockerfile: tests/installation/Dockerfile
+    command: ["python", "tests/installation/mock_worker.py", "--queue", "interactive"]
+  worker-ingestion:
+    image: scientific-ragagent-installation-mock:local
+    build:
+      context: .
+      dockerfile: tests/installation/Dockerfile
+    command: ["python", "tests/installation/mock_worker.py", "--queue", "ingestion"]
+  worker-evaluation:
+    image: scientific-ragagent-installation-mock:local
+    build:
+      context: .
+      dockerfile: tests/installation/Dockerfile
+    command: ["python", "tests/installation/mock_worker.py", "--queue", "evaluation"]

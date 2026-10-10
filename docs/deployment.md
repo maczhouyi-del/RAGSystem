@@ -1,3 +1,9 @@
+# 完整本地测试版部署
+
+普通用户请先看[Windows/macOS/Linux安装与首次使用教程](installation/README.md)，使用原生部署助手，无需Python/Node/Rust。桌面安装包只是客户端，完整系统仍明确需要Docker。
+
+下面保留开发者/维护者手工部署与高级配置参考，不能把它当作普通用户的一键安装流程。
+
 # Local deployment
 
 Requires Git, Docker Engine/Desktop and Compose v2. Recommended: 8 GB RAM,
@@ -6,12 +12,12 @@ PyTorch to avoid an unnecessary CUDA runtime. ARM and offline operation require
 compatible model packages/weights; Docker smoke verification uses amd64.
 
 Until the stacked PRs are reviewed and merged, use
-[`fix/engineering-hardening`](https://github.com/chouytong/RAGAgent/tree/fix/engineering-hardening)
-for the conversation/desktop upgrade, including migration `0006` and `src-tauri`.
+[`codex/research-product-improvement`](https://github.com/maczhouyi-del/RAGSystem/tree/codex/research-product-improvement)
+for the conversation/desktop upgrade, including migration `0012` and `src-tauri`.
 It is based on the existing `phase-6-evaluation-deployment` RAG/Research baseline.
 
 ```bash
-git clone --branch fix/engineering-hardening https://github.com/chouytong/RAGAgent.git
+git clone --branch codex/research-product-improvement https://github.com/maczhouyi-del/RAGSystem.git
 cd RAGAgent
 # First checkout only; preserve an existing runtime .env.
 cp .env.example .env
@@ -172,7 +178,7 @@ docker compose up -d
 ```
 
 For a host development database, `uv run alembic upgrade head` applies the same
-upgrade. The current head is `0006`. A downgrade from `0004` removes conversation
+upgrade. The current head is `0012`. A downgrade from `0004` removes conversation
 tables/data and associations; it is not a preservation mechanism for chat history.
 Previously selected legacy last-Run browser state is not converted into a made-up
 multi-turn conversation. Legacy Runs remain accessible through their existing API.

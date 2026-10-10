@@ -1,0 +1,28 @@
+{
+  "task": "TASK-18",
+  "status": "IN_PROGRESS",
+  "start_commit": "ec638a4",
+  "decision": "ADR-0008 desktop + automatic Docker deployment, explicit Docker requirement",
+  "implementation_commit": null,
+  "checks": {
+    "backend": "979 passed, 63.43s, real PostgreSQL/Redis, no skipped/failures",
+    "deployment_safety": "14 offline unittest passed; does not replace actual Docker",
+    "frontend": "npm frozen ci, lint/check/build; 124 browser passed in1.7m; 19 transport passed",
+    "native": "IN PROGRESS",
+    "installation_compose": "NOT EXECUTED YET",
+    "native_local": "Actual Linux PyInstaller assistant built and executed, missing-Docker error path passed; pinnedRust1.90formatPASS; nativeclientbuild remainsCI pending"
+  },
+  "retained_failures": [
+    "Initial Ruff import/string issues corrected, no test removal",
+    "Local npm cache unwritable, fixed via existing workspace cache",
+    "uv tool default home read-only, set workspace tool directory"
+  ],
+  "scientific_quality": "NOT MEASURED",
+  "human_installation": {
+    "Windows11": "NOT EXECUTED",
+    "macOS_arm64": "NOT EXECUTED",
+    "macOS_x64": "NOT EXECUTED",
+    "Linux": "NOT EXECUTED"
+  },
+  "files": "Native stdlib deployment assistant/container helper, whitelist ZIP packaging/manifests, Win/macOS ARM+Intel/Linux CI+artifacts, Compose private runtime env, native PDF setting using existing Docling adapter, actual Docker MOCK engineering tests, user guides, progress/evidence/stage log"
+}

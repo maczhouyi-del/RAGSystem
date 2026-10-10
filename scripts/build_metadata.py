@@ -9,10 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output", type=Path, required=True)
-    args = parser.parse_args()
+def metadata() -> dict[str, object]:
     commit = os.environ.get("RAGAGENT_SOURCE_COMMIT", "")
     dirty = None
     if not re.fullmatch(r"[a-f0-9]{40}", commit):
@@ -34,11 +31,15 @@ def main() -> None:
     built = os.environ.get("RAGAGENT_BUILD_TIME", "")
     if not re.fullmatch(r"[0-9TZ:+. -]{10,40}", built):
         built = datetime.now(UTC).isoformat()
+    return {"source_commit": commit, "dirty": dirty, "built_at_utc": built}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(
-        json.dumps({"source_commit": commit, "dirty": dirty, "built_at_utc": built}, indent=2)
-        + "\n"
-    )
+    args.output.write_text(json.dumps(metadata(), indent=2) + "\n")
 
 
 if __name__ == "__main__":

@@ -314,7 +314,9 @@ async def execute_async(run_id: str) -> None:
                     await ingest(
                         session,
                         paper,
-                        DoclingParser(),
+                        DoclingParser(native_pdf=True)
+                        if settings.pdf_parser_mode == "native"
+                        else DoclingParser(),
                         StructureChunker(
                             settings.chunk_target_tokens, settings.chunk_overlap_tokens
                         ),

@@ -51,6 +51,14 @@ jobs:
         run: |
           python scripts/build_metadata.py --output frontend/src-tauri/target/release/build-metadata.json
           python scripts/artifact_manifest.py --bundle frontend/src-tauri/target/release/bundle --metadata frontend/src-tauri/target/release/build-metadata.json --output frontend/src-tauri/target/release/installer-manifest.json
+      - name: Build and exercise native deployment assistant
+        working-directory: .
+        run: |
+          python tests/unit/test_local_deploy.py
+          python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+          python -m PyInstaller --onefile --console --name RAGSystem-Setup --distpath deployment-dist --workpath deployment-dist/work scripts/local_deploy.py
+          python scripts/test_setup_binary.py deployment-dist/RAGSystem-Setup.exe
+          python scripts/package_deployment.py --assistant deployment-dist/RAGSystem-Setup.exe --platform windows-x86_64 --output deployment-dist/RAGSystem-deployment-windows-x86_64.zip
       - uses: actions/upload-artifact@v4
         with:
           name: scientific-ragagent-windows-unsigned-${{ github.sha }}
@@ -60,6 +68,8 @@ jobs:
             frontend/src-tauri/target/release/bundle/nsis/*.exe
             frontend/src-tauri/target/release/installer-manifest.json
             frontend/src-tauri/target/release/build-metadata.json
+            deployment-dist/*.zip
+            deployment-dist/*.sha256
   linux-desktop:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
@@ -115,7 +125,37 @@ jobs:
       - run: npm run desktop:check
       - run: npm run desktop:test
       - run: cd src-tauri && cargo clippy --locked -- -D warnings
-      - run: npm run desktop:build
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record Linux checkout identity
+        working-directory: .
+        run: |
+          echo "RAGAGENT_SOURCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "RAGAGENT_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+      - name: Build Linux AppImage and Debian package
+        run: npx tauri build --bundles appimage,deb -- --locked
+      - name: Build and execute Linux native assistant and hash actual bundles
+        working-directory: .
+        run: |
+          python tests/unit/test_local_deploy.py
+          python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+          python -m PyInstaller --onefile --console --name RAGSystem-Setup --distpath deployment-dist --workpath deployment-dist/work scripts/local_deploy.py
+          python scripts/test_setup_binary.py deployment-dist/RAGSystem-Setup
+          python scripts/package_deployment.py --assistant deployment-dist/RAGSystem-Setup --platform linux-x86_64 --output deployment-dist/RAGSystem-deployment-linux-x86_64.zip
+          python scripts/build_metadata.py --output frontend/src-tauri/target/release/build-metadata.json
+          python scripts/artifact_manifest.py --platform linux-x86_64 --bundle frontend/src-tauri/target/release/bundle --metadata frontend/src-tauri/target/release/build-metadata.json --output frontend/src-tauri/target/release/installer-manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scientific-ragagent-linux-unsigned-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            frontend/src-tauri/target/release/bundle/deb/*.deb
+            frontend/src-tauri/target/release/bundle/appimage/*.AppImage
+            frontend/src-tauri/target/release/installer-manifest.json
+            frontend/src-tauri/target/release/build-metadata.json
+            deployment-dist/*.zip
+            deployment-dist/*.sha256
       - name: Configure ephemeral backend authentication
         working-directory: .
         run: python scripts/ci_auth.py
@@ -154,3 +194,75 @@ jobs:
               kill "$(cat "$RUNNER_TEMP/$name.pid")" 2>/dev/null || true
             fi
           done
+  macos-desktop:
+    name: macos-${{ matrix.arch }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: aarch64
+            native: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+            native: x86_64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Assert actual native CPU architecture and build identity
+        working-directory: .
+        run: |
+          test "$(uname -m)" = '${{ matrix.native }}'
+          echo "RAGAGENT_SOURCE_COMMIT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          echo "RAGAGENT_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+      - run: rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            frontend/src-tauri/target
+          key: ${{ runner.os }}-${{ matrix.arch }}-desktop-${{ hashFiles('frontend/src-tauri/Cargo.lock') }}
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      - run: npm run test:transport
+      - run: cd src-tauri && cargo fmt --check
+      - run: npm run desktop:check
+      - name: Native Rust tests including real macOS Keychain
+        run: npm run desktop:test
+      - run: cd src-tauri && cargo clippy --locked -- -D warnings
+      - name: Build unsigned native macOS DMG
+        run: npx tauri build --bundles dmg -- --locked
+      - name: Build and execute native assistant and hash actual DMG
+        working-directory: .
+        run: |
+          python tests/unit/test_local_deploy.py
+          python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+          python -m PyInstaller --onefile --console --name RAGSystem-Setup --distpath deployment-dist --workpath deployment-dist/work scripts/local_deploy.py
+          python scripts/test_setup_binary.py deployment-dist/RAGSystem-Setup
+          python scripts/package_deployment.py --assistant deployment-dist/RAGSystem-Setup --platform macos-${{ matrix.arch }} --output deployment-dist/RAGSystem-deployment-macos-${{ matrix.arch }}.zip
+          python scripts/build_metadata.py --output frontend/src-tauri/target/release/build-metadata.json
+          python scripts/artifact_manifest.py --platform macos-${{ matrix.arch }} --bundle frontend/src-tauri/target/release/bundle --metadata frontend/src-tauri/target/release/build-metadata.json --output frontend/src-tauri/target/release/installer-manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: scientific-ragagent-macos-${{ matrix.arch }}-unsigned-${{ github.sha }}
+          if-no-files-found: error
+          path: |
+            frontend/src-tauri/target/release/bundle/dmg/*.dmg
+            frontend/src-tauri/target/release/installer-manifest.json
+            frontend/src-tauri/target/release/build-metadata.json
+            deployment-dist/*.zip
+            deployment-dist/*.sha256

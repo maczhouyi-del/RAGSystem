@@ -371,3 +371,6 @@ model loading/inference, which remains untested until actual tasks run.
 See [engineering evidence and unverified acceptance](ENGINEERING_REVIEW.md).
 
 Validated implementation `f803d824`: backend/frontend/Compose and Linux/Windows Desktop CI passed. Actual unsigned MSI/NSIS artifacts and independently checked SHA-256 are linked in [the engineering report](ENGINEERING_REVIEW.md#final-implementation-ci-and-inspected-windows-artifacts). Real multilingual quality and Windows 11 human acceptance remain unverified.
+
+
+本地测试版完整安装：见[Windows/macOS/Linux安装教程](docs/installation/README.md)。桌面客户端需配合Docker后端与对应部署ZIP；构建/人工平台结果以[交付记录](docs/product-improvement/task-18-delivery.md)为准。真实科研评测后置，目前NOT MEASURED。

@@ -86,9 +86,9 @@ mod tests {
         assert_eq!(status.token_hash.unwrap().len(), 64);
     }
 
-    #[cfg(target_os = "windows")]
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
     #[test]
-    fn windows_credential_manager_round_trip_and_cleanup() {
+    fn native_credential_store_round_trip_and_cleanup() {
         let service = format!("org.scientific-ragagent.test.{}", Uuid::new_v4());
         let entry = Entry::new(&service, "isolated-test").expect("credential_store_unavailable");
         let value = generate();

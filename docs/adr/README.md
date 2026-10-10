@@ -16,3 +16,5 @@ Implementation and check outcomes are recorded separately in
 | [0005](0005-durable-dispatch-and-terminal-events.md) | Durable dispatch, state reconciliation and terminal SSE drain |
 | [0006](0006-review-corrections.md) | Review corrections for evidence, source/model identity, secrets and partial evaluation accounting |
 | [0007](0007-local-conversations-and-desktop.md) | Local conversations, bounded memory isolation, existing Run/SSE lifecycle and separate Tauri/Web transports |
+
+| [0008](0008-complete-local-installation.md) | Complete desktop + automated Docker deployment, native assistant and separate engineering/scientific gates |
