@@ -1206,3 +1206,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-15 初稿：domain四格式只读生成/API无路径写入，旧Assistant正文回退；前端格式选择/Web Blob与新增受限Desktop save_export，OS Downloads固定目录+随机固定格式文件名/create_new/0600/8MiB/UTF8检查，无新依赖/迁移/模型请求。33 unit/12 real PG（45专项）PASS，7 browser/18 transport PASS。首次mypy5个混合类型dict推断错误、Ruff1未用import已修复；初次browser6PASS/1MOCK诊断轮询混入导出IPC断言FAIL，MOCK正常代理只读api_request、仍精确断言save_export后全7PASS。新增共享产物字节unit待全量验证；截图检查完成，完整本地/nativeCI未验收。
 
 - TASK-15 最终本地：915 passed（646 unit/269 PG，0 skipped/failed）、116 MOCK browser/18 transport、locked sync/Ruff/mypy95/npm ci/lint/check/build/官方rustfmt PASS。新增34 unit/12 PG/7 browser/2 transport/3 native Rust；四格式实际Web下载与生产生成fixture逐字节一致，无新增依赖/迁移/模型请求。原生Rust实际编译/测试/Clippy及精确SHA CI待验收；Win11人工保存NOT EXECUTED。
+
+- TASK-15 初始实现 f134b24：pushCI38020303629及pushDesktop38020303643/PRDesktop38020306091 SUCCESS；PRCI38020306080前端115PASS/1旧TASK-14 unfinished MOCK FAIL，backend/compose SUCCESS，9/10job通过。旧共享SSE会自动完成与运行中前提矛盾；固定未完成SSE并等待实际请求，保留运行中/无表无事实检查、新增无导出按钮与Run仍running检查。恢复旧自动完成确定性预期FAIL；修正后2专项/116全量browserPASS（1.5m），不盲重跑旧CI。生产/后端未改变，既有915Python/18transport结果适用；修正提交需新精确门禁。

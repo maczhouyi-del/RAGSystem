@@ -87,7 +87,16 @@ test("MOCK structured report renders all sections, incomparable experiments and 
 test("MOCK unfinished research never publishes report facts as a verified answer", async ({
   page,
 }) => {
-  const chat = await setupChat(page);
+  const chat = await setupChat(page, { holdStream: true });
+  let streamRequests = 0;
+  await page.route("**/api/runs/*/events?*", (route) => {
+    streamRequests++;
+    // This case stays in review: the shared fixture's auto-completion is inappropriate.
+    return route.fulfill({
+      contentType: "text/event-stream",
+      body: ": MOCK pending review\n\n",
+    });
+  });
   const conversation = chat.create("DEMO reviewing", "research");
   chat.makeMessage(conversation, "assistant", "", {
     ...completed,
@@ -99,6 +108,7 @@ test("MOCK unfinished research never publishes report facts as a verified answer
     },
   });
   await page.goto(`/#/research/${conversation.id}`);
+  await expect.poll(() => streamRequests).toBeGreaterThan(0);
   await expect(
     page.getByRole("heading", { name: "执行中", exact: true }),
   ).toBeVisible();
@@ -106,4 +116,8 @@ test("MOCK unfinished research never publishes report facts as a verified answer
     page.getByRole("heading", { name: "结果对比", exact: true }),
   ).toHaveCount(0);
   await expect(page.getByRole("table")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "导出当前结果", exact: true }),
+  ).toHaveCount(0);
+  expect(chat.runs.get(completed.id)?.status).toBe("running");
 });

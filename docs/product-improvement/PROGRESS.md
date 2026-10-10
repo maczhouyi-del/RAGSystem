@@ -245,7 +245,7 @@
 - 前置：TASK-14 实现63dddba四个精确SHA workflow/十个job全部SUCCESS，验收记录已推送。
 - 范围：Markdown/CSV/BibTeX/引用清单；后端只读生成，Web下载与Desktop固定系统下载目录保存，无任意路径、无新模型/队列；旧报告及来源退役状态保留。
 - 涉及：domain exports/runs API、ReportExports/ResultPanel/transport/error、Rust exports/main、34 unit/12 PG/7 browser/2 transport/3 Rust及共享产物/doc/evidence。无新依赖/迁移/队列。
-- 本地：915 pytest（646 unit/269 real PG，0 skipped/failed），116 MOCK browser/18 transport、locked sync/Ruff/mypy95/npm ci/lint/check/build/官方rustfmt PASS；Web四个实际下载逐字节一致、截图检查成功。旧消息/已删除来源/未发布拒绝/CSV条件数字/BibTeX缺失与中文特殊字符/权限路径边界验证通过；native compile/test/clippy和四个精确SHA CI待执行，TASK-16不得开始。
+- 本地：915 pytest（646 unit/269 real PG，0 skipped/failed），116 MOCK browser/18 transport、locked sync/Ruff/mypy95/npm ci/lint/check/build/官方rustfmt PASS；Web四个实际下载逐字节一致、截图检查成功。旧消息/已删除来源/未发布拒绝/CSV条件数字/BibTeX缺失与中文特殊字符/权限路径边界验证通过；初始f134b24的PR CI38020306080前端115PASS/1旧TASK-14 mock自动完成时序FAIL；其他三workflow/9job SUCCESS，actual Rust/Windows/Linux保存测试与安装包/GUI PASS。保留日志/负向复现，修正mock保持未完成，2专项/116完整browser复验PASS；修正精确SHA四workflow待执行，TASK-16不得开始。
 - 边界：真实科研质量NOT MEASURED，Win11人工保存操作NOT EXECUTED。
 
 ### TASK-16：模型费用、延迟与任务状态
