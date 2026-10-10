@@ -1,5 +1,10 @@
 .git
-.env
+.git
+.env*
+!.env.example
+.runtime-secrets*
+backups
+deployment-dist
 .venv
 **/node_modules
 **/dist

@@ -1,8 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { isDesktop, openPaperPdf } from "./transport";
+import {
+  PdfLink,
+  PdfNavigation,
+  SupportedQuote,
+  pageLabel,
+  targetPage,
+} from "./PdfReading";
 import type { Evidence, SourceStatus, SupportingPair } from "./api";
+import { EntityFilterNotice } from "./Annotations";
+import { OrganizationFilters } from "./Collections";
 export const sourceStatusLabels: Record<SourceStatus, string> = {
   unknown: "来源状态未核验",
   active: "来源状态：已标记有效",
@@ -12,7 +20,10 @@ export const sourceStatusLabels: Record<SourceStatus, string> = {
 export function SourceProvenance({
   source,
 }: {
-  source: Evidence["paper"] | Omit<Evidence["paper"], "paper_id">;
+  source: Pick<
+    Evidence["paper"],
+    "source_status" | "arxiv_id" | "arxiv_version"
+  >;
 }) {
   const status = source.source_status;
   return (
@@ -35,6 +46,8 @@ export function SourceProvenance({
 }
 export type Filters = {
   paper_ids: string[];
+  group_ids: string[];
+  tag_ids: string[];
   authors: string[];
   venues: string[];
   sections: string[];
@@ -47,6 +60,8 @@ export type Filters = {
 };
 export const emptyFilters: Filters = {
   paper_ids: [],
+  group_ids: [],
+  tag_ids: [],
   authors: [],
   venues: [],
   sections: [],
@@ -99,6 +114,8 @@ export function FilterEditor({
   return (
     <details>
       <summary>文献过滤条件（同字段 OR，不同字段 AND）</summary>
+      <OrganizationFilters value={value} onChange={onChange} />
+      <EntityFilterNotice filters={value} />
       <div className="grid">
         {fields.map((key) => (
           <label key={key}>
@@ -149,7 +166,15 @@ export type CitationReference = {
   evidence_id: string;
   page_start: number;
   page_end?: number;
+  page_location?: "available" | "unavailable";
+  source_availability?: "available" | "unavailable";
+  source_unavailable_reason?: string;
 };
+function sourceUnavailable(
+  source: { source_availability?: string } | undefined,
+) {
+  return source?.source_availability === "unavailable";
+}
 export function Citations({
   text,
   evidence,
@@ -163,23 +188,64 @@ export function Citations({
   loadEvidence?: () => Promise<Evidence[]>;
   supportingPairs?: SupportingPair[];
 }) {
-  const [selected, setSelected] = useState<Evidence | null>(null);
+  const [selectedSource, setSelected] = useState<Evidence | null>(null);
   const [error, setError] = useState("");
   const [loaded, setLoaded] = useState<Evidence[]>([]);
+  const [opening, setOpening] = useState(false);
+  const alive = useRef(true);
+  const requestSequence = useRef(0);
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+      requestSequence.current += 1;
+    };
+  }, []);
   const sources = evidence.length ? evidence : loaded;
+  const unavailableIds = new Set([
+    ...references.filter(sourceUnavailable).map((source) => source.evidence_id),
+    ...sources
+      .filter(
+        (source) =>
+          sourceUnavailable(source) || sourceUnavailable(source.paper),
+      )
+      .map((source) => source.evidence_id),
+  ]);
+  const selected =
+    selectedSource && !unavailableIds.has(selectedSource.evidence_id)
+      ? selectedSource
+      : null;
   async function openEvidence(id: string) {
     setError("");
+    setSelected(null);
+    if (unavailableIds.has(id)) {
+      setError("来源已删除，当前不可验证。");
+      return;
+    }
+    const sequence = ++requestSequence.current;
+    setOpening(true);
     try {
       let next = sources;
-      if (!next.some((item) => item.evidence_id === id) && loadEvidence) {
+      // Recheck the authoritative Run each time; an already loaded source can
+      // be deleted in another window while this conversation remains visible.
+      if (loadEvidence) {
         next = await loadEvidence();
+        if (!alive.current || sequence !== requestSequence.current) return;
         setLoaded(next);
       }
       const source = next.find((item) => item.evidence_id === id);
       if (!source) throw new Error("evidence_not_found");
+      if (sourceUnavailable(source) || sourceUnavailable(source.paper)) {
+        setError("来源已删除，当前不可验证。");
+        return;
+      }
       setSelected(source);
     } catch (error) {
-      setError(String(error));
+      if (alive.current && sequence === requestSequence.current)
+        setError(String(error));
+    } finally {
+      if (alive.current && sequence === requestSequence.current)
+        setOpening(false);
     }
   }
   function remarkEvidence() {
@@ -208,7 +274,7 @@ export function Citations({
                     {
                       type: "text",
                       value: source
-                        ? `文献 · p.${source.page_start}`
+                        ? `文献 · ${targetPage(source) === undefined ? "页码未知" : `p.${targetPage(source)}`}`
                         : "文献引用",
                     },
                   ],
@@ -220,21 +286,6 @@ export function Citations({
       walk(tree as MarkdownNode);
     };
   }
-  const pdf = (paperId: string, page: number, label: string) => (
-    <a
-      href={`/api/papers/${paperId}/pdf#page=${page}`}
-      target="_blank"
-      rel="noreferrer"
-      onClick={(event) => {
-        if (isDesktop()) {
-          event.preventDefault();
-          void openPaperPdf(paperId, page).catch((e) => setError(String(e)));
-        }
-      }}
-    >
-      {label}
-    </a>
-  );
   return (
     <>
       <div className="report markdown">
@@ -247,12 +298,19 @@ export function Citations({
                 ? href.slice(10)
                 : undefined;
               return id ? (
-                <button
-                  className="citation"
-                  onClick={() => void openEvidence(id)}
-                >
-                  {children}
-                </button>
+                unavailableIds.has(id) ? (
+                  <span className="source-unavailable">
+                    来源已删除 · 当前不可验证
+                  </span>
+                ) : (
+                  <button
+                    className="citation"
+                    disabled={opening}
+                    onClick={() => void openEvidence(id)}
+                  >
+                    {children}
+                  </button>
+                )
               ) : (
                 <a href={href} target="_blank" rel="noreferrer">
                   {children}
@@ -267,10 +325,18 @@ export function Citations({
       </div>
       <details
         onToggle={(event) => {
-          if (event.currentTarget.open && !sources.length && loadEvidence)
+          if (
+            event.target === event.currentTarget &&
+            event.currentTarget.open &&
+            loadEvidence
+          )
             void loadEvidence()
-              .then(setLoaded)
-              .catch((error) => setError(String(error)));
+              .then((next) => {
+                if (alive.current) setLoaded(next);
+              })
+              .catch((error) => {
+                if (alive.current) setError(String(error));
+              });
         }}
       >
         <summary>证据 ({sources.length || references.length})</summary>
@@ -278,10 +344,12 @@ export function Citations({
           <button
             className="evidence"
             key={item.evidence_id}
-            onClick={() => setSelected(item)}
+            disabled={opening || unavailableIds.has(item.evidence_id)}
+            onClick={() => void openEvidence(item.evidence_id)}
           >
-            {item.paper.title} — {item.section_path} · p.{item.page_start}–
-            {item.page_end}
+            {item.paper.title} — {item.section_path} · {pageLabel(item)}
+            {unavailableIds.has(item.evidence_id) &&
+              " · 来源已删除，当前不可验证"}
           </button>
         ))}
       </details>
@@ -291,11 +359,28 @@ export function Citations({
           <button onClick={() => setSelected(null)}>关闭</button>
           <h3>{selected.paper.title}</h3>
           <SourceProvenance source={selected.paper} />
+          <PdfLink
+            paperId={selected.paper.paper_id}
+            page={targetPage(selected)}
+            label="打开原始 PDF"
+            onError={setError}
+          />
+          <p role="note">
+            {targetPage(selected) === undefined
+              ? "目标页未知，请在阅读器中搜索下方原文。"
+              : `目标页：${targetPage(selected)}。Web 使用 PDF 页码片段；桌面系统查看器可能忽略页码，请手动跳转到此页。`}
+          </p>
           <p>
-            {selected.section_path} · p.{selected.page_start}–
-            {selected.page_end}
+            {selected.section_path} · {pageLabel(selected)}
           </p>
           <small>Chunk: {selected.chunk_id}</small>
+          <small>Evidence: {selected.evidence_id}</small>
+          {selected.paper.pdf_sha256 && (
+            <details>
+              <summary>核对 PDF 摘要</summary>
+              <small>{selected.paper.pdf_sha256}</small>
+            </details>
+          )}
           {supportingPairs
             .filter((pair) => pair.evidence_id === selected.evidence_id)
             .map((pair) => {
@@ -330,8 +415,13 @@ export function Citations({
                 </div>
               );
             })}
-          <blockquote aria-label="主引用原文">{selected.quote}</blockquote>
+          <SupportedQuote source={selected} pairs={supportingPairs} />
           <small>完整检索原文保留；没有可验证的窄片段时以此原文为准。</small>
+          <PdfNavigation
+            source={selected}
+            paperId={selected.paper.paper_id}
+            onError={setError}
+          />
           {selected.source_spans.length > 0 && (
             <details>
               <summary>主引用来源定位</summary>
@@ -353,7 +443,7 @@ export function Citations({
                 >
                   <p>
                     {context.element_type} · {context.section_path.join(" / ")}{" "}
-                    · p.{context.page_start}–{context.page_end}
+                    · {pageLabel(context)}
                   </p>
                   <small>
                     来源：{context.source_id} · 原文字符{" "}
@@ -363,20 +453,21 @@ export function Citations({
                   <blockquote aria-label="辅助引用原文">
                     {context.quote}
                   </blockquote>
-                  {pdf(
-                    selected.paper.paper_id,
-                    context.page_start,
-                    "打开辅助片段所在 PDF 页",
-                  )}
+                  <PdfLink
+                    paperId={selected.paper.paper_id}
+                    page={targetPage(context)}
+                    label="打开辅助片段所在 PDF 页"
+                    onError={setError}
+                  />
+                  <PdfNavigation
+                    source={context}
+                    paperId={selected.paper.paper_id}
+                    onError={setError}
+                  />
                 </div>
               ))}
             </div>
           )}
-          {pdf(selected.paper.paper_id, selected.page_start, "打开原始 PDF")}
-          <p role="note">
-            目标页：{selected.page_start}。Web 使用 PDF
-            页码片段；桌面系统查看器可能忽略页码，请手动跳转到此页。
-          </p>
         </dialog>
       )}
     </>

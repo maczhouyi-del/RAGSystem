@@ -44,6 +44,7 @@ test("claim span uses original Unicode text and PDF target page remains explicit
       ...completed.result,
       reranked_evidence: [original],
       citation_validation: {
+        valid: true,
         supported_pairs: [
           {
             claim_id: "metric",
@@ -73,7 +74,7 @@ test("claim span uses original Unicode text and PDF target page remains explicit
   await expect(page.getByRole("note")).toContainText("请手动跳转到此页");
 });
 
-test("latest history stays lightweight and citations load one Run only when opened", async ({
+test("latest history stays lightweight and rechecks only the opened citation Run", async ({
   page,
 }) => {
   const chat = await setupChat(page);
@@ -96,7 +97,8 @@ test("latest history stays lightweight and citations load one Run only when open
   await expect(page.getByLabel("主引用原文", { exact: true })).toHaveText(
     evidence.quote,
   );
-  expect(chat.fullRunRequests).toHaveLength(1);
+  expect(chat.fullRunRequests).toHaveLength(2);
+  expect(new Set(chat.fullRunRequests).size).toBe(1);
   expect(chat.messageOffsets).toEqual([]);
 });
 

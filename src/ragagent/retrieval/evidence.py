@@ -46,7 +46,13 @@ def exact_span(evidence: EvidenceRecord) -> bool:
 def evidence_payload(evidence: EvidenceRecord) -> dict[str, Any]:
     """Send exact quotes and provenance once; keep raw text local for span validation."""
     payload = evidence.model_dump(
-        exclude={"content": True, "source_context": {"__all__": {"content"}}}
+        exclude={
+            "content": True,
+            "pdf_regions": True,
+            "pdf_location": True,
+            "source_context": {"__all__": {"content", "pdf_regions", "pdf_location"}},
+            "source_spans": {"__all__": {"pdf_regions", "pdf_location"}},
+        }
     )
     seen: set[str] = set()
     auxiliary = []
@@ -148,6 +154,7 @@ async def verify_claims(
     *,
     comparison: bool = False,
     comparison_entities: list[str] | None = None,
+    report_observations: list[dict[str, object]] | None = None,
 ) -> CitationValidation:
     if len({c.claim_id for c in claims}) != len(claims):
         return CitationValidation(
@@ -170,6 +177,7 @@ async def verify_claims(
     model_missing: list[str] = []
     validated_pairs: list[ClaimEvidencePair] = []
     entity_coverage: list[ComparisonEntityCoverage] = []
+    bindings_verified = False
     if eligible:
         cited_ids = {eid for claim in eligible for eid in claim.evidence_ids}
         response = await provider.complete(
@@ -191,6 +199,12 @@ async def verify_claims(
             "the supported claim/citation pairs only. Names must be verbatim source names "
             "in those quotes, auxiliary source quotes or paper titles. Never count aliases "
             "of one entity as different entities; do not infer support from paper count. "
+            "When report_observations are supplied, also verify each field's role, source paper, "
+            "experiment grouping and exact source_literal against its cited claims and quotes. "
+            "Check dataset, metric definition, unit, split and experimental conditions; reject "
+            "unconditional rankings across incompatible settings. explicit_not_reported requires "
+            "an explicit original statement of omission, never merely absent retrieval. "
+            "Set report_bindings_verified true only if every supplied binding is supported. "
             "Return one verdict per claim; do not assign a confidence probability.",
             {
                 "question": question,
@@ -199,11 +213,15 @@ async def verify_claims(
                 "requested_comparison_entities": comparison_entities or [],
                 "claims": [c.model_dump() for c in eligible],
                 "evidence": [evidence_payload(by_id[eid]) for eid in sorted(cited_ids)],
+                **({"report_observations": report_observations} if report_observations else {}),
             },
             VerificationResponse,
         )
         entity_coverage = response.comparison_entities
-        model_missing = response.missing_aspects + (
+        bindings_verified = response.report_bindings_verified
+        if report_observations and not response.report_bindings_verified:
+            model_missing.append("report_bindings")
+        model_missing += response.missing_aspects + (
             [] if response.question_answered else ["original_question"]
         )
         grouped: dict[str, list[ClaimVerdict]] = {}
@@ -285,6 +303,7 @@ async def verify_claims(
         missing_aspects=missing,
         comparison_entities=validated_entities,
         comparison_errors=comparison_errors,
+        report_bindings_verified=bindings_verified,
     )
 
 

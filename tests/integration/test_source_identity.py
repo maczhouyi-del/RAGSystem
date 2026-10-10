@@ -59,6 +59,23 @@ async def test_unversioned_reimport_resolves_latest_without_merging_equal_bytes(
     assert (first.arxiv_family_id, first.arxiv_version) == ("2408.09869", 1)
     assert (second.arxiv_family_id, second.arxiv_version) == ("2408.09869", 2)
     assert second.source_url == "https://arxiv.org/abs/2408.09869v2"
+    assert second.original_metadata is not None
+    original = dict(second.original_metadata)
+    assert original["kind"] == "arxiv_atom" and original["arxiv_version"] == 2
+    assert original["values"] == {
+        "title": "Pinned source",
+        "authors": ["Alice"],
+        "year": 2024,
+        "venue": None,
+    }
+    corrected = update_metadata(
+        second.id,
+        PaperPatch(title="Human corrected title", year=2025, expected_metadata_version=1),
+        empty_db,
+    )
+    assert corrected.original_metadata is not None
+    assert corrected.original_metadata.model_dump(mode="json") == original
+    assert corrected.arxiv_version == 2 and corrected.arxiv_id == "2408.09869v2"
     assert second.source_status == "unknown" and len(downloads) == 3
     assert len(list(tmp_path.glob("*.pdf"))) == 2
     assert len(list(empty_db.scalars(select(PaperAuthor)))) == 2
@@ -67,6 +84,10 @@ async def test_unversioned_reimport_resolves_latest_without_merging_equal_bytes(
     empty_db.commit()
     pinned_duplicate = await worker.arxiv_ingestion(empty_db, run)
     assert pinned_duplicate.id == second.id and pinned_duplicate.source_status == "withdrawn"
+    assert (
+        pinned_duplicate.title == "Human corrected title"
+        and pinned_duplicate.original_metadata == original
+    )
     assert len(downloads) == 3  # An explicit pinned reimport is idempotent.
 
 

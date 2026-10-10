@@ -5,6 +5,7 @@ from sqlalchemy import func, literal, select
 from sqlalchemy.orm import Session
 
 from ragagent.db.models import Author, Chunk, Evidence, Paper, PaperAuthor
+from ragagent.deletion.guards import lifecycle_lock
 from ragagent.domain.documents import SourceContext, SourceSpan
 from ragagent.domain.research import (
     Candidate,
@@ -34,12 +35,15 @@ def record(chunk: Chunk, paper: Paper, score: float, source: str, authors: list[
             arxiv_family_id=paper.arxiv_family_id,
             arxiv_version=paper.arxiv_version,
             source_status=paper.source_status or "unknown",
+            pdf_sha256=paper.sha256,
         ),
         chunk_id=chunk.id,
         section_id=chunk.section_id,
         section_path=chunk.section_path,
         page_start=chunk.page_start,
         page_end=chunk.page_end,
+        page_location=(chunk.metadata_json or {}).get("page_location", "available"),
+        pdf_regions=(chunk.metadata_json or {}).get("pdf_regions", []),
         content=chunk.content,
         quote=chunk.content,
         span_start=0,
@@ -163,12 +167,15 @@ class HybridRetriever:
         top_n: int = 30,
         top_k: int = 8,
         rrf_k: int = 60,
+        *,
+        commit_results: bool = False,
     ) -> None:
         self.session = session
         self.dense = DenseRetriever(session, embedder)
         self.lexical = LexicalRetriever(session)
         self.reranker, self.top_n, self.top_k = reranker, top_n, top_k
         self.fusion = RRFusion(rrf_k)
+        self.commit_results = commit_results
 
     async def search(self, plan: QueryPlan, rerank: bool = True) -> SearchResult:
         dense_lists, lexical_lists = [], []
@@ -190,7 +197,26 @@ class HybridRetriever:
             if rerank
             else fused[: self.top_k]
         )
-        evidence = [c.evidence for c in ranked]
+        if self.commit_results:
+            lifecycle_lock(self.session)
+        # Reranking may finish after removal. Read live IDs with SQL instead of
+        # accepting stale ORM identity-map rows or cached candidate snapshots.
+        candidates = dense + lexical + fused + ranked
+        live = set(
+            self.session.scalars(
+                select(Chunk.id)
+                .join(Paper)
+                .where(
+                    Chunk.id.in_({c.evidence.chunk_id for c in candidates}),
+                    Paper.status == "indexed",
+                    Paper.source_status.notin_(["withdrawn", "retracted"]),
+                )
+            )
+        )
+        dense = [c for c in dense if c.evidence.chunk_id in live]
+        lexical = [c for c in lexical if c.evidence.chunk_id in live]
+        fused = [c for c in fused if c.evidence.chunk_id in live]
+        evidence = [c.evidence for c in ranked if c.evidence.chunk_id in live]
         for e in evidence:
             existing = self.session.get(Evidence, e.evidence_id)
             if existing is None:
@@ -205,4 +231,8 @@ class HybridRetriever:
                     )
                 )
         self.session.flush()
+        if self.commit_results:
+            # Worker searches own this short transaction. Release FK and source
+            # publication locks before another provider call or graph event.
+            self.session.commit()
         return SearchResult(dense=dense, lexical=lexical, fused=fused, evidence=evidence)

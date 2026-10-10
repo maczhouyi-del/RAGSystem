@@ -1,0 +1,271 @@
+{
+  "task": "TASK-01",
+  "status": "PASSED",
+  "start_commit": "38fec46fab33b6dd4395d93cd64fd0c4e0c099e9",
+  "local": {
+    "ruff_format": "PASS: 186 files",
+    "ruff_check": "PASS",
+    "mypy": "PASS: 72 source files",
+    "pytest": {
+      "passed": 614,
+      "skipped": 0,
+      "seconds": 30.21,
+      "warning": "upstream Alembic path_separator deprecation"
+    },
+    "offline_diagnostic_cases": 10,
+    "linux_launcher": "PASS: synthetic API and stopped backend",
+    "uv_sync_locked": "PASS: checked 109 packages"
+  },
+  "live_linux": {
+    "platform": "Linux",
+    "real_services": true,
+    "checks": {
+      "python": "available",
+      "docker": "available",
+      "docker_daemon": "available",
+      "compose": "available",
+      "environment_file": "missing",
+      "disk": "available",
+      "backend_port": "occupied",
+      "web_port": "occupied",
+      "backend": "available",
+      "local_auth": "initialized",
+      "diagnostic_access": "available",
+      "database": "available",
+      "redis": "available",
+      "worker_interactive": "available",
+      "worker_ingestion": "available",
+      "worker_evaluation": "available",
+      "models": "not_configured",
+      "docling": "missing",
+      "local_models": "missing",
+      "inference_supervisor": "not_tested",
+      "corpus": "empty"
+    },
+    "configuration_bytes_unchanged": true,
+    "paid_model_calls": 0
+  },
+  "windows_executable": "PASS in actual Windows runner: PowerShell 7 and Windows PowerShell against synthetic API and stopped backend",
+  "real_model_inference": "NOT EXECUTED",
+  "scientific_quality": "NOT MEASURED",
+  "windows11_human_install": "NOT EXECUTED",
+  "ci": [
+    {
+      "id": 37884515678,
+      "name": "CI",
+      "event": "push",
+      "head_sha": "238403a6438c1d838e7e4f99afb35c440fe1d3d2",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884515678",
+      "jobs": [
+        {
+          "name": "compose",
+          "conclusion": "success",
+          "platform_diagnostics": []
+        },
+        {
+          "name": "frontend",
+          "conclusion": "success",
+          "platform_diagnostics": []
+        },
+        {
+          "name": "backend",
+          "conclusion": "success",
+          "platform_diagnostics": [
+            {
+              "name": "Execute Linux diagnostic launcher",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 37884515709,
+      "name": "Desktop",
+      "event": "push",
+      "head_sha": "238403a6438c1d838e7e4f99afb35c440fe1d3d2",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884515709",
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success",
+          "platform_diagnostics": []
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success",
+          "platform_diagnostics": [
+            {
+              "name": "Execute Windows diagnostics and independent offline failures",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 37884520894,
+      "name": "CI",
+      "event": "pull_request",
+      "head_sha": "238403a6438c1d838e7e4f99afb35c440fe1d3d2",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884520894",
+      "jobs": [
+        {
+          "name": "frontend",
+          "conclusion": "success",
+          "platform_diagnostics": []
+        },
+        {
+          "name": "backend",
+          "conclusion": "success",
+          "platform_diagnostics": [
+            {
+              "name": "Execute Linux diagnostic launcher",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "compose",
+          "conclusion": "success",
+          "platform_diagnostics": []
+        }
+      ]
+    },
+    {
+      "id": 37884520899,
+      "name": "Desktop",
+      "event": "pull_request",
+      "head_sha": "238403a6438c1d838e7e4f99afb35c440fe1d3d2",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37884520899",
+      "jobs": [
+        {
+          "name": "windows-desktop",
+          "conclusion": "success",
+          "platform_diagnostics": [
+            {
+              "name": "Execute Windows diagnostics and independent offline failures",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "name": "linux-desktop",
+          "conclusion": "success",
+          "platform_diagnostics": []
+        }
+      ]
+    }
+  ],
+  "safety": {
+    "configuration_bytes_unchanged": true,
+    "paid_model_calls": 0,
+    "database_reset_by_diagnostic": false,
+    "raw_service_errors_echoed": false
+  },
+  "dependency_lock_changes": false,
+  "implementation_commit": "238403a6438c1d838e7e4f99afb35c440fe1d3d2",
+  "ci_summary_discrepancy": {
+    "run": 37884520894,
+    "workflow_status": "in_progress",
+    "workflow_conclusion": null,
+    "all_three_jobs": "completed/success",
+    "all_ten_commit_check_runs": "completed/success",
+    "task_gate": "All applicable workflows on verification commit 9e650ae finalized SUCCESS; original pending summary retained as historical observation, no failed check was rerun."
+  },
+  "accepted_verification_commit": "9e650ae837011ce0298546a6409a0cfa2e4c452b",
+  "acceptance_ci": [
+    {
+      "id": 37885297371,
+      "name": "CI",
+      "event": "push",
+      "head_sha": "9e650ae837011ce0298546a6409a0cfa2e4c452b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37885297371",
+      "jobs": [
+        {
+          "name": "backend",
+          "conclusion": "success"
+        },
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        },
+        {
+          "name": "compose",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37885297374,
+      "name": "Desktop",
+      "event": "push",
+      "head_sha": "9e650ae837011ce0298546a6409a0cfa2e4c452b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37885297374",
+      "jobs": [
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37885301335,
+      "name": "CI",
+      "event": "pull_request",
+      "head_sha": "9e650ae837011ce0298546a6409a0cfa2e4c452b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37885301335",
+      "jobs": [
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        },
+        {
+          "name": "backend",
+          "conclusion": "success"
+        },
+        {
+          "name": "compose",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37885301369,
+      "name": "Desktop",
+      "event": "pull_request",
+      "head_sha": "9e650ae837011ce0298546a6409a0cfa2e4c452b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37885301369",
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

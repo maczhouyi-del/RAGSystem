@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
+from sqlalchemy import select
 
 from ragagent.api.papers import DB, QueueDep, enqueue
 from ragagent.api.schemas import RunResponse
-from ragagent.db.models import Run
+from ragagent.db.models import PaperDeletion, Run
 from ragagent.evaluation.conversation_schema import (
     ConversationEvaluationRequest,
     validate_conversation_references,
@@ -33,7 +34,7 @@ def submit(kind: str, request: EvaluationRequest, db: DB, queue: QueueDep) -> Ru
         path = get_settings().data_dir / "evaluations" / previous.id / "results.json"
         if not path.is_file():
             raise HTTPException(422, "evaluation_resume_artifact_unavailable")
-    return RunResponse.model_validate(enqueue(db, queue, kind, request.model_dump()))
+    return RunResponse.model_validate(enqueue(db, queue, kind, request.model_dump(mode="json")))
 
 
 @router.post("/retrieval", status_code=202)
@@ -69,7 +70,9 @@ def conversation(request: ConversationEvaluationRequest, db: DB, queue: QueueDep
             raise HTTPException(422, "evaluation_resume_dataset_mismatch")
         if not (get_settings().data_dir / "evaluations" / previous.id / "results.json").is_file():
             raise HTTPException(422, "evaluation_resume_artifact_unavailable")
-    return RunResponse.model_validate(enqueue(db, queue, "eval_conversation", request.model_dump()))
+    return RunResponse.model_validate(
+        enqueue(db, queue, "eval_conversation", request.model_dump(mode="json"))
+    )
 
 
 @router.get("/{run_id}/{filename}")
@@ -77,6 +80,12 @@ def artifact(run_id: str, filename: str, db: DB) -> FileResponse:
     if filename not in {"results.json", "results.md"}:
         raise HTTPException(404, "artifact_not_found")
     run = db.get(Run, run_id)
+    if db.scalar(
+        select(PaperDeletion.paper_id)
+        .where(PaperDeletion.affected_evaluation_ids.contains([run_id]))
+        .limit(1)
+    ):
+        raise HTTPException(410, "source_deleted")
     if not run or not run.kind.startswith("eval_") or run.status not in {"completed", "failed"}:
         raise HTTPException(404, "evaluation_not_terminal")
     path = get_settings().data_dir / "evaluations" / run.id / filename

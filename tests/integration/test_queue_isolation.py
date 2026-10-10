@@ -63,7 +63,7 @@ def test_running_evaluation_cannot_occupy_the_interactive_worker(
     monkeypatch.setattr(worker, "execute_async", occupancy_probe)
     monkeypatch.setattr(worker, "make_embedder", lambda _: object())
     monkeypatch.setattr(worker, "make_reranker", lambda _: object())
-    monkeypatch.setattr(worker, "HybridRetriever", lambda *args: RoundSearch([[source]]))
+    monkeypatch.setattr(worker, "HybridRetriever", lambda *args, **kwargs: RoundSearch([[source]]))
     monkeypatch.setattr(
         worker,
         "make_agents",

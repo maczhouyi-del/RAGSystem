@@ -38,6 +38,8 @@ jobs:
       - run: uv run alembic downgrade base
       - run: uv run alembic upgrade head
       - run: uv run pytest -q
+      - name: Execute Linux diagnostic launcher
+        run: uv run python scripts/test_diagnostic_launchers.py
   frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -79,5 +81,13 @@ jobs:
           docker compose run --rm --no-deps migrate python -c "import os; from pathlib import Path; assert os.geteuid()==10001; assert all((p/'ownership-upgrade-test.txt').read_text()=='SYNTHETIC OWNERSHIP FIXTURE' for p in [Path('/data'),Path('/models'),Path('/app/config')]); Path('/app/config/agents.yaml').read_text()"
           docker compose up -d --wait --wait-timeout 120
           python scripts/smoke.py
+      - name: Real installation engineering with explicitly MOCK models
+        run: |
+          docker compose stop worker-interactive worker-ingestion worker-evaluation
+          docker compose -f compose.yaml -f tests/installation/compose.mock.yaml build worker-interactive
+          docker compose -f compose.yaml -f tests/installation/compose.mock.yaml run --rm --no-deps -T --entrypoint python worker-interactive tests/installation/mock_worker.py --help
+          docker compose -f compose.yaml -f tests/installation/compose.mock.yaml up -d --wait --wait-timeout 180
+          python tests/installation/smoke.py
       - if: always()
-        run: docker compose logs --tail=100 && docker compose down
+        name: Stop test containers retaining data and suppress raw logs
+        run: docker compose down

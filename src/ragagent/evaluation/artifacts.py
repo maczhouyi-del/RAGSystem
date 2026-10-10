@@ -2,7 +2,9 @@ import hashlib
 import json
 import subprocess
 from collections.abc import Callable, Iterator, Mapping
-from contextlib import contextmanager
+from contextlib import AbstractContextManager, contextmanager, nullcontext
+from contextvars import ContextVar
+from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -14,7 +16,7 @@ from ragagent.build_info import build_info
 from ragagent.db.models import Author, Chunk, ChunkEntity, Entity, Paper, PaperAuthor, Section
 from ragagent.errors import EvaluationError
 from ragagent.evaluation.schema import EvaluationDataset
-from ragagent.providers.chat import ChatProvider, Usage, usage_record
+from ragagent.providers.chat import ChatProvider, LiteLLMProvider, MockProvider, Usage, usage_record
 from ragagent.providers.config import AgentModel
 from ragagent.providers.embedding import normalize_endpoint
 from ragagent.settings import Settings
@@ -107,6 +109,10 @@ def usage_delta(previous: dict[str, Any], current: dict[str, Any]) -> dict[str, 
             "in_flight_calls",
         )
     }
+    for key in ("prompt_token_reports", "completion_token_reports"):
+        result[key] = current.get(key, 0) - previous.get(key, 0)
+    for key in ("configured_model", "cost_basis"):
+        result[key] = current.get(key)
     result["accounting_available"] = current["accounting_available"]
     for key in ("provider_models", "system_fingerprints"):
         result[key] = list(dict.fromkeys([*previous.get(key, []), *current.get(key, [])]))
@@ -159,6 +165,15 @@ def workflow_usage(usage: dict[str, dict[str, Any]]) -> dict[str, Any]:
     """Sum chat and retrieval embedding costs, excluding the separate judge."""
     workflow = [value for name, value in usage.items() if name != "judge"]
     return {
+        "token_totals_complete": bool(workflow)
+        and all(
+            value.get("calls", 0) > 0
+            and value.get("prompt_token_reports", 0) == value["calls"]
+            and value.get("completion_token_reports", 0) == value["calls"]
+            for value in workflow
+        ),
+        "cost_basis": {name: value.get("cost_basis", "unknown") for name, value in usage.items()},
+        "exact_provider_bill": None,
         "total_workflow_tokens": sum(
             value["prompt_tokens"] + value["completion_tokens"] for value in workflow
         ),
@@ -240,6 +255,11 @@ def provider_snapshot(provider: ChatProvider) -> dict[str, Any]:
     model = getattr(provider, "model", None)
     return {
         "adapter": type(provider).__name__,
+        "execution_type": "SCRIPTED"
+        if isinstance(provider, MockProvider)
+        else "PROVIDER_ADAPTER"
+        if isinstance(provider, LiteLLMProvider)
+        else "UNKNOWN_ADAPTER",
         "request_timeout_seconds": getattr(provider, "timeout", None),
         "configuration_available": isinstance(model, AgentModel),
         **(model.model_dump(mode="json") if isinstance(model, AgentModel) else {}),
@@ -366,6 +386,25 @@ def verify_corpus_snapshot(session: Session | None, initial: dict[str, Any]) -> 
         raise EvaluationError("corpus_changed_during_evaluation")
 
 
+def annotation_payload(value: dict[str, Any]) -> dict[str, Any]:
+    """Canonical labels, preserving identities of unchanged legacy datasets."""
+    value = deepcopy(value)
+    if value.get("annotation_format", "legacy") == "legacy":
+        value.pop("annotation_format", None)
+        for case in value["cases"]:
+            for label in case.get("turns", [case]):
+                for key in (
+                    "gold_sources",
+                    "reviewed_papers",
+                    "numeric_targets",
+                    "evaluation_dimensions",
+                    "refusal_rationale",
+                ):
+                    if not label.get(key):
+                        label.pop(key, None)
+    return value
+
+
 def manifest(
     dataset: EvaluationDataset,
     settings: Settings,
@@ -374,13 +413,15 @@ def manifest(
     retrieval_configuration: dict[str, Any] | None = None,
     corpus: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    labels = annotation_payload(dataset.model_dump(mode="json"))
     return {
         "git_commit": source_commit(),
         "build": build_info(),
         **source_snapshot(),
-        "dataset_hash": canonical_hash(dataset.model_dump(mode="json")),
+        "dataset_hash": canonical_hash(labels),
         "dataset_id": dataset.dataset_id,
         "label_source": dataset.label_source,
+        "annotation_format": dataset.annotation_format,
         "warning": dataset.warning,
         "timestamp": datetime.now(UTC).isoformat(),
         "model_configuration": model_configuration or {},
@@ -411,7 +452,19 @@ def manifest(
     }
 
 
+ArtifactGuard = Callable[[dict[str, Any]], AbstractContextManager[None]]
+artifact_guard: ContextVar[ArtifactGuard | None] = ContextVar(
+    "evaluation_artifact_guard", default=None
+)
+
+
 def write_results(directory: Path, result: dict[str, Any]) -> None:
+    guard = artifact_guard.get()
+    with guard(result) if guard is not None else nullcontext():
+        _write_results(directory, result)
+
+
+def _write_results(directory: Path, result: dict[str, Any]) -> None:
     directory.mkdir(parents=True, exist_ok=True)
     temporary = directory / "results.json.tmp"
     temporary.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")

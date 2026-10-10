@@ -17,7 +17,7 @@ from ragagent.api.app import app
 from ragagent.api.dependencies import get_db
 from ragagent.api.queue import RQQueue, get_queue
 from ragagent.db.dispatch import JobDispatch
-from ragagent.db.models import ExecutionEvent, Run
+from ragagent.db.models import Chunk, ExecutionEvent, Paper, Run, Section, new_id
 from ragagent.errors import ApplicationError
 from ragagent.providers.chat import LiteLLMProvider
 from ragagent.providers.config import AgentModel
@@ -87,6 +87,7 @@ async def test_provider_credentials_never_escape_run_sse_or_logs(
 @pytest.mark.integration
 def test_diagnostics_separates_real_infrastructure_from_untested_models(
     client: TestClient,
+    empty_db: Session,
     redis_connection: Redis,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -100,6 +101,109 @@ def test_diagnostics_separates_real_infrastructure_from_untested_models(
     assert set(result["queues"]) == {"interactive", "ingestion", "evaluation"}
     assert result["inference"] == result["retrieval_configuration"]["model_loading"] == "not_tested"
     assert "ragagent_test:ragagent_test" not in response.text
+    assert result["corpus"] == {"state": "empty", "usable_papers": 0}
+    paper = Paper(
+        id=new_id(),
+        title="SYNTHETIC DIAGNOSTIC FIXTURE",
+        sha256="0" * 64,
+        original_path="fixture.pdf",
+        status="indexed",
+        source_status="active",
+    )
+    empty_db.add(paper)
+    empty_db.flush()
+    assert client.get("/api/diagnostics").json()["corpus"]["state"] == "empty"
+    section = Section(
+        id=new_id(),
+        paper_id=paper.id,
+        title="Fixture",
+        path="Fixture",
+        ordinal=0,
+    )
+    empty_db.add(section)
+    empty_db.flush()
+    empty_db.add(
+        Chunk(
+            paper_id=paper.id,
+            section_id=section.id,
+            section_path="Fixture",
+            page_start=1,
+            page_end=1,
+            element_type="text",
+            content="SYNTHETIC FIXTURE",
+            token_count=2,
+            ordinal=0,
+            embedding=[0.0] * get_settings().embedding_dimension,
+        )
+    )
+    empty_db.flush()
+    assert client.get("/api/diagnostics").json()["corpus"] == {
+        "state": "available",
+        "usable_papers": 1,
+    }
+    for excluded in ("withdrawn", "retracted"):
+        paper.source_status = excluded
+        empty_db.flush()
+        assert client.get("/api/diagnostics").json()["corpus"]["state"] == "empty"
+    paper.source_status = "active"
+    paper.status = "queued"
+    empty_db.flush()
+    assert client.get("/api/diagnostics").json()["corpus"]["state"] == "empty"
+
+
+@pytest.mark.integration
+def test_source_gold_numeric_evaluation_enqueues_json_safe_decimal_labels(
+    client: TestClient,
+    empty_db: Session,
+) -> None:
+    from ragagent.domain.evaluation import GoldPaper, GoldSource, NumericTarget
+    from ragagent.evaluation.schema import EvaluationCase, EvaluationDataset
+    from tests.integration.test_retrieval import populate
+
+    pid, cid = populate(empty_db)
+    chunk = empty_db.get(Chunk, cid)
+    assert chunk is not None
+    dataset = EvaluationDataset(
+        dataset_id="SYNTHETIC API serialization",
+        label_source="synthetic",
+        description="NOT A BENCHMARK",
+        annotation_format="source_v1",
+        cases=[
+            EvaluationCase(
+                id="q",
+                query="SYNTHETIC numeric contract",
+                question_type="fact",
+                expected_answer="SYNTHETIC only",
+                required_aspects=["fixture"],
+                relevant_chunk_ids=[cid],
+                relevant_paper_ids=[pid],
+                gold_sources=[
+                    GoldSource(
+                        paper=GoldPaper(paper_id=pid, pdf_sha256="b" * 64, reviewed_pages=[1]),
+                        chunk_id=cid,
+                        page_start=1,
+                        page_end=1,
+                        span_start=0,
+                        span_end=len(chunk.content),
+                        quote=chunk.content,
+                    )
+                ],
+                evaluation_dimensions=["numeric"],
+                numeric_targets=[
+                    NumericTarget(
+                        name="fixture", value="12.50", unit="%", conditions={"split": "SYNTHETIC"}
+                    )
+                ],
+            )
+        ],
+    )
+    response = client.post(
+        "/api/evaluations/rag", json={"dataset": dataset.model_dump(mode="json")}
+    )
+    assert response.status_code == 202
+    stored = empty_db.get(Run, response.json()["id"])
+    assert stored is not None
+    assert stored.request["dataset"]["cases"][0]["numeric_targets"][0]["value"] == "12.50"
 
 
 @pytest.fixture
@@ -128,6 +232,8 @@ def test_upload_dedup_metadata_invalid_pdf(client: TestClient) -> None:
     )
     assert result.status_code == 202 and result.headers["x-request-id"]
     paper_id = client.get("/api/papers").json()[0]["id"]
+    assert result.json()["paper_id"] == paper_id
+    assert result.json()["reused_existing"] is False
     paper = client.get("/api/papers/" + paper_id).json()
     assert paper["authors"] == ["Alice", "Bob"] and paper["status"] == "queued"
     pdf = client.get(f"/api/papers/{paper_id}/pdf")
@@ -140,6 +246,9 @@ def test_upload_dedup_metadata_invalid_pdf(client: TestClient) -> None:
         "/api/papers/upload", files={"file": ("paper.pdf", b"%PDF-1.4 fixture", "application/pdf")}
     )
     assert duplicate.json()["id"] == result.json()["id"]
+    assert duplicate.json()["paper_id"] == paper_id
+    assert duplicate.json()["reused_existing"] is True
+    assert client.get("/api/papers/" + paper_id).json()["authors"] == ["Carol"]
     assert (
         client.post("/api/papers/upload", files={"file": ("not.pdf", b"not pdf")}).status_code
         == 422

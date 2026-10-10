@@ -71,6 +71,7 @@ def message_presentation(result: dict[str, Any]) -> dict[str, Any]:
                     "title": item.paper.title[:200],
                     "page_start": item.page_start,
                     "page_end": item.page_end,
+                    "page_location": item.page_location,
                 },
             )
     presentation["citation_refs"] = list(references.values())[:16]

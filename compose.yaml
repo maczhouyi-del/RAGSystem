@@ -7,7 +7,11 @@ x-backend: &backend
     args:
       RAGAGENT_SOURCE_COMMIT: ${RAGAGENT_SOURCE_COMMIT:-unknown}
       RAGAGENT_BUILD_TIME: ${RAGAGENT_BUILD_TIME:-unknown}
-  env_file: .env
+  env_file:
+    - path: .env
+      required: true
+    - path: .runtime-secrets.env
+      required: false
   environment:
     DATA_DIR: /data
     HF_HOME: /models/huggingface
@@ -78,6 +82,7 @@ services:
       redis: {condition: service_healthy}
     restart: unless-stopped
   frontend:
+    image: scientific-ragagent-frontend:local
     build:
       context: .
       dockerfile: docker/frontend.Dockerfile

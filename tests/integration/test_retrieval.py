@@ -28,7 +28,7 @@ class FixtureReranker:
         ]
 
 
-def populate(db: Session) -> tuple[str, str]:
+def populate(db: Session, *, first_chunk_id: str | None = None) -> tuple[str, str]:
     p = Paper(
         title="Contrastive",
         sha256="b" * 64,
@@ -54,6 +54,7 @@ def populate(db: Session) -> tuple[str, str]:
         db.add(s)
         db.flush()
         c = Chunk(
+            **({"id": first_chunk_id} if paper is p and first_chunk_id is not None else {}),
             paper_id=paper.id,
             section_id=s.id,
             section_path="Methods",

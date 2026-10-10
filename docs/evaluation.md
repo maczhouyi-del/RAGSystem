@@ -209,6 +209,112 @@ CI checks metrics against hand-calculated fixtures and executes real PostgreSQL
 ablations without paid APIs/model downloads. These are correctness tests; they
 are not evidence of retrieval improvement on research literature.
 
+## Auditable scientific gold and human review
+
+The existing Evaluation UI and endpoints also accept `annotation_format=source_v1`.
+Legacy datasets remain accepted, with a warning that they lack explicit PDF/span
+gold. Adding empty default fields preserves unchanged legacy dataset hashes;
+adding substantive labels changes the hash. Generate empty forms, never a claimed
+human benchmark:
+
+```bash
+uv run python scripts/annotation_template.py my-gold.json --count 7 --source-gold
+```
+
+The generated `label_source` remains `unannotated` and cannot run. A human must
+read original papers and fill the forms before declaring `human`. Cover English
+and Chinese cross-language queries, single-paper facts, numeric/table questions,
+multi-paper comparison, conversation follow-ups and warranted refusals. Keep the
+existing `question_type` values; use `evaluation_dimensions` to mark
+`cross_language`, `numeric`, `table`, `multi_paper`, `follow_up` and `refusal`.
+Follow-up execution uses the existing conversation dataset and ordered turns;
+the dimension alone does not create conversation context.
+
+For each non-refusal case, `gold_sources` must cover exactly all labeled relevant
+chunk and paper IDs. Each source contains:
+
+- `paper`: `paper_id`, lowercase original `pdf_sha256`, optional known
+  `arxiv_family_id`/`arxiv_version`, and positive, unique `reviewed_pages`.
+- `chunk_id`, inclusive `page_start`/`page_end`, zero-based Python character
+  `span_start`/exclusive `span_end`, and the exact nonblank `quote`.
+
+Get chunk IDs/text from `/api/papers/{id}/chunks`; obtain the original PDF hash
+with `sha256sum original.pdf` or PowerShell `Get-FileHash original.pdf -Algorithm
+SHA256` (normalize to lowercase). Record versions only when known; a checksum
+does not establish a publisher/arXiv version. API submission and worker execution
+check stored PDF identity/version, chunk-to-paper association, exact text span
+and containment within indexed page ranges. The software does not independently
+certify a physical PDF page when an indexed chunk spans several pages: the human
+must inspect the PDF and declare the precise reviewed pages. Retain the originals
+and the matching index separately.
+
+Expected-refusal cases need `reviewed_papers` with the same paper identities/page
+declarations and a nonblank `refusal_rationale` describing the reviewed scope.
+Absence of relevant chunks alone does not demonstrate warranted refusal. All
+human cases need a nonblank annotator and timezone-aware annotation timestamp.
+Numeric cases additionally need `numeric_targets`: name, decimal `value` as a
+JSON string, explicit `unit` (use `dimensionless` where appropriate), and nonblank
+experimental `conditions` keys/values. The API preserves decimal precision when
+queuing to PostgreSQL JSON. Correctness requires all values, units and conditions, rather
+than matching a digit somewhere in an answer.
+
+Download an existing run's `results.json` using Evaluation, then inspect/review
+it without another model call:
+
+```bash
+uv run python scripts/audit_evaluation.py template --results results.json --output review.json
+# A human edits only review fields, keeping observations and artifact identity intact.
+uv run python scripts/audit_evaluation.py review --results results.json --review review.json --output human-assessment.json
+uv run python scripts/audit_evaluation.py case --results results.json --scope generation --id q001 --output failure-case.json
+uv run python scripts/audit_evaluation.py compare --results before.json --after after.json --output comparison.json
+```
+
+Scopes are `generation`, `retrieval/MODE`, or `conversation/CONVERSATION_ID`;
+the `id` is the query/turn ID. Case inspection retains actual output, evidence,
+gold, failure stage/code, metrics and usage and is labeled
+`OFFLINE_INSPECTION_NO_MODEL_CALL`. Actual inference replay uses the explicit
+resumption procedure above and can incur charges. A code/configuration change
+requires a fresh evaluation.
+
+Review templates start with every case unreviewed, all verdicts unset. For an
+inspected case supply `reviewed=true`, `reviewed_by`, timezone-aware `reviewed_at`,
+notes, verified `supported_pairs` and fully `supported_claim_ids`; numeric/refusal
+verdicts are optional booleans only for applicable labeled cases. Verified pairs
+must refer to released claim/citation IDs and structurally exact evidence.
+The reviewer must read that evidence to assess semantic support. A changed
+artifact, edited frozen observation, unknown pair or unsupported claim rejects
+the assessment. These are user-supplied reviews, not independently certified
+annotation quality.
+
+| Human metric | Denominator and interpretation |
+| --- | --- |
+| Citation precision | Verified claim/evidence pairs / all released predicted pairs |
+| Citation coverage | Released claims with a verified pair / all released claims |
+| Claim support accuracy | Fully human-supported claims / all released claims |
+| Numeric accuracy | Human all-values/units/conditions verdict, only with numeric gold |
+| Refusal accuracy | Human verdict for expected or actual refusal; true additionally requires expected refusal, insufficient-evidence status, no claims and a nonempty refusal |
+
+Undefined ratios and unreviewed cases stay null. Summary reports macro means of
+reviewed cases with a separate count for each metric; no reviewed cases yields
+an empty summary. Original failure statuses remain visible. Existing automated
+model judgments remain separate from these human metrics.
+
+Comparison requires identical dataset/label source, known corpus hash, actual
+model, judge, retrieval and workflow configurations, and known source hashes.
+Source hashes may differ for a before/after code comparison. Added derived adapter
+classification does not change configuration identity. Only matching completed
+case IDs contribute metric deltas; failures/missing cases and both manifests stay
+in the output. Unknown costs stay null. A paired-success mean cannot conceal
+failure counts or establish gains over a different successful cohort.
+
+Chat adapters are explicitly classified as `SCRIPTED`, `PROVIDER_ADAPTER` or
+`UNKNOWN_ADAPTER`; scripted, synthetic and unknown execution cannot claim real
+scientific quality. Real quality is **NOT MEASURED** in this repository. To measure
+it, supply licensed original PDFs and stable corpus/model revisions, actual human
+gold across the requested dimensions, authorized model access/budget and human
+inspection of actual generated answers. No fabricated human dataset or research
+accuracy is bundled.
+
 ## Conversational RAG and Research
 
 POST `/api/evaluations/conversation` with `{dataset, resume_run_id?}` queues the

@@ -158,3 +158,26 @@ def test_openapi_describes_bearer_auth_and_actual_public_routes() -> None:
     for path in ("/api/health", "/api/ready", "/api/auth/status"):
         assert schema["paths"][path]["get"]["security"] == []
     assert schema["paths"]["/api/papers"]["get"]["security"] == [{"HTTPBearer": []}]
+
+
+def test_independent_web_hash_session_rotation_preserves_native_credential(client, monkeypatch):
+    native, web = "native-" + "n" * 57, "web-" + "w" * 60
+    monkeypatch.delenv("LOCAL_AUTH_TOKEN", raising=False)
+    monkeypatch.setenv("LOCAL_AUTH_TOKEN_HASH", auth.digest(native))
+    monkeypatch.setenv("WEB_AUTH_TOKEN_HASH", auth.digest(web))
+    get_settings.cache_clear()
+    assert (
+        client.post("/api/auth/session", headers={"Authorization": "Bearer " + web}).status_code
+        == 200
+    )
+    assert client.get("/api/auth/status").json()["authenticated"]
+    assert not client.get(
+        "/api/auth/status", headers={"Authorization": "Bearer " + auth.digest(web)}
+    ).json()["authenticated"]
+    monkeypatch.setenv("WEB_AUTH_TOKEN_HASH", auth.digest("rotated-" + "r" * 56))
+    get_settings.cache_clear()
+    assert not client.get("/api/auth/status").json()["authenticated"]
+    assert client.get("/api/auth/status", headers={"Authorization": "Bearer " + native}).json()[
+        "authenticated"
+    ]
+    assert all(value[0] != web for value in auth._sessions.values())

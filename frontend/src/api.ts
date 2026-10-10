@@ -7,12 +7,40 @@ export const SourceStatus = z.enum([
   "withdrawn",
   "retracted",
 ]);
+export const Collection = z.object({
+  id: z.string().uuid(),
+  kind: z.enum(["group", "tag"]),
+  name: z.string(),
+  version: z.number().int().positive(),
+  paper_count: z.number().int().nonnegative(),
+});
+export type Collection = z.infer<typeof Collection>;
+export const CollectionPage = z.object({
+  items: z.array(Collection),
+  total: z.number().int().nonnegative(),
+  limit: z.number().int().positive(),
+  offset: z.number().int().nonnegative(),
+});
 export type SourceStatus = z.infer<typeof SourceStatus>;
 export const SourceMetadata = z.object({
   arxiv_id: z.string().nullable().default(null),
   arxiv_family_id: z.string().nullable().default(null),
   arxiv_version: z.number().int().positive().nullable().default(null),
   source_status: SourceStatus.default("unknown"),
+});
+export const OriginalPaperMetadata = SourceMetadata.omit({
+  source_status: true,
+}).extend({
+  kind: z.enum(["upload_user", "arxiv_atom"]),
+  captured_at: z.string(),
+  values: z.object({
+    title: z.string(),
+    authors: z.array(z.string()),
+    year: z.number().nullable(),
+    venue: z.string().nullable(),
+  }),
+  pdf_sha256: z.string(),
+  source_url: z.string().nullable(),
 });
 export const Paper = z.object({
   ...SourceMetadata.shape,
@@ -24,8 +52,120 @@ export const Paper = z.object({
   status: z.string(),
   error_code: z.string().nullable(),
   chunk_count: z.number(),
+  created_at: z.string().nullable().default(null),
+  original_metadata: OriginalPaperMetadata.nullable().default(null),
+  metadata_version: z.number().int().positive().default(1),
+  overridden_fields: z.array(z.string()).default([]),
+  latest_ingestion_run_id: z.string().nullable().default(null),
 });
+export const PaperPage = z.object({
+  items: z.array(Paper),
+  total: z.number().int().nonnegative(),
+  limit: z.number().int().positive(),
+  offset: z.number().int().nonnegative(),
+});
+export const SourceAvailability = z.object({
+  source_availability: z.enum(["available", "unavailable"]).optional(),
+  source_unavailable_reason: z.string().optional(),
+});
+export const PaperDeletionPreview = z.object({
+  paper_id: z.string(),
+  metadata_version: z.number().int().positive(),
+  chunks: z.number().int().nonnegative(),
+  evidence: z.number().int().nonnegative(),
+  pending_imports: z.number().int().nonnegative(),
+  scope: z.literal("current_library"),
+  retained_copies: z.array(z.string()),
+});
+export const PaperDeletion = z.object({
+  paper_id: z.string(),
+  library_removed: z.literal(true),
+  cleanup_run_id: z.string(),
+  cleanup_status: z.enum([
+    "queued",
+    "running",
+    "completed",
+    "failed",
+    "cancelled",
+  ]),
+  error_code: z.string().nullable(),
+  retained_copies: z.array(z.string()),
+  retained_managed_files: z.array(z.string()),
+});
+export type PaperDeletion = z.infer<typeof PaperDeletion>;
+export const PdfBox = z
+  .object({
+    left: z.number().nonnegative(),
+    top: z.number().nonnegative(),
+    right: z.number().positive(),
+    bottom: z.number().nonnegative(),
+    page_width: z.number().positive(),
+    page_height: z.number().positive(),
+    coord_origin: z.enum(["TOPLEFT", "BOTTOMLEFT"]),
+    units: z.literal("page_units"),
+  })
+  .refine(
+    (box) =>
+      box.left < box.right &&
+      box.right <= box.page_width &&
+      Math.max(box.top, box.bottom) <= box.page_height &&
+      (box.coord_origin === "TOPLEFT"
+        ? box.top < box.bottom
+        : box.bottom < box.top),
+  );
+export const PdfRegion = z
+  .object({
+    source_id: z.string(),
+    page_no: z.number().int().positive().nullable(),
+    bbox: PdfBox.nullable(),
+    parser_charspan: z.tuple([z.number().int(), z.number().int()]).nullable(),
+    source_start: z.number().int().nonnegative().nullable(),
+    source_end: z.number().int().positive().nullable(),
+    scope: z.literal("element"),
+    status: z.enum(["available", "unavailable"]),
+    text_mapping: z.enum(["parsed_element", "unavailable"]),
+    unavailable_reason: z.string().nullable(),
+  })
+  .refine(
+    (region) =>
+      (region.bbox === null || region.page_no !== null) &&
+      ((region.source_start === null && region.source_end === null) ||
+        (region.source_start !== null &&
+          region.source_end !== null &&
+          region.source_start < region.source_end)),
+  )
+  .transform((region) => ({
+    ...region,
+    status:
+      region.bbox === null ? ("unavailable" as const) : ("available" as const),
+    text_mapping:
+      region.source_start === null
+        ? ("unavailable" as const)
+        : ("parsed_element" as const),
+  }));
+export const PdfLocation = {
+  // Optional cached navigation metadata must never suppress valid source text.
+  pdf_regions: z
+    .array(z.unknown())
+    .default([])
+    .catch([])
+    .transform((values) =>
+      values.flatMap((value) => {
+        const parsed = PdfRegion.safeParse(value);
+        return parsed.success ? [parsed.data] : [];
+      }),
+    ),
+  pdf_location: z
+    .enum(["available", "partial", "unavailable"])
+    .default("unavailable")
+    .catch("unavailable"),
+  page_location: z
+    .enum(["available", "unavailable"])
+    .default("available")
+    .catch("unavailable"),
+};
 export const SourceContext = z.object({
+  ...PdfLocation,
   source_id: z.string(),
   element_type: z.string(),
   section_path: z.array(z.string()),
@@ -38,6 +178,7 @@ export const SourceContext = z.object({
   source_offset: z.number().default(0),
 });
 export const SourceSpan = z.object({
+  ...PdfLocation,
   source_id: z.string(),
   span_start: z.number(),
   span_end: z.number(),
@@ -45,8 +186,20 @@ export const SourceSpan = z.object({
   chunk_end: z.number(),
 });
 export const Evidence = z.object({
+  ...PdfLocation,
+  ...SourceAvailability.shape,
   evidence_id: z.string(),
-  paper: SourceMetadata.extend({ paper_id: z.string(), title: z.string() }),
+  paper: SourceMetadata.extend({
+    ...SourceAvailability.shape,
+    paper_id: z.string(),
+    title: z.string(),
+    pdf_sha256: z
+      .string()
+      .regex(/^[0-9a-f]{64}$/)
+      .nullable()
+      .default(null)
+      .catch(null),
+  }),
   chunk_id: z.string(),
   section_id: z.string().optional(),
   section_path: z.string(),
@@ -67,12 +220,25 @@ export const SupportingPair = z.object({
   supporting_span_end: z.number().int().nullable().optional(),
 });
 export type SupportingPair = z.infer<typeof SupportingPair>;
+export const CitationValidation = z
+  .object({
+    valid: z.boolean().default(false),
+    supported_pairs: z.array(SupportingPair).default([]),
+  })
+  .passthrough();
+export const ResearchReview = z
+  .object({
+    decision: z.enum(["PASS", "NEED_MORE_EVIDENCE", "NEED_REVISION"]),
+    validation: CitationValidation.optional().catch(undefined),
+  })
+  .passthrough();
 export const Result = z
   .object({
+    ...SourceAvailability.shape,
     answer: z.string().optional(),
     draft_report: z.string().optional(),
     research_plan: z.unknown().optional(),
-    review_result: z.unknown().optional(),
+    review_result: ResearchReview.optional().catch(undefined),
     limitations: z.array(z.string()).default([]),
     analysis_results: z
       .array(
@@ -83,9 +249,7 @@ export const Result = z
       .default([]),
     evidence_pool: z.array(Evidence).optional(),
     reranked_evidence: z.array(Evidence).optional(),
-    citation_validation: z
-      .object({ supported_pairs: z.array(SupportingPair).default([]) })
-      .optional(),
+    citation_validation: CitationValidation.optional().catch(undefined),
   })
   .passthrough();
 export const Run = z.object({
@@ -97,6 +261,11 @@ export const Run = z.object({
   result: Result.nullable(),
 });
 export type Run = z.infer<typeof Run>;
+export const UploadReceipt = Run.extend({
+  paper_id: z.string(),
+  reused_existing: z.boolean(),
+});
+export type UploadReceipt = z.infer<typeof UploadReceipt>;
 /** Lightweight list/turn state. Scientific evidence stays in the Run detail API. */
 export const RunSummary = Run.omit({ result: true });
 export type RunSummary = z.infer<typeof RunSummary>;
@@ -125,12 +294,12 @@ export async function api<T>(
   path: string,
   schema: z.ZodType<T>,
   body?: unknown,
-  method = "POST",
+  method?: string,
   signal?: AbortSignal,
 ): Promise<T> {
   const response = await request(path, {
     signal,
-    method: body === undefined ? "GET" : method,
+    method: method ?? (body === undefined ? "GET" : "POST"),
     headers:
       body instanceof FormData ? {} : { "Content-Type": "application/json" },
     body:

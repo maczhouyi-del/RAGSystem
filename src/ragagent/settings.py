@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -11,6 +12,7 @@ class Settings(BaseSettings):
     redis_url: SecretStr = SecretStr("redis://redis:6379/0")
     data_dir: Path = Path("data")
     agent_config: Path = Path("config/agents.yaml")
+    pdf_parser_mode: Literal["layout", "native"] = "layout"
     embedding_backend: str = "local"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     embedding_dimension: int = Field(default=384, ge=1, le=2000)
@@ -45,6 +47,7 @@ class Settings(BaseSettings):
     conversation_memory_tokens: int = Field(default=1024, ge=128, le=16384)
     conversation_memory_top_k: int = Field(default=8, ge=1, le=100)
     local_auth_token_hash: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
+    web_auth_token_hash: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
     max_upload_bytes: int = Field(default=30 * 1024 * 1024, ge=1)
 
     @model_validator(mode="after")

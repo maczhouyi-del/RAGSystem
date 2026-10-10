@@ -1,0 +1,140 @@
+{
+  "task": "TASK-02",
+  "status": "PASSED",
+  "start_commit": "c331848034b135181ad5fc319ddd3ddfe0bbaa0c",
+  "local": {
+    "npm_ci": "PASS",
+    "prettier": "PASS",
+    "typescript": "PASS",
+    "build": "PASS",
+    "playwright": {
+      "passed": 39,
+      "skipped": 0,
+      "seconds": 41.5
+    },
+    "transport": {
+      "passed": 10,
+      "skipped": 0
+    },
+    "visual_review": "PASS: synthetic first-use screenshot at /workspace/.rag-task02/browser-results/first-use-blank-user-follo-b8980-without-implicit-paid-tests/first-use.png"
+  },
+  "failures_preserved": [
+    {
+      "type": "initial browser run",
+      "failed": 12,
+      "interrupted": 2,
+      "not_run": 23,
+      "passed": 1,
+      "cause": "old authorized chat fixture omitted protected diagnostics route; request reached live loopback API and AUTH_REQUIRED hid chat",
+      "fix": "mock diagnostics consistently with authorization; keep all prior assertions",
+      "log": "/workspace/.rag-task02/e2e-initial-failure.log"
+    },
+    {
+      "type": "timeout regression",
+      "failed": 1,
+      "passed": 38,
+      "cause": "automatic retry at timeout kept refresh disabled",
+      "fix": "release busy after abort/timeout; avoid overlapping probes; stop guide polling while offline; preserve explicit recovery assertion",
+      "log": "/workspace/.rag-task02/e2e-timeout-failure.log"
+    }
+  ],
+  "scope": {
+    "backend_changes": false,
+    "rust_changes": false,
+    "migration_changes": false,
+    "lock_changes": false,
+    "new_authorization_system": false,
+    "automatic_provider_tests": false
+  },
+  "scientific_quality": "NOT MEASURED",
+  "actual_paid_model_requests": "NOT EXECUTED",
+  "windows11_human_gui": "NOT EXECUTED",
+  "ci": [
+    {
+      "id": 37886916945,
+      "name": "CI",
+      "event": "push",
+      "head_sha": "088e8be7a12b6d1f0fbbb9c33fdabe448e39ac0b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37886916945",
+      "jobs": [
+        {
+          "name": "compose",
+          "conclusion": "success"
+        },
+        {
+          "name": "backend",
+          "conclusion": "success"
+        },
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37886916939,
+      "name": "Desktop",
+      "event": "push",
+      "head_sha": "088e8be7a12b6d1f0fbbb9c33fdabe448e39ac0b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37886916939",
+      "jobs": [
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37886921280,
+      "name": "CI",
+      "event": "pull_request",
+      "head_sha": "088e8be7a12b6d1f0fbbb9c33fdabe448e39ac0b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37886921280",
+      "jobs": [
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        },
+        {
+          "name": "compose",
+          "conclusion": "success"
+        },
+        {
+          "name": "backend",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37886921287,
+      "name": "Desktop",
+      "event": "pull_request",
+      "head_sha": "088e8be7a12b6d1f0fbbb9c33fdabe448e39ac0b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37886921287",
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "browser_test_boundary": "MOCK HTTP/SSE contracts, not actual PDF parsing/model inference/database durability/Windows secure storage",
+  "implementation_commit": "088e8be7a12b6d1f0fbbb9c33fdabe448e39ac0b"
+}

@@ -1,0 +1,721 @@
+{
+  "run_id": "00000000-0000-4000-8000-000000000015",
+  "result": {
+    "draft_report": "# Research report\n\n## 研究问题\n\n研究意图（用户问题，不作事实证据）：Compare DEMO experiments\n\n## 文献范围\n\n本次已引用来源（文献元数据；不代表完整文献覆盖）：\n\n- DEMO Alpha\n\n- DEMO Beta\n\n## 研究方法与分类\n\ncontrastive training [E:00000000-0000-0000-0000-000000000001]\n\nbaseline training [E:00000000-0000-0000-0000-000000000002]\n\n## 数据集和受试者\n\nDemoSet [E:00000000-0000-0000-0000-000000000001]\n\nParticipant demographics are not reported. [E:00000000-0000-0000-0000-000000000001]\n\nDemoSet [E:00000000-0000-0000-0000-000000000002]\n\n## 实验条件\n\n% [E:00000000-0000-0000-0000-000000000001]\n\ntest split [E:00000000-0000-0000-0000-000000000001]\n\nsingle GPU [E:00000000-0000-0000-0000-000000000001]\n\nfraction [E:00000000-0000-0000-0000-000000000002]\n\nvalidation split [E:00000000-0000-0000-0000-000000000002]\n\nCPU [E:00000000-0000-0000-0000-000000000002]\n\n## 结果对比\n\n逐来源实验字段；数值不换算、不排序，各条件分别保留。\n\n| 来源 | 方法 | 数据集 | 受试者 | 实验条件 | 指标 | 结果 | 单位 | 数据划分 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| DEMO Alpha | contrastive training [E:00000000-0000-0000-0000-000000000001] | DemoSet [E:00000000-0000-0000-0000-000000000001] | 原文明确未报告：Participant demographics are not reported. [E:00000000-0000-0000-0000-000000000001] | single GPU [E:00000000-0000-0000-0000-000000000001] | accuracy [E:00000000-0000-0000-0000-000000000001] | 91.5 [E:00000000-0000-0000-0000-000000000001] | % [E:00000000-0000-0000-0000-000000000001] | test split [E:00000000-0000-0000-0000-000000000001] |\n| DEMO Beta | baseline training [E:00000000-0000-0000-0000-000000000002] | DemoSet [E:00000000-0000-0000-0000-000000000002] | 证据不足（系统未检索到可验证字段，不代表原文未报告） | CPU [E:00000000-0000-0000-0000-000000000002] | accuracy [E:00000000-0000-0000-0000-000000000002] | 0.89 [E:00000000-0000-0000-0000-000000000002] | fraction [E:00000000-0000-0000-0000-000000000002] | validation split [E:00000000-0000-0000-0000-000000000002] |\n\naccuracy [E:00000000-0000-0000-0000-000000000001]\n\n91.5 [E:00000000-0000-0000-0000-000000000001]\n\naccuracy [E:00000000-0000-0000-0000-000000000002]\n\n0.89 [E:00000000-0000-0000-0000-000000000002]\n\n## 发现与争议\n\n逐项保留发现和有引用支持的争议；不合并为无证据的共识结论。\n\nImprovement observed. [E:00000000-0000-0000-0000-000000000001]\n\nNo improvement observed. [E:00000000-0000-0000-0000-000000000002]\n\n## 实验可比性限制\n\n- 结果不可直接作公平排名：未进行单位换算，数值和来源论断保持原样。\n\n- 相同字段或文字不能证明实验等价；需研究人员核查任务、指标定义与完整设置。\n\n- 范围仅包含本次引用的检索证据，不代表系统综述或原文全文已穷尽。\n\n- 单位：原文字段不同，不可无条件比较；差异保留在比较表中。\n\n- 数据划分：原文字段不同，不可无条件比较；差异保留在比较表中。\n\n- 实验条件：原文字段不同，不可无条件比较；差异保留在比较表中。\n\n## 证据缺口\n\n- DEMO Alpha / 受试者：原文明确未报告：Participant demographics are not reported. [E:00000000-0000-0000-0000-000000000001]\n\n- DEMO Beta / 受试者：证据不足（系统未检索到可验证字段，不代表原文未报告）\n\n## 参考来源\n\n- DEMO Alpha · Methods · p.2–2 [E:00000000-0000-0000-0000-000000000001]\n\n- DEMO Beta · Methods · p.2–2 [E:00000000-0000-0000-0000-000000000002]",
+    "structured_report": {
+      "schema_version": 1,
+      "research_question": "Compare DEMO experiments",
+      "paper_ids": [
+        "paper-0",
+        "paper-1"
+      ],
+      "sections": [
+        {
+          "key": "question",
+          "title": "研究问题",
+          "claim_ids": []
+        },
+        {
+          "key": "scope",
+          "title": "文献范围",
+          "claim_ids": []
+        },
+        {
+          "key": "methods",
+          "title": "研究方法与分类",
+          "claim_ids": [
+            "0-method",
+            "1-method"
+          ]
+        },
+        {
+          "key": "datasets",
+          "title": "数据集和受试者",
+          "claim_ids": [
+            "0-dataset",
+            "0-participants",
+            "1-dataset"
+          ]
+        },
+        {
+          "key": "conditions",
+          "title": "实验条件",
+          "claim_ids": [
+            "0-unit",
+            "0-split",
+            "0-conditions",
+            "1-unit",
+            "1-split",
+            "1-conditions"
+          ]
+        },
+        {
+          "key": "results",
+          "title": "结果对比",
+          "claim_ids": [
+            "0-metric",
+            "0-result",
+            "1-metric",
+            "1-result"
+          ]
+        },
+        {
+          "key": "findings",
+          "title": "发现与争议",
+          "claim_ids": [
+            "0-finding",
+            "1-finding"
+          ]
+        },
+        {
+          "key": "comparability",
+          "title": "实验可比性限制",
+          "claim_ids": []
+        },
+        {
+          "key": "gaps",
+          "title": "证据缺口",
+          "claim_ids": []
+        },
+        {
+          "key": "references",
+          "title": "参考来源",
+          "claim_ids": []
+        }
+      ],
+      "rows": [
+        {
+          "row_id": "experiment-0",
+          "paper_id": "paper-0",
+          "fields": {
+            "method": {
+              "state": "reported",
+              "claim_ids": [
+                "0-method"
+              ],
+              "source_literal": "contrastive training",
+              "text": "contrastive training [E:00000000-0000-0000-0000-000000000001]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000001"
+              ]
+            },
+            "dataset": {
+              "state": "reported",
+              "claim_ids": [
+                "0-dataset"
+              ],
+              "source_literal": "DemoSet",
+              "text": "DemoSet [E:00000000-0000-0000-0000-000000000001]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000001"
+              ]
+            },
+            "participants": {
+              "state": "explicit_not_reported",
+              "claim_ids": [
+                "0-participants"
+              ],
+              "source_literal": "Participant demographics are not reported.",
+              "text": "原文明确未报告：Participant demographics are not reported. [E:00000000-0000-0000-0000-000000000001]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000001"
+              ]
+            },
+            "conditions": {
+              "state": "reported",
+              "claim_ids": [
+                "0-conditions"
+              ],
+              "source_literal": "single GPU",
+              "text": "single GPU [E:00000000-0000-0000-0000-000000000001]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000001"
+              ]
+            },
+            "metric": {
+              "state": "reported",
+              "claim_ids": [
+                "0-metric"
+              ],
+              "source_literal": "accuracy",
+              "text": "accuracy [E:00000000-0000-0000-0000-000000000001]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000001"
+              ]
+            },
+            "result": {
+              "state": "reported",
+              "claim_ids": [
+                "0-result"
+              ],
+              "source_literal": "91.5",
+              "text": "91.5 [E:00000000-0000-0000-0000-000000000001]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000001"
+              ]
+            },
+            "unit": {
+              "state": "reported",
+              "claim_ids": [
+                "0-unit"
+              ],
+              "source_literal": "%",
+              "text": "% [E:00000000-0000-0000-0000-000000000001]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000001"
+              ]
+            },
+            "split": {
+              "state": "reported",
+              "claim_ids": [
+                "0-split"
+              ],
+              "source_literal": "test split",
+              "text": "test split [E:00000000-0000-0000-0000-000000000001]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000001"
+              ]
+            }
+          }
+        },
+        {
+          "row_id": "experiment-1",
+          "paper_id": "paper-1",
+          "fields": {
+            "method": {
+              "state": "reported",
+              "claim_ids": [
+                "1-method"
+              ],
+              "source_literal": "baseline training",
+              "text": "baseline training [E:00000000-0000-0000-0000-000000000002]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000002"
+              ]
+            },
+            "dataset": {
+              "state": "reported",
+              "claim_ids": [
+                "1-dataset"
+              ],
+              "source_literal": "DemoSet",
+              "text": "DemoSet [E:00000000-0000-0000-0000-000000000002]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000002"
+              ]
+            },
+            "participants": {
+              "state": "evidence_insufficient",
+              "claim_ids": [],
+              "source_literal": null,
+              "text": "证据不足（系统未检索到可验证字段，不代表原文未报告）",
+              "evidence_ids": []
+            },
+            "conditions": {
+              "state": "reported",
+              "claim_ids": [
+                "1-conditions"
+              ],
+              "source_literal": "CPU",
+              "text": "CPU [E:00000000-0000-0000-0000-000000000002]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000002"
+              ]
+            },
+            "metric": {
+              "state": "reported",
+              "claim_ids": [
+                "1-metric"
+              ],
+              "source_literal": "accuracy",
+              "text": "accuracy [E:00000000-0000-0000-0000-000000000002]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000002"
+              ]
+            },
+            "result": {
+              "state": "reported",
+              "claim_ids": [
+                "1-result"
+              ],
+              "source_literal": "0.89",
+              "text": "0.89 [E:00000000-0000-0000-0000-000000000002]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000002"
+              ]
+            },
+            "unit": {
+              "state": "reported",
+              "claim_ids": [
+                "1-unit"
+              ],
+              "source_literal": "fraction",
+              "text": "fraction [E:00000000-0000-0000-0000-000000000002]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000002"
+              ]
+            },
+            "split": {
+              "state": "reported",
+              "claim_ids": [
+                "1-split"
+              ],
+              "source_literal": "validation split",
+              "text": "validation split [E:00000000-0000-0000-0000-000000000002]",
+              "evidence_ids": [
+                "00000000-0000-0000-0000-000000000002"
+              ]
+            }
+          }
+        }
+      ],
+      "comparability": [
+        "结果不可直接作公平排名：未进行单位换算，数值和来源论断保持原样。",
+        "相同字段或文字不能证明实验等价；需研究人员核查任务、指标定义与完整设置。",
+        "范围仅包含本次引用的检索证据，不代表系统综述或原文全文已穷尽。",
+        "单位：原文字段不同，不可无条件比较；差异保留在比较表中。",
+        "数据划分：原文字段不同，不可无条件比较；差异保留在比较表中。",
+        "实验条件：原文字段不同，不可无条件比较；差异保留在比较表中。"
+      ],
+      "comparison_status": "not_directly_comparable",
+      "evidence_ids": [
+        "00000000-0000-0000-0000-000000000001",
+        "00000000-0000-0000-0000-000000000002"
+      ],
+      "markdown": "# Research report\n\n## 研究问题\n\n研究意图（用户问题，不作事实证据）：Compare DEMO experiments\n\n## 文献范围\n\n本次已引用来源（文献元数据；不代表完整文献覆盖）：\n\n- DEMO Alpha\n\n- DEMO Beta\n\n## 研究方法与分类\n\ncontrastive training [E:00000000-0000-0000-0000-000000000001]\n\nbaseline training [E:00000000-0000-0000-0000-000000000002]\n\n## 数据集和受试者\n\nDemoSet [E:00000000-0000-0000-0000-000000000001]\n\nParticipant demographics are not reported. [E:00000000-0000-0000-0000-000000000001]\n\nDemoSet [E:00000000-0000-0000-0000-000000000002]\n\n## 实验条件\n\n% [E:00000000-0000-0000-0000-000000000001]\n\ntest split [E:00000000-0000-0000-0000-000000000001]\n\nsingle GPU [E:00000000-0000-0000-0000-000000000001]\n\nfraction [E:00000000-0000-0000-0000-000000000002]\n\nvalidation split [E:00000000-0000-0000-0000-000000000002]\n\nCPU [E:00000000-0000-0000-0000-000000000002]\n\n## 结果对比\n\n逐来源实验字段；数值不换算、不排序，各条件分别保留。\n\n| 来源 | 方法 | 数据集 | 受试者 | 实验条件 | 指标 | 结果 | 单位 | 数据划分 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| DEMO Alpha | contrastive training [E:00000000-0000-0000-0000-000000000001] | DemoSet [E:00000000-0000-0000-0000-000000000001] | 原文明确未报告：Participant demographics are not reported. [E:00000000-0000-0000-0000-000000000001] | single GPU [E:00000000-0000-0000-0000-000000000001] | accuracy [E:00000000-0000-0000-0000-000000000001] | 91.5 [E:00000000-0000-0000-0000-000000000001] | % [E:00000000-0000-0000-0000-000000000001] | test split [E:00000000-0000-0000-0000-000000000001] |\n| DEMO Beta | baseline training [E:00000000-0000-0000-0000-000000000002] | DemoSet [E:00000000-0000-0000-0000-000000000002] | 证据不足（系统未检索到可验证字段，不代表原文未报告） | CPU [E:00000000-0000-0000-0000-000000000002] | accuracy [E:00000000-0000-0000-0000-000000000002] | 0.89 [E:00000000-0000-0000-0000-000000000002] | fraction [E:00000000-0000-0000-0000-000000000002] | validation split [E:00000000-0000-0000-0000-000000000002] |\n\naccuracy [E:00000000-0000-0000-0000-000000000001]\n\n91.5 [E:00000000-0000-0000-0000-000000000001]\n\naccuracy [E:00000000-0000-0000-0000-000000000002]\n\n0.89 [E:00000000-0000-0000-0000-000000000002]\n\n## 发现与争议\n\n逐项保留发现和有引用支持的争议；不合并为无证据的共识结论。\n\nImprovement observed. [E:00000000-0000-0000-0000-000000000001]\n\nNo improvement observed. [E:00000000-0000-0000-0000-000000000002]\n\n## 实验可比性限制\n\n- 结果不可直接作公平排名：未进行单位换算，数值和来源论断保持原样。\n\n- 相同字段或文字不能证明实验等价；需研究人员核查任务、指标定义与完整设置。\n\n- 范围仅包含本次引用的检索证据，不代表系统综述或原文全文已穷尽。\n\n- 单位：原文字段不同，不可无条件比较；差异保留在比较表中。\n\n- 数据划分：原文字段不同，不可无条件比较；差异保留在比较表中。\n\n- 实验条件：原文字段不同，不可无条件比较；差异保留在比较表中。\n\n## 证据缺口\n\n- DEMO Alpha / 受试者：原文明确未报告：Participant demographics are not reported. [E:00000000-0000-0000-0000-000000000001]\n\n- DEMO Beta / 受试者：证据不足（系统未检索到可验证字段，不代表原文未报告）\n\n## 参考来源\n\n- DEMO Alpha · Methods · p.2–2 [E:00000000-0000-0000-0000-000000000001]\n\n- DEMO Beta · Methods · p.2–2 [E:00000000-0000-0000-0000-000000000002]"
+    },
+    "evidence_pool": [
+      {
+        "pdf_regions": [],
+        "evidence_id": "00000000-0000-0000-0000-000000000001",
+        "paper": {
+          "paper_id": "paper-0",
+          "title": "DEMO Alpha",
+          "authors": [],
+          "year": null,
+          "venue": null,
+          "arxiv_id": null,
+          "arxiv_family_id": null,
+          "arxiv_version": null,
+          "source_status": "unknown",
+          "pdf_sha256": null
+        },
+        "chunk_id": "chunk-0",
+        "section_id": "s1",
+        "section_path": "Methods",
+        "page_start": 2,
+        "page_end": 2,
+        "page_location": "available",
+        "content": "Alpha uses contrastive training on DemoSet; accuracy 91.5 %; test split; single GPU. Participant demographics are not reported. Improvement observed.",
+        "quote": "Alpha uses contrastive training on DemoSet; accuracy 91.5 %; test split; single GPU. Participant demographics are not reported. Improvement observed.",
+        "span_start": 0,
+        "span_end": 149,
+        "scores": {
+          "rerank": 2.0
+        },
+        "source_context": [],
+        "source_spans": [],
+        "pdf_location": "unavailable"
+      },
+      {
+        "pdf_regions": [],
+        "evidence_id": "00000000-0000-0000-0000-000000000002",
+        "paper": {
+          "paper_id": "paper-1",
+          "title": "DEMO Beta",
+          "authors": [],
+          "year": null,
+          "venue": null,
+          "arxiv_id": null,
+          "arxiv_family_id": null,
+          "arxiv_version": null,
+          "source_status": "unknown",
+          "pdf_sha256": null
+        },
+        "chunk_id": "chunk-1",
+        "section_id": "s1",
+        "section_path": "Methods",
+        "page_start": 2,
+        "page_end": 2,
+        "page_location": "available",
+        "content": "Beta uses baseline training on DemoSet; accuracy 0.89 fraction; validation split; CPU. No improvement observed.",
+        "quote": "Beta uses baseline training on DemoSet; accuracy 0.89 fraction; validation split; CPU. No improvement observed.",
+        "span_start": 0,
+        "span_end": 111,
+        "scores": {
+          "rerank": 2.0
+        },
+        "source_context": [],
+        "source_spans": [],
+        "pdf_location": "unavailable"
+      }
+    ],
+    "analysis_results": [
+      {
+        "claims": [
+          {
+            "claim_id": "0-method",
+            "text": "contrastive training",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "aspect": "method"
+          },
+          {
+            "claim_id": "0-dataset",
+            "text": "DemoSet",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "aspect": "dataset"
+          },
+          {
+            "claim_id": "0-metric",
+            "text": "accuracy",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "aspect": "metric"
+          },
+          {
+            "claim_id": "0-result",
+            "text": "91.5",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "aspect": "result"
+          },
+          {
+            "claim_id": "0-unit",
+            "text": "%",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "aspect": "unit"
+          },
+          {
+            "claim_id": "0-split",
+            "text": "test split",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "aspect": "split"
+          },
+          {
+            "claim_id": "0-conditions",
+            "text": "single GPU",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "aspect": "conditions"
+          },
+          {
+            "claim_id": "0-participants",
+            "text": "Participant demographics are not reported.",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "aspect": "participants"
+          },
+          {
+            "claim_id": "0-finding",
+            "text": "Improvement observed.",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000001"
+            ],
+            "aspect": "finding"
+          },
+          {
+            "claim_id": "1-method",
+            "text": "baseline training",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000002"
+            ],
+            "aspect": "method"
+          },
+          {
+            "claim_id": "1-dataset",
+            "text": "DemoSet",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000002"
+            ],
+            "aspect": "dataset"
+          },
+          {
+            "claim_id": "1-metric",
+            "text": "accuracy",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000002"
+            ],
+            "aspect": "metric"
+          },
+          {
+            "claim_id": "1-result",
+            "text": "0.89",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000002"
+            ],
+            "aspect": "result"
+          },
+          {
+            "claim_id": "1-unit",
+            "text": "fraction",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000002"
+            ],
+            "aspect": "unit"
+          },
+          {
+            "claim_id": "1-split",
+            "text": "validation split",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000002"
+            ],
+            "aspect": "split"
+          },
+          {
+            "claim_id": "1-conditions",
+            "text": "CPU",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000002"
+            ],
+            "aspect": "conditions"
+          },
+          {
+            "claim_id": "1-finding",
+            "text": "No improvement observed.",
+            "evidence_ids": [
+              "00000000-0000-0000-0000-000000000002"
+            ],
+            "aspect": "finding"
+          }
+        ]
+      }
+    ],
+    "review_result": {
+      "decision": "PASS",
+      "validation": {
+        "valid": true,
+        "verdicts": [
+          {
+            "claim_id": "0-method",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "0-dataset",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "0-metric",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "0-result",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "0-unit",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "0-split",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "0-conditions",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "0-participants",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "0-finding",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "1-method",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "1-dataset",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "1-metric",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "1-result",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "1-unit",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "1-split",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "1-conditions",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          },
+          {
+            "claim_id": "1-finding",
+            "supported": true,
+            "reason": "MOCK exact source",
+            "contradiction": false
+          }
+        ],
+        "supported_pairs": [
+          {
+            "claim_id": "0-method",
+            "evidence_id": "00000000-0000-0000-0000-000000000001",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "0-dataset",
+            "evidence_id": "00000000-0000-0000-0000-000000000001",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "0-metric",
+            "evidence_id": "00000000-0000-0000-0000-000000000001",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "0-result",
+            "evidence_id": "00000000-0000-0000-0000-000000000001",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "0-unit",
+            "evidence_id": "00000000-0000-0000-0000-000000000001",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "0-split",
+            "evidence_id": "00000000-0000-0000-0000-000000000001",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "0-conditions",
+            "evidence_id": "00000000-0000-0000-0000-000000000001",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "0-participants",
+            "evidence_id": "00000000-0000-0000-0000-000000000001",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "0-finding",
+            "evidence_id": "00000000-0000-0000-0000-000000000001",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "1-method",
+            "evidence_id": "00000000-0000-0000-0000-000000000002",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "1-dataset",
+            "evidence_id": "00000000-0000-0000-0000-000000000002",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "1-metric",
+            "evidence_id": "00000000-0000-0000-0000-000000000002",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "1-result",
+            "evidence_id": "00000000-0000-0000-0000-000000000002",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "1-unit",
+            "evidence_id": "00000000-0000-0000-0000-000000000002",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "1-split",
+            "evidence_id": "00000000-0000-0000-0000-000000000002",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "1-conditions",
+            "evidence_id": "00000000-0000-0000-0000-000000000002",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          },
+          {
+            "claim_id": "1-finding",
+            "evidence_id": "00000000-0000-0000-0000-000000000002",
+            "supporting_span_start": null,
+            "supporting_span_end": null
+          }
+        ],
+        "missing_citations": [],
+        "missing_aspects": [],
+        "comparison_entities": [],
+        "comparison_errors": [],
+        "report_bindings_verified": true
+      }
+    }
+  },
+  "artifacts": {
+    "report.md": "# Research report\n\n## 研究问题\n\n研究意图（用户问题，不作事实证据）：Compare DEMO experiments\n\n## 文献范围\n\n本次已引用来源（文献元数据；不代表完整文献覆盖）：\n\n- DEMO Alpha\n\n- DEMO Beta\n\n## 研究方法与分类\n\ncontrastive training [E:00000000-0000-0000-0000-000000000001]\n\nbaseline training [E:00000000-0000-0000-0000-000000000002]\n\n## 数据集和受试者\n\nDemoSet [E:00000000-0000-0000-0000-000000000001]\n\nParticipant demographics are not reported. [E:00000000-0000-0000-0000-000000000001]\n\nDemoSet [E:00000000-0000-0000-0000-000000000002]\n\n## 实验条件\n\n% [E:00000000-0000-0000-0000-000000000001]\n\ntest split [E:00000000-0000-0000-0000-000000000001]\n\nsingle GPU [E:00000000-0000-0000-0000-000000000001]\n\nfraction [E:00000000-0000-0000-0000-000000000002]\n\nvalidation split [E:00000000-0000-0000-0000-000000000002]\n\nCPU [E:00000000-0000-0000-0000-000000000002]\n\n## 结果对比\n\n逐来源实验字段；数值不换算、不排序，各条件分别保留。\n\n| 来源 | 方法 | 数据集 | 受试者 | 实验条件 | 指标 | 结果 | 单位 | 数据划分 |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| DEMO Alpha | contrastive training [E:00000000-0000-0000-0000-000000000001] | DemoSet [E:00000000-0000-0000-0000-000000000001] | 原文明确未报告：Participant demographics are not reported. [E:00000000-0000-0000-0000-000000000001] | single GPU [E:00000000-0000-0000-0000-000000000001] | accuracy [E:00000000-0000-0000-0000-000000000001] | 91.5 [E:00000000-0000-0000-0000-000000000001] | % [E:00000000-0000-0000-0000-000000000001] | test split [E:00000000-0000-0000-0000-000000000001] |\n| DEMO Beta | baseline training [E:00000000-0000-0000-0000-000000000002] | DemoSet [E:00000000-0000-0000-0000-000000000002] | 证据不足（系统未检索到可验证字段，不代表原文未报告） | CPU [E:00000000-0000-0000-0000-000000000002] | accuracy [E:00000000-0000-0000-0000-000000000002] | 0.89 [E:00000000-0000-0000-0000-000000000002] | fraction [E:00000000-0000-0000-0000-000000000002] | validation split [E:00000000-0000-0000-0000-000000000002] |\n\naccuracy [E:00000000-0000-0000-0000-000000000001]\n\n91.5 [E:00000000-0000-0000-0000-000000000001]\n\naccuracy [E:00000000-0000-0000-0000-000000000002]\n\n0.89 [E:00000000-0000-0000-0000-000000000002]\n\n## 发现与争议\n\n逐项保留发现和有引用支持的争议；不合并为无证据的共识结论。\n\nImprovement observed. [E:00000000-0000-0000-0000-000000000001]\n\nNo improvement observed. [E:00000000-0000-0000-0000-000000000002]\n\n## 实验可比性限制\n\n- 结果不可直接作公平排名：未进行单位换算，数值和来源论断保持原样。\n\n- 相同字段或文字不能证明实验等价；需研究人员核查任务、指标定义与完整设置。\n\n- 范围仅包含本次引用的检索证据，不代表系统综述或原文全文已穷尽。\n\n- 单位：原文字段不同，不可无条件比较；差异保留在比较表中。\n\n- 数据划分：原文字段不同，不可无条件比较；差异保留在比较表中。\n\n- 实验条件：原文字段不同，不可无条件比较；差异保留在比较表中。\n\n## 证据缺口\n\n- DEMO Alpha / 受试者：原文明确未报告：Participant demographics are not reported. [E:00000000-0000-0000-0000-000000000001]\n\n- DEMO Beta / 受试者：证据不足（系统未检索到可验证字段，不代表原文未报告）\n\n## 参考来源\n\n- DEMO Alpha · Methods · p.2–2 [E:00000000-0000-0000-0000-000000000001]\n\n- DEMO Beta · Methods · p.2–2 [E:00000000-0000-0000-0000-000000000002]",
+    "comparison.csv": "﻿paper_id,paper_title,row_id,verification_status,source_availability,comparability,method,method_state,method_claim_ids,method_evidence_ids,dataset,dataset_state,dataset_claim_ids,dataset_evidence_ids,participants,participants_state,participants_claim_ids,participants_evidence_ids,conditions,conditions_state,conditions_claim_ids,conditions_evidence_ids,metric,metric_state,metric_claim_ids,metric_evidence_ids,result,result_state,result_claim_ids,result_evidence_ids,unit,unit_state,unit_claim_ids,unit_evidence_ids,split,split_state,split_claim_ids,split_evidence_ids,claims,evidence_ids,legacy_report\r\npaper-0,DEMO Alpha,experiment-0,verified_at_execution,snapshot_only,不可直接比较；单位、划分与完整设置需人工核查,contrastive training [E:00000000-0000-0000-0000-000000000001],reported,0-method,00000000-0000-0000-0000-000000000001,DemoSet [E:00000000-0000-0000-0000-000000000001],reported,0-dataset,00000000-0000-0000-0000-000000000001,原文明确未报告：Participant demographics are not reported. [E:00000000-0000-0000-0000-000000000001],explicit_not_reported,0-participants,00000000-0000-0000-0000-000000000001,single GPU [E:00000000-0000-0000-0000-000000000001],reported,0-conditions,00000000-0000-0000-0000-000000000001,accuracy [E:00000000-0000-0000-0000-000000000001],reported,0-metric,00000000-0000-0000-0000-000000000001,91.5 [E:00000000-0000-0000-0000-000000000001],reported,0-result,00000000-0000-0000-0000-000000000001,% [E:00000000-0000-0000-0000-000000000001],reported,0-unit,00000000-0000-0000-0000-000000000001,test split [E:00000000-0000-0000-0000-000000000001],reported,0-split,00000000-0000-0000-0000-000000000001,\"contrastive training\n\nDemoSet\n\naccuracy\n\n91.5\n\n%\n\ntest split\n\nsingle GPU\n\nParticipant demographics are not reported.\n\nImprovement observed.\",00000000-0000-0000-0000-000000000001,\r\npaper-1,DEMO Beta,experiment-1,verified_at_execution,snapshot_only,不可直接比较；单位、划分与完整设置需人工核查,baseline training [E:00000000-0000-0000-0000-000000000002],reported,1-method,00000000-0000-0000-0000-000000000002,DemoSet [E:00000000-0000-0000-0000-000000000002],reported,1-dataset,00000000-0000-0000-0000-000000000002,证据不足（系统未检索到可验证字段，不代表原文未报告）,evidence_insufficient,,,CPU [E:00000000-0000-0000-0000-000000000002],reported,1-conditions,00000000-0000-0000-0000-000000000002,accuracy [E:00000000-0000-0000-0000-000000000002],reported,1-metric,00000000-0000-0000-0000-000000000002,0.89 [E:00000000-0000-0000-0000-000000000002],reported,1-result,00000000-0000-0000-0000-000000000002,fraction [E:00000000-0000-0000-0000-000000000002],reported,1-unit,00000000-0000-0000-0000-000000000002,validation split [E:00000000-0000-0000-0000-000000000002],reported,1-split,00000000-0000-0000-0000-000000000002,\"baseline training\n\nDemoSet\n\naccuracy\n\n0.89\n\nfraction\n\nvalidation split\n\nCPU\n\nNo improvement observed.\",00000000-0000-0000-0000-000000000002,\r\n",
+    "references.bib": "% Evidence IDs: 00000000-0000-0000-0000-000000000001\n% Source availability: snapshot_only\n% Metadata missing: DOI (not stored), authors, year, venue\n@misc{ragagent_1,\n  title = {DEMO Alpha},\n}\n\n% Evidence IDs: 00000000-0000-0000-0000-000000000002\n% Source availability: snapshot_only\n% Metadata missing: DOI (not stored), authors, year, venue\n@misc{ragagent_2,\n  title = {DEMO Beta},\n}\n",
+    "citations.json": "{\n  \"run_id\": \"00000000-0000-4000-8000-000000000015\",\n  \"kind\": \"research\",\n  \"status\": \"completed\",\n  \"verification_status\": \"verified_at_execution\",\n  \"references\": [\n    {\n      \"evidence_id\": \"00000000-0000-0000-0000-000000000001\",\n      \"paper_id\": \"paper-0\",\n      \"chunk_id\": \"chunk-0\",\n      \"section_id\": \"s1\",\n      \"section_path\": \"Methods\",\n      \"page_start\": 2,\n      \"page_end\": 2,\n      \"page_location\": \"available\",\n      \"span_start\": 0,\n      \"span_end\": 149,\n      \"paper\": {\n        \"paper_id\": \"paper-0\",\n        \"title\": \"DEMO Alpha\",\n        \"authors\": [],\n        \"year\": null,\n        \"venue\": null,\n        \"arxiv_id\": null,\n        \"arxiv_family_id\": null,\n        \"arxiv_version\": null,\n        \"source_status\": \"unknown\",\n        \"pdf_sha256\": null\n      },\n      \"source_availability\": \"snapshot_only\",\n      \"metadata_status\": \"snapshot\"\n    },\n    {\n      \"evidence_id\": \"00000000-0000-0000-0000-000000000002\",\n      \"paper_id\": \"paper-1\",\n      \"chunk_id\": \"chunk-1\",\n      \"section_id\": \"s1\",\n      \"section_path\": \"Methods\",\n      \"page_start\": 2,\n      \"page_end\": 2,\n      \"page_location\": \"available\",\n      \"span_start\": 0,\n      \"span_end\": 111,\n      \"paper\": {\n        \"paper_id\": \"paper-1\",\n        \"title\": \"DEMO Beta\",\n        \"authors\": [],\n        \"year\": null,\n        \"venue\": null,\n        \"arxiv_id\": null,\n        \"arxiv_family_id\": null,\n        \"arxiv_version\": null,\n        \"source_status\": \"unknown\",\n        \"pdf_sha256\": null\n      },\n      \"source_availability\": \"snapshot_only\",\n      \"metadata_status\": \"snapshot\"\n    }\n  ]\n}\n"
+  }
+}

@@ -1,18 +1,97 @@
 import asyncio
 import json
 from collections.abc import AsyncIterator
+from uuid import UUID
 
 from fastapi import APIRouter, Header, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 from sqlalchemy import func, select
 
 from ragagent.api.papers import DB, QueueDep, enqueue
 from ragagent.api.schemas import QueryRequest, ResearchRequest, RunResponse
-from ragagent.db.models import ExecutionEvent, Run
+from ragagent.db.models import ExecutionEvent, Message, Run
 from ragagent.db.session import session_factory
+from ragagent.domain.exports import export_run
+from ragagent.domain.run_metrics import RunMetrics, run_metrics
 from ragagent.jobs import TERMINAL_STATUSES, cancel_run
 
 router = APIRouter(tags=["runs"])
+
+
+@router.get("/api/runs/{run_id}/metrics")
+def metrics(run_id: UUID, db: DB) -> RunMetrics:
+    # Project accounting only: historical scientific result/event bodies stay unloaded.
+    record = db.execute(
+        select(
+            Run.id,
+            Run.kind,
+            Run.status,
+            Run.error_code,
+            Run.created_at,
+            Run.result["usage"],
+            Run.result["usage_scope"],
+        ).where(Run.id == str(run_id))
+    ).first()
+    if record is None:
+        raise HTTPException(404, "run_not_found")
+    timings = db.execute(
+        select(
+            ExecutionEvent.node,
+            ExecutionEvent.created_at,
+            ExecutionEvent.payload["execution_timing"],
+        )
+        .where(ExecutionEvent.run_id == str(run_id))
+        .order_by(ExecutionEvent.id)
+    ).all()
+    return run_metrics(
+        run_id=record[0],
+        kind=record[1],
+        status=record[2],
+        error_code=record[3],
+        created_at=record[4],
+        usage=record[5],
+        usage_scope=record[6],
+        events=[(row[0], row[1], row[2]) for row in timings],
+    )
+
+
+@router.get("/api/runs/{run_id}/exports/{filename}")
+def export(run_id: str, filename: str, db: DB) -> Response:
+    try:
+        UUID(run_id)
+    except ValueError:
+        raise HTTPException(404, "run_not_found") from None
+    run = db.get(Run, run_id)
+    if run is None:
+        raise HTTPException(404, "run_not_found")
+    result = dict(run.result or {})
+    body_key = "draft_report" if run.kind == "research" else "answer"
+    if not result.get(body_key) and run.status in {"completed", "insufficient_evidence"}:
+        message = db.scalar(
+            select(Message)
+            .where(Message.run_id == run.id, Message.role == "assistant")
+            .order_by(Message.ordinal.desc())
+            .limit(1)
+        )
+        if message and message.content:
+            result[body_key] = message.content
+            if message.metadata_json.get("source_availability") == "unavailable":
+                result["source_availability"] = "unavailable"
+    try:
+        artifact = export_run(run.id, run.kind, run.status, result, filename)
+    except ValueError as exc:
+        code = str(exc)
+        raise HTTPException(
+            413 if code == "export_too_large" else 409 if code.startswith("report_") else 404, code
+        ) from None
+    return Response(
+        artifact.content,
+        media_type=artifact.media_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{artifact.filename}"',
+            "X-Content-Type-Options": "nosniff",
+        },
+    )
 
 
 @router.post("/api/rag/query", status_code=202)

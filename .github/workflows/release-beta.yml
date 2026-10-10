@@ -1,0 +1,115 @@
+name: Publish verified beta
+on:
+  workflow_dispatch:
+    inputs:
+      desktop_run_id:
+        description: Successful main Push Desktop run ID
+        required: true
+      source_sha:
+        description: Exact main commit built by Desktop and CI
+        required: true
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: publish-v0.2.0-beta.1
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_SHA: ${{ inputs.source_sha }}
+      DESKTOP_RUN: ${{ inputs.desktop_run_id }}
+      RELEASE_TAG: v0.2.0-beta.1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Require successful main CI and native builds for the exact checkout
+        run: |
+          python - <<'PY'
+          import json, os, re, subprocess
+          repo, source, run_id = os.environ['GH_REPO'], os.environ['SOURCE_SHA'], os.environ['DESKTOP_RUN']
+          assert re.fullmatch('[0-9a-f]{40}', source) and run_id.isdigit()
+          def api(path):
+              return json.loads(subprocess.check_output(['gh', 'api', 'repos/' + repo + '/' + path]))
+          assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == source
+          assert api('branches/main')['commit']['sha'] == source
+          desktop = api('actions/runs/' + run_id)
+          assert desktop['path'] == '.github/workflows/desktop.yml'
+          for run in [desktop, next(r for r in api('actions/workflows/ci.yml/runs?branch=main&event=push&per_page=30')['workflow_runs'] if r['head_sha'] == source)]:
+              assert run['event'] == 'push' and run['head_branch'] == 'main' and run['head_sha'] == source
+              assert run['status'] == 'completed' and run['conclusion'] == 'success'
+              jobs = api('actions/runs/' + str(run['id']) + '/jobs?per_page=100')['jobs']
+              assert len(jobs) == (4 if run['id'] == desktop['id'] else 3)
+              assert all(j['status'] == 'completed' and j['conclusion'] == 'success' for j in jobs)
+          print('Exact main source: successful CI/3jobs and Desktop/4jobs verified.')
+          PY
+      - uses: actions/download-artifact@v4
+        with:
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.desktop_run_id }}
+          github-token: ${{ github.token }}
+          path: incoming-installers
+      - name: Independently verify all four platform installers and deployment ZIPs
+        run: python scripts/verify_installers.py --directory incoming-installers --source "$SOURCE_SHA" --output release-manifest.json
+      - name: Prepare installer assets, documentation and checksums
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, shutil, zipfile
+          from pathlib import Path
+          report = json.loads(Path('release-manifest.json').read_text())
+          out = Path('release-assets'); out.mkdir()
+          for platform in report['platforms']:
+              for item in platform['native'] + [platform['deployment']]:
+                  name = item.get('file') or item['path'].replace('\\', '/').split('/')[-1]
+                  found = list(Path('incoming-installers').rglob(name))
+                  assert len(found) == 1
+                  target = out / name.replace(' ', '_')
+                  assert not target.exists()
+                  shutil.copyfile(found[0], target)
+                  assert hashlib.sha256(target.read_bytes()).hexdigest() == item['sha256']
+                  item['release_asset'] = target.name
+              deployment = out / platform['deployment']['release_asset']
+              deployment.with_suffix('.zip.sha256').write_text(platform['deployment']['sha256'] + '  ' + deployment.name + '\n')
+          report.update(release_tag=os.environ['RELEASE_TAG'], desktop_run_id=int(os.environ['DESKTOP_RUN']), unsigned=True, docker_required=True)
+          (out / 'release-manifest.json').write_text(json.dumps(report, indent=2) + '\n')
+          with zipfile.ZipFile(out / 'installation-guides.zip', 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+              for path in [Path('README.md'), Path('README.zh-CN.md'), *sorted(Path('docs/installation').glob('*.md')), Path('docs/evaluation.md'), Path('docs/product-improvement/task-18-delivery.md'), Path('docs/product-improvement/task-19-evidence.json')]:
+                  archive.write(path, path.as_posix())
+          checksums = ''.join(hashlib.sha256(p.read_bytes()).hexdigest() + '  ' + p.name + '\n' for p in sorted(out.iterdir()))
+          (out / 'SHA256SUMS.txt').write_text(checksums)
+          Path('release-notes.md').write_text(Path('docs/installation/beta-release-notes.md').read_text() + '\n\n实际安装构建 SHA / installer source: `' + os.environ['SOURCE_SHA'] + '`\n\n[成功的 main Desktop 构建](https://github.com/' + os.environ['GH_REPO'] + '/actions/runs/' + os.environ['DESKTOP_RUN'] + ')\n')
+          print('Prepared ' + str(len(list(out.iterdir()))) + ' assets; API secrets/user data excluded.')
+          PY
+      - name: Create draft pre-release and upload all verified assets
+        run: gh release create "$RELEASE_TAG" release-assets/* --target "$SOURCE_SHA" --title 'Scientific RAGAgent 0.2.0 Beta 1' --notes-file release-notes.md --draft --prerelease
+      - name: Check GitHub asset sizes and server SHA256 before publication
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, subprocess
+          from pathlib import Path
+          release = json.loads(subprocess.check_output(['gh', 'api', 'repos/' + os.environ['GH_REPO'] + '/releases/tags/' + os.environ['RELEASE_TAG']]))
+          assert release['draft'] and release['prerelease']
+          local = {p.name: p for p in Path('release-assets').iterdir()}
+          assert set(local) == {a['name'] for a in release['assets']}
+          for item in release['assets']:
+              path = local[item['name']]
+              assert item['size'] == path.stat().st_size
+              assert item['digest'] == 'sha256:' + hashlib.sha256(path.read_bytes()).hexdigest()
+          print('All uploaded assets match local bytes and GitHub SHA256; safe to publish beta.')
+          PY
+      - name: Publish pre-release
+        run: gh release edit "$RELEASE_TAG" --draft=false --prerelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: beta-release-verification-${{ inputs.source_sha }}
+          path: |
+            release-assets/release-manifest.json
+            release-assets/SHA256SUMS.txt
+          if-no-files-found: error

@@ -3,6 +3,7 @@ from typing import Literal, TypedDict
 from pydantic import BaseModel, Field, model_validator
 
 from ragagent.db.models import new_id
+from ragagent.domain.reports import StructuredReport, StudyObservation
 from ragagent.domain.research import (
     Candidate,
     CitationValidation,
@@ -80,6 +81,7 @@ class AnalysisResult(BaseModel):
     metrics: list[Claim] = Field(default_factory=list)
     contradictions: list[Claim] = Field(default_factory=list)
     limitations: list[str] = Field(default_factory=list)
+    observations: list[StudyObservation] = Field(default_factory=list, max_length=96)
 
     def factual_claims(self) -> list[Claim]:
         by_id: dict[str, Claim] = {}
@@ -113,6 +115,7 @@ class MultiAgentState(BaseModel):
     evidence_pool: list[EvidenceRecord] = Field(default_factory=list)
     analysis_results: list[AnalysisResult] = Field(default_factory=list)
     draft_report: str = ""
+    structured_report: StructuredReport | None = None
     review_result: ReviewResult | None = None
     revision_count: int = 0
     retrieval_count: int = 0
@@ -131,6 +134,7 @@ class ResearchUpdate(TypedDict, total=False):
     evidence_pool: list[EvidenceRecord]
     analysis_results: list[AnalysisResult]
     draft_report: str
+    structured_report: StructuredReport | None
     review_result: ReviewResult
     revision_count: int
     retrieval_count: int

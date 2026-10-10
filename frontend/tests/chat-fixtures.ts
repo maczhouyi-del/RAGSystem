@@ -155,6 +155,9 @@ export async function setupChat(
         evidence_id: source.evidence_id,
         page_start: source.page_start,
         page_end: source.page_end,
+        page_location:
+          (source as typeof evidence & { page_location?: string })
+            .page_location ?? "available",
       })),
     };
   }
@@ -215,7 +218,56 @@ export async function setupChat(
   await page.route("**/api/ready", (route) =>
     route.fulfill({ json: { status: "ready" } }),
   );
-  await page.route("**/api/papers?*", (route) => route.fulfill({ json: [] }));
+  await page.route("**/api/auth/status", (route) =>
+    route.fulfill({ json: { initialized: true, authenticated: true } }),
+  );
+  await page.route("**/api/diagnostics", (route) =>
+    route.fulfill({
+      json: {
+        build: {
+          version: "0.2.0",
+          source_commit: "unknown",
+          dirty: null,
+          built_at_utc: "unknown",
+        },
+        database: "available",
+        redis: "available",
+        local_auth: "initialized",
+        inference: "not_tested",
+        queues: {
+          interactive: { pending: 0, workers: 1 },
+          ingestion: { pending: 0, workers: 1 },
+          evaluation: { pending: 0, workers: 1 },
+        },
+        chat_configuration: {},
+        retrieval_configuration: { model_loading: "not_tested" },
+        corpus: { state: "available", usable_papers: 1 },
+      },
+    }),
+  );
+  // MOCK coverage only; never request the real backend from scripted chat tests.
+  await page.route("**/api/annotations/coverage", (route) => {
+    const filters = route.request().postDataJSON() as Record<string, unknown>;
+    const strict = ["datasets", "methods", "metrics", "entity_types"].some(
+      (key) =>
+        Array.isArray(filters[key]) && (filters[key] as unknown[]).length > 0,
+    );
+    return route.fulfill({
+      json: {
+        total_chunks: 1,
+        reviewed_chunks: 0,
+        linked_chunks: 0,
+        active_chunks: 0,
+        failed_chunks: 0,
+        matching_chunks: strict ? 0 : 1,
+        strict,
+        complete: false,
+      },
+    });
+  });
+  await page.route("**/api/papers/search?*", (route) =>
+    route.fulfill({ json: { items: [], total: 0, limit: 50, offset: 0 } }),
+  );
   await page.route("**/api/conversations**", async (route) => {
     const url = new URL(route.request().url());
     const path = url.pathname.split("/").filter(Boolean).slice(2);

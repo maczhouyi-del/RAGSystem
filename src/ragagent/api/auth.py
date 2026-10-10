@@ -30,6 +30,9 @@ def digest(token: str) -> str:
 def expected_verifiers() -> tuple[str, ...]:
     configured = get_settings().local_auth_token_hash
     hashes = [configured] if configured is not None else []
+    web = get_settings().web_auth_token_hash
+    if web is not None:
+        hashes.append(web)
     # Optional additional Web development credential: process environment only.
     token = os.environ.get("LOCAL_AUTH_TOKEN")
     if token is not None:

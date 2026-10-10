@@ -1,0 +1,170 @@
+{
+  "task": "TASK-05",
+  "status": "PASSED",
+  "start_commit": "736d3a7358d5bc118311abd599ef6becc33cd365",
+  "local": {
+    "uv_sync_locked": "PASS: 109 installed packages, no dependency/lock changes",
+    "ruff_format": "PASS",
+    "ruff_check": "PASS",
+    "mypy": {
+      "status": "PASS",
+      "files": 75
+    },
+    "npm_ci": "PASS",
+    "lint": "PASS",
+    "typescript": "PASS",
+    "build": "PASS",
+    "pytest": {
+      "passed": 687,
+      "unit": 496,
+      "integration": 191,
+      "skipped": 0,
+      "failed": 0,
+      "seconds": 39.59,
+      "warning": "one existing Alembic path_separator deprecation",
+      "junit": "/workspace/.rag-task05/pytest.xml"
+    },
+    "playwright": {
+      "passed": 47,
+      "skipped": 0,
+      "seconds": 47.4,
+      "boundary": "MOCK HTTP; persistence and original bytes separately checked by PostgreSQL/file tests"
+    },
+    "transport": {
+      "passed": 11,
+      "skipped": 0
+    },
+    "migration": "PASS: actual upgrade, Alembic check, lossless/pristine downgrade/base/head; expected provenance-loss rejection preserves row and head",
+    "visual_review": "PASS: /workspace/.rag-task05/browser-results-final/paper-metadata-metadata-ed-4973b-ource-version-stays-visible/metadata-edit.png"
+  },
+  "added_tests": {
+    "postgresql": 15,
+    "browser": 4,
+    "extended_existing": [
+      "arxiv original metadata preservation on correction/reimport",
+      "migration loss guard",
+      "explicit unknown origin stored as SQL NULL"
+    ]
+  },
+  "failures_preserved": [
+    {
+      "kind": "initial mypy",
+      "errors": 1,
+      "cause": "dict origin passed where domain OriginalPaperMetadata expected",
+      "fix": "validate persisted origin explicitly against domain contract",
+      "log": "/workspace/.rag-task05/mypy-initial.log"
+    },
+    {
+      "kind": "read-only null-storage probe",
+      "before_explicit_unknown_is_sql_null": false,
+      "cause": "JSONB default serializes explicit None as JSON null, triggering non-pristine downgrade protection",
+      "fix": "JSONB(none_as_null=True); assert SQL NULL in legacy PG regression",
+      "after": "PASS in full 687-test run"
+    },
+    {
+      "kind": "initial static formatting",
+      "cause": "two long newly added SQL string literals",
+      "fix": "split literals without changing SQL; final Ruff passes"
+    }
+  ],
+  "scope": {
+    "reuse_patch": true,
+    "original_pdf_or_chunk_changes": false,
+    "dependency_or_lock_changes": false,
+    "original_arxiv_capture": "actual adapter return at runtime; scripted download in tests",
+    "legacy_original": "unknown SQL NULL, no fabricated backfill",
+    "optimistic_concurrency": "new UI always supplies expected_metadata_version; legacy unchecked calls remain compatible",
+    "downgrade": "reject lossy provenance removal"
+  },
+  "scientific_quality": "NOT MEASURED",
+  "actual_paid_model_requests": "NOT EXECUTED",
+  "actual_arxiv_download": "NOT EXECUTED in these tests",
+  "windows11_human_gui": "NOT EXECUTED",
+  "ci": [
+    {
+      "id": 37894376600,
+      "name": "CI",
+      "event": "push",
+      "head_sha": "5c288748342f2c782c934c5c1deb36687903e1e4",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37894376600",
+      "jobs": [
+        {
+          "name": "compose",
+          "conclusion": "success"
+        },
+        {
+          "name": "backend",
+          "conclusion": "success"
+        },
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37894376697,
+      "name": "Desktop",
+      "event": "push",
+      "head_sha": "5c288748342f2c782c934c5c1deb36687903e1e4",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37894376697",
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37894379794,
+      "name": "CI",
+      "event": "pull_request",
+      "head_sha": "5c288748342f2c782c934c5c1deb36687903e1e4",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37894379794",
+      "jobs": [
+        {
+          "name": "frontend",
+          "conclusion": "success"
+        },
+        {
+          "name": "compose",
+          "conclusion": "success"
+        },
+        {
+          "name": "backend",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 37894379810,
+      "name": "Desktop",
+      "event": "pull_request",
+      "head_sha": "5c288748342f2c782c934c5c1deb36687903e1e4",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37894379810",
+      "jobs": [
+        {
+          "name": "linux-desktop",
+          "conclusion": "success"
+        },
+        {
+          "name": "windows-desktop",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "implementation_commit": "5c288748342f2c782c934c5c1deb36687903e1e4"
+}

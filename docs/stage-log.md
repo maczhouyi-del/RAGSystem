@@ -987,3 +987,268 @@ df75bdd011fe81a18c58609792e1a9a3536f5969 were rechecked. No PR was merged and
 no deployment was performed. New-repository CI 37771216180 and Desktop
 37771216216 were triggered and were still running at this record; their success
 is not claimed. Historical CI/installers remain linked to the original runs.
+
+
+## Product improvement TASK-00 — baseline audit (2026-10-08 Asia/Shanghai)
+
+Started from fetched RAGSystem/main a8d5c1f0ace08573c5e5787bf5eef39570405191
+on codex/research-product-improvement. Documentation/evidence only; no business,
+test, dependency, migration or workflow changes. Added
+`docs/product-improvement/BASELINE.md`, `PROGRESS.md`, `task-00-evidence.json`
+and this stage entry. All TASK-01–19 remain NOT_STARTED.
+
+Fresh locked install, Ruff format/check, mypy (72 sources), isolated migration
+upgrade/downgrade/upgrade and pytest: 604 passed (463 unit, 141 integration;
+zero skipped/failures/errors), one upstream Alembic warning. Frontend npm ci,
+lint/check/build passed; Playwright 32 and transport 10 passed. Database is
+dedicated test ragagent, separate from application ragagent_dev; Redis tests
+use DB 15. No application data downgrade/reset.
+
+Live public GitHub summaries for baseline SHA confirm CI 37771426122
+(backend/frontend/compose) and Desktop 37771426070 (Windows/Linux) SUCCESS.
+Current Windows artifact 11547938987 exists, unsigned; GitHub-reported archive
+digest recorded, not independently downloaded/rehashed in this task. Real
+Windows 11 installation and paid-model scientific QA NOT EXECUTED; scientific
+quality and multilingual/RAG-vs-Research gains NOT MEASURED. No new tests were
+needed for a documentation-only audit. TASK-00 commit CI remains pending until
+recorded in the new progress/evidence files.
+
+TASK-00 CI follow-up: baseline commit d238275e3e49c392c5907bf218ffda57161b3a13
+pushed; draft PR https://github.com/maczhouyi-del/RAGSystem/pull/1 created.
+Push CI 37782711529 SUCCESS; PR CI 37782769354 backend pytest FAILURE,
+frontend/compose SUCCESS; PR Desktop 37782769337 Windows/Linux SUCCESS.
+Exact failed test UNKNOWN: gh run log and REST job-log downloads denied by
+results-receiver.actions.githubusercontent.com / productionresultssa17.blob.core.windows.net.
+Required domains saved in environment draft; runtime access not established.
+No speculative flaky-test attribution, no blind rerun, no test/source changes.
+TASK-00 BLOCKED pending log access and diagnosis; TASK-01 remains NOT_STARTED.
+
+
+### TASK-00 baseline test false positive recovery (2026-10-09 Asia/Shanghai)
+
+Original PR CI logs are now retrievable. The sole failure in run 37782769354
+was test_false_local_history_and_memory_cannot_supply_scientific_answer[research]:
+correct 120-participant prose, but the citation UUID contained 5009 and triggered
+the whole-string 500 exclusion. Analyst/reviewer serialized IDs had the same risk.
+Changed only tests/integration/test_conversation_worker.py and the TASK-00
+BASELINE/PROGRESS/evidence files plus this log. No runtime, API, schema or lock change.
+A fixed chunk/Evidence UUID containing 500 reproduces both modes' old failures;
+updated assertions validate citation identity and retain scientific-text exclusion.
+Worker file: 6 passed. Negative-control leaked scientific text: 2 intentional
+failures, confirming both guards remain effective. Full locked sync, Ruff format/check,
+mypy: PASS; pytest 604 passed (463 unit / 141 integration, zero skipped), 1 upstream
+warning, 30.70s. Fix-commit CI pending; TASK-00 IN_PROGRESS, TASK-01 NOT_STARTED.
+
+TASK-00 recovery accepted: fix 09c29113bad0df7225e7d0f7e88b21bcd89a7de0.
+Push CI 37882246737 and Desktop 37882246783; PR CI 37882251101 and Desktop
+37882251036 all completed SUCCESS, exact head SHA verified via GitHub REST.
+TASK-00 PASSED; TASK-01 remains NOT_STARTED. This evidence-only follow-up
+preserves the earlier 603-pass/1-failure log diagnosis and the deterministic
+red/green and negative-control checks. Scientific quality NOT MEASURED;
+Windows 11 manual installation NOT EXECUTED. No production or dependency changes.
+
+## TASK-01 环境检查与启动诊断（2026-10-09）
+
+- 修改：跨平台只读脚本、标准库诊断/离线测试/可执行平台 smoke、既有 diagnostics 的知识库与依赖状态、Windows/Linux CI 步骤、README/诊断说明/进度和证据。没有 .env、数据库迁移、依赖锁或模型下载修改。
+- 验证：Ruff format/check、mypy 72 文件通过；614 项 pytest（0 skipped）通过；Linux 合成 launcher 与真实 API/PG/Redis/三个 RQ worker 诊断通过；配置哈希未变，模型调用为 0。完整记录见 task-01-evidence.json。
+- 待办：本任务 push/PR CI 与 Windows 两种 PowerShell 实际执行；不能在此门禁前开始 TASK-02。缺主机 Python/授权时给出具体恢复建议；真实科研质量和 Win11 人工安装未测。
+
+- TASK-01 平台验证：`238403a6438c1d838e7e4f99afb35c440fe1d3d2` 的全部十个 CI check run 和四个 workflow 的全部 job SUCCESS；Windows 两种 PowerShell、MSI/NSIS 及 Linux 原生 smoke 均成功；uv locked sync 109 包通过。PR CI run 37884520894 汇总仍 in_progress，与已结束成功的三个 job 不一致；如实保留状态，不重新运行洗绿，暂不开始 TASK-02。证据提交仅记录实际验证与差异。
+
+- TASK-01 最终验收：验证提交 `9e650ae837011ce0298546a6409a0cfa2e4c452b` 的 push CI 37885297371 / Desktop 37885297374、PR CI 37885301335 / Desktop 37885301369 四个 workflow 全部 completed/SUCCESS，SHA 和全部 job 已匹配。原实现 PR 汇总未结束的观察保留，不猜测其状态，没有失败检查被重跑。TASK-01 工程 PASSED；自动开始 TASK-02。验收提交只保存证据。
+
+## TASK-02 首次使用引导（2026-10-09）
+
+- 修改：新 FirstUseGuide 读取连接/授权/Diagnostics；复用 AuthPanel、Settings、Knowledge 与 RAG；main 集成、响应式步骤 CSS、Diagnostics corpus 展示、授权后的旧聊天夹具与 7 项新 Playwright、首次使用文档/进度/证据。没有后端、Rust、迁移、依赖锁或记忆/会话协议修改。
+- 实际验证：npm ci/lint/check/build、39 项 Playwright（0 skipped、41.5s）、10 项 transport（0 skipped）通过；合成 UI 截图已检查。测试明确 MOCK HTTP/SSE；未执行真实 PDF 解析、付费 API、科研质量、Win11 人工操作。
+- 保留失败：旧 fixture 缺诊断路由造成 12 项聊天失败，补齐模拟后原断言通过；超时场景 1 failed/38 passed，修复取消/超时 busy 与离线自动轮询，完整重跑 39 pass。详见 task-02-evidence.json，没有删测试或降低断言。
+- CI 待对应提交的实际检查；用户已授权通过后自动开始 TASK-03。
+
+- TASK-02 验收：实现 `088e8be7a12b6d1f0fbbb9c33fdabe448e39ac0b` 的 push CI 37886916945 / Desktop 37886916939、PR CI 37886921280 / Desktop 37886921287 四个 workflow 全部 completed/SUCCESS，完整 SHA 与所有 job 已匹配。39 项浏览器/10 transport 本地通过、Linux 原生 GUI smoke 和 Windows MSI/NSIS CI 通过；工程 PASSED。真实科研质量/Win11 人工 GUI 仍未测，按授权自动开始 TASK-03。
+
+## TASK-03 可复现科研验收框架（2026-10-09）
+
+- 修改：复用 Evaluation；新增 domain 金标/审核契约、source_v1 验证、真实 corpus 来源核验、数值 Decimal PostgreSQL JSON 入队、legacy hash 兼容、adapter 分类及离线逐例检查/人工审核/配对比较；新增脚本与 31 项测试、文档/进度/证据。未改依赖锁、迁移、前端或 Rust bridge。
+- 验证：Ruff format/check、mypy 74 文件 PASS；645 pytest（496 unit / 149 integration、0 skipped、30.80s）PASS，1 项已有 Alembic warning；四个 audit CLI 和七份未标注 source_v1 表单 PASS。来源测试使用真实 PG；输出审核/比较是 SYNTHETIC ONLY，不代表科研表现。
+- 保留失败：首轮新增 fixture Claim.statement 与真实 text 契约不符导致 16 failed/93 passed，修正 fixture 后完整回归 PASS，没有删除断言。
+- 边界：物理 PDF 页/语义支持必须人工检查；未知费用为空；原失败保留，未审核不记零；无真实金标/模型请求/Win11 人工 GUI；科学质量 NOT MEASURED。实际实现 CI 待核对，通过前不进入 TASK-04。
+
+- TASK-03 验收：实现 `b77c04157a03309484b6a62a7071b5add14b893b` 的 push CI 37890505110 / Desktop 37890505103、PR CI 37890510399 / Desktop 37890510395 全部 completed/SUCCESS，完整 SHA 和全部 job 已匹配。645 项本地测试、Windows MSI/NSIS 与 Linux 原生 smoke 通过；工程 PASSED，科学质量 NOT MEASURED；自动开始 TASK-04。后续仅文档提交保存证据。
+
+## TASK-04 文献搜索、排序和分页（2026-10-09）
+
+- 修改：domain 搜索参数、兼容旧数组的 /api/papers/search 与按页批量 response、created_at 字段、db 七个索引及 0007/pg_trgm 迁移、Knowledge 筛选/总数/排序/分页、Web/受限 Rust Unicode 查询、214 篇 PG/浏览器/transport/bridge 测试、README/使用文档/进度/证据。未改依赖锁、PDF、Embedding 或科学检索协议。
+- 实际验证：Ruff format/check、mypy 75、npm ci/lint/check/build PASS；672 pytest（496 unit / 176 integration，0 skipped，36.44s）、43 Playwright（49.7s，0 skipped）和 11 transport PASS；真实迁移升级/降级/重升及 Alembic check PASS；官方校验下载的 rustfmt 1.90 format/check PASS；三种 GIN access path EXPLAIN 可用，仅强制索引可用性，不是性能测量；截图已检查。
+- 保留失败：初次浏览器 2 failed/41 passed（新 select 可访问名称不明确），补 aria-label 后完整回归通过；mypy column 变量复用类型冲突，改为 sort_column 后通过。未删断言。
+- 限制：跨请求集合变化会移动 offset；大库普通索引迁移需维护窗口/磁盘/扩展权限；共享 pg_trgm 降级保留；实际大库性能/科研质量 NOT MEASURED，Win11 人工 GUI NOT EXECUTED。本提交 Rust 编译/原生 smoke/安装包由实际 CI 验证，待通过前不进入 TASK-05。
+
+- TASK-04 验收：`5e59f1bd8851da0551b2c5b31bb004b93bc6fc9f` 的 push CI 37892156284 / Desktop 37892156271、PR CI 37892160891 / Desktop 37892160910 四个 workflow 全部 completed/SUCCESS，完整 SHA 与所有 job 已核对；Rust check/test/clippy、Windows MSI/NSIS、Linux 原生 GUI smoke PASS。uv locked sync 109 包 PASS；本任务工程 PASSED，自动进入 TASK-05；科研质量/真实大库性能/Win11 人工 GUI 未测。TASK-03 文档验收提交 bdefa45 的四个 workflow 同样已全部 SUCCESS。
+
+## TASK-05 文献元数据修改（2026-10-09）
+
+- 修改：domain 初始来源契约、Paper 原始元数据/乐观版本/人工维护字段、0008 迁移与有损降级保护、既有 PATCH 原子版本核对和只更新变更字段、上传/Atom 字段捕获、独立编辑窗口/来源展示/失败草稿保留/冲突重载、PG/API/来源/迁移/浏览器覆盖和文档/进度/证据。未改依赖锁、Rust bridge、原始 PDF、chunk/section/vector 或模型调用流程。
+- 实际验证：uv locked sync 109、Ruff format/check、mypy 75、npm ci/lint/check/build PASS；687 pytest（496 unit / 191 integration、0 skipped、39.59s）、47 Playwright（0 skipped、47.4s）和 11 transport PASS；真实迁移/模型检查/有损降级拒绝与回滚 PASS；截图已检查。两个真实 PG session 同版本编辑仅一个成功，另一个 409。
+- 修正记录：初次 mypy 持久化字典需 domain 验证；两段长 SQL 字面量拆行；显式未知 origin 存为 JSON null 的只读探针揭示错误降级阻塞，改 none_as_null=True 并加入 SQL NULL 断言，完整回归通过。没有删断言。
+- 边界：旧来源未知，不伪造官方值；upload 源为用户输入，Atom 测试响应是 scripted，不是联网验真；旧无版本 PATCH 不具备陈旧意图保护，新 UI 全部带版本；数据保护降级不能绕过。科学质量/Win11 人工 GUI/付费模型未测。实际实现 CI 待核对，TASK-06 未开始。TASK-04 仅验收文档 736d3a7 的四个 workflow 已全部 completed/SUCCESS。
+
+- TASK-05 验收：`5c288748342f2c782c934c5c1deb36687903e1e4` 的 push CI 37894376600 / Desktop 37894376697、PR CI 37894379794 / Desktop 37894379810 四个 workflow 全部 completed/SUCCESS，完整 SHA 与所有 job 已核对；Windows MSI/NSIS 与 Linux 原生 GUI smoke PASS。687 后端/47 浏览器/11 transport 本地 PASS；工程 PASSED，按授权自动进入 TASK-06；真实科学质量/Win11 人工 GUI 未测。
+
+## TASK-06 安全文献删除后端（2026-10-09 Asia/Shanghai）
+
+- 开始：`ec4fc99c1a5ddf0c20c033fd2a5408c51183f29f`；此前 TASK-05 文档验收提交的 push CI 37895505460 / Desktop 37895505473、PR CI 37895509178 / Desktop 37895509171 全部 completed/SUCCESS，完整 head 匹配。
+- 改动：domain 删除确认/预览/状态契约；0009 tombstone/file manifest/Run 清理账本及有损降级保护；DELETE 事务去除 Paper 与级联 PDF 派生数据/向量/Evidence/实体 occurrence，关联孤立作者/实体子类型删除，共享数据保留；Run/outbox ingestion 队列异步清理，明确幂等/失败新 Run 重试；受管路径/摘要/no-follow 文件清理；历史 Run/事件/消息来源脱敏和当前引用验证失效，正文/真实历史状态保留；模型等待后的解析/Embedding/重排/arXiv/事件/最终输出/评测文件保护；评测实际来源 ID checkpoint；GET/PATCH/retry 410 与导出禁止。未改前端、Rust、锁文件，未引入新队列或模型调用。
+- 验证：新增 15 unit / 15 integration；真实 PostgreSQL 和 Redis queued/started RQ job stop、短事务迟到 barriers、共享/孤立元数据与另一论文/会话保留、确认/版本冲突无写入、注入事务失败全部回滚、部分文件失败与新 Run 重试、受管替换/越界/符号链接不误删、历史引用/原文/金标脱敏、导出之外用户文件保留、非空删除账本有损 downgrade 拒绝。最终 717 passed（511 unit / 206 integration，0 skipped/failures，48.34s，1 上游 warning）；Ruff/mypy 82/Alembic check/uv locked 109/npm ci/lint/check/build PASS。
+- 初次完整 11 failed / 706 passed：终态保护新读取触发过期属性自动 flush，修复 no_autoflush 范围；既有单位/PG 替身需支持新增 scalar/scalars/constructor keyword，保持原断言；受影响 66 passed/1 failed 时剩余评测构造替身未收 keyword，修正后最终全绿。专项首次 SSE fixture 使用独立连接被外层 TRUNCATE 锁阻塞，终止该测试进程并改测试依赖共享连接；随后错误路由比较 request_id、fixture 注册、description 缺字段均修正。没有靠删除断言或盲目重跑洗绿。
+- 影响：数据库提交后当前知识库立即不可见，清理状态独立；停止消息最终消费不保证同步，但已撤销 worker DB 所有权，RQ callback 不覆盖 cancelled。文件已清理不随 DB rollback 恢复，缺文件可幂等继续。实际 checkpoint 追踪可识别金标之外来源，旧消息即使缺 Run 也有当前来源失效标记。
+- 限制：全历史脱敏扫描会暂停来源发布，未测大库延迟；当前 POSIX 文件描述符后端，Windows 桌面通过 Docker/Linux，原生 Win Python 未支持；历史回答/用户问题/摘要可能留有论文事实或引用正文，独立桌面 documents 缓存、外部阅读器/下载/备份/同步/provider 留存需人工管理，恢复旧备份须再应用删除记录。科研质量与人工 Win11 GUI 未测。TASK-07 实现引用可用性显示和删除确认 UI，本任务无前端改动。
+- 状态：IN_PROGRESS；实际 GitHub CI 待推送和核对，不能提前 PASSED。
+- 独立实现：`da9ba0d24404ca7a72d1712bf32bca03c18caacc` 已推送；push CI 37914217426 / Desktop 37914219092、PR CI 37914222359 / Desktop 37914222404 真实运行，head SHA 匹配；backend/frontend/compose SUCCESS，Desktop 待最终验收。
+- 云实例更新：运行的任务自有旧服务无进行中作业；应用库保留一条 failed Run/零论文，schema 0006→0009 无损升级，重启 API/三个 worker/web 后公共 health/ready 成功。没有触发模型请求；读取独立进程私有 runtime token 被拒，改用公共检查，不声称额外受保护本地 smoke 已执行；本地 TestClient 和实际 CI 的受保护 API 验证仍成立。
+- TASK-06 验收：`da9ba0d24404ca7a72d1712bf32bca03c18caacc` 的 push CI 37914217426 / Desktop 37914219092、PR CI 37914222359 / Desktop 37914222404 全部 completed/SUCCESS，完整 SHA 和十个实际 job 已核对；Rust/Windows MSI/NSIS/Linux 原生 GUI smoke PASS。717 后端本地 PASS，工程 PASSED；保存验收后自动执行 TASK-07。真实科研质量/Win11 人工 GUI 未测。
+- 后续协议接入检查发现 TASK-06 消息失效 metadata 更新遗漏 updated_at，会允许客户端将迟到的旧快照覆盖新失效状态。TASK-07 尚无代码变更，先补修 TASK-06：消息根级 unavailable 标记兼容无 presentation 历史，时间戳严格推进（兼容回退时钟）。PG 原用例增加有/无 Run 时间推进断言，新增无 presentation/回退时钟来源变更的 API 断言，正文和历史执行状态仍保留；前端未改。原 717 全量补修回归 PASS（40.13s），新用例加入后再次全量待最终记录/CI；工程状态临时 IN_PROGRESS，不能提前继续 TASK-07。
+- 原验收文档提交 `769e10026379da246283fadb5e88b113d6d2aa78` 的 push CI 37914979351 / Desktop 37914979320、PR CI 37914987178 / Desktop 37914987240 全部 completed/SUCCESS、完整 SHA 匹配；此事实不代替补修提交的门禁。
+- 消息协议补修最终本地验证：718 passed（511 unit / 207 integration，0 skipped/failures，43.27s，1 上游 warning），Ruff format/check / mypy 82 PASS。无 schema/锁/前端变更；补修提交待核对四个实际 workflow。
+
+- TASK-06 CI 恢复：补修 `c1f1e3a6024cdec0202ad5266125027d76fa17d1` 的 PR CI 37916026331/backend 113772289585 是真实 FAILURE（1 failed/717 passed），push CI 37916020890、push Desktop 37916020892、PR Desktop 37916026190 SUCCESS，其余九个 job 均成功。官方 gh --log-failed 已取得具体日志；未重跑抹去失败。既有会话评测扫描引用 UUID 数字导致记忆隔离假失败；新增五个确定性控制，原代码 1 failed/4 passed，修复只排除当前来源的引用标记，正文/未知或畸形引用/裸 UUID 仍检查、原始输出保留。真实 PG RAG/Research 固定 chunk 得到含 500 Evidence UUID，两模式确认当前证据身份且正文无 500。必要 CI 恢复修改 evaluation/conversation 与对应单位/PG/检索 fixture；无前端/schema/锁变更。专项 87 passed，最终全量 723 passed（516 unit/207 integration，0 skipped/failed，42.17s），Ruff format/check 和 mypy 82 PASS；状态仍 IN_PROGRESS，等待新实现实际 CI，TASK-07 尚未开始。
+
+- TASK-06 最终补修验收：`f8640d091d895dd7c19ecd230f21bedbf4b12f48` 的 push CI 37917294006 / Desktop 37917294017、PR CI 37917298835 / Desktop 37917299180 四个实际 workflow 全部 completed/SUCCESS；四个完整 head SHA 与十个 job 核对。后端/前端/Compose、Rust check/test/clippy、实际 Windows MSI/NSIS、Linux GUI smoke PASS。723 本地后端测试 PASS；先前 c1f1e3 的 PR failure 仍保留。TASK-06 工程 PASSED，记录验收后按用户授权自动进入 TASK-07；科学质量 NOT MEASURED、Win11 人工 GUI NOT EXECUTED。
+
+## TASK-07 文献删除 UI（2026-10-09 Asia/Shanghai）
+
+- 开始 commit：f00374859eb629a445e55102cf3c71e978b742e6；TASK-06 恢复 f8640d0 与仅验收文档 f003748 四个精确 SHA workflow/十个 job 均 completed/SUCCESS；f003748 runs 37917954357/37917954320/37917961856/37917961675。
+- 修改：Knowledge 删除按钮与中央 native modal，只读最新元数据/范围版本核对、明确副本 ACK、取消/Escape 零写入/提交中防重复；已移除与清理完成分离、可见页面五秒只读状态、安全失败指导/显式 queued/failed/cancelled 清理重试、未知结果对账不重放；最近二十 UUID 只读提示恢复，不保存凭据/原文/请求/任务。历史根级/presentation/Run/Evidence 来源失效显示、非交互失效引用/他文献 PDF 保留，逐引用 fresh Run、版本取消旧详情/缓存/事件与旧引用窗口；返回窗口最多五十显示引用消息核对。Rust 仅四个固定 UUID 协议白名单与正负控制，transport DELETE 确认体与 POST 空对象保持；文档/进度/证据。无后端/迁移/依赖/锁变更。
+- 新增 14 Playwright、1 transport、1 Rust 路由控制，覆盖预览失败/取消/ACK/冲突/失联提交对账/未提交失败/清理失败新 Run/重载只读/其他文献会话/缓存失效/真实 request abort/迟到旧消息页完成/旧无 presentation 消息/提交中保护/状态服务失败。原缓存测试改为仅打开单个 Run 的每次 fresh 读取，不移除科学断言。
+- 实际验证：npm ci/lint/check/build PASS，最终 61 Playwright PASS（0 fail/skip，58.9s）、12 transport PASS；已校验官方 Rust 1.90 rustfmt/--check PASS。先专项 13 PASS、完整 58 PASS、扩展专项 14 PASS/完整 61 PASS，截图揭示长内容 footer 需滚动，改固定可见操作区并加 viewport 断言后最终 61 PASS；没有靠跳过或重跑失败洗绿。CLI prettier 首次错误 cwd 不匹配文件，修正 cwd 后 lint 全量 PASS。
+- 限制：浏览器是明确 MOCK HTTP 契约，真实检索/DB/RQ/文件保护由 TASK-06 实际验证；存储禁用/清空/换客户端/超过二十时不保证提示自动恢复，服务器账本不受影响；不周期性全历史同步；独立缓存/备份与历史正文需自行管理。本地 Cargo 未安装，实际 native 编译/测试/clippy/安装包/smoke 必须由新提交 CI 证明。科研质量 NOT MEASURED、人工 Win11 GUI NOT EXECUTED。
+- 状态：IN_PROGRESS；实现尚未提交、实际 CI NOT EXECUTED。TASK-08 NOT_STARTED。
+
+- TASK-07 验收：`d7807ef695faf525100ee9489fea5c15e0267df1` 的 push CI 37919686500 / Desktop 37919686626、PR CI 37919693641 / Desktop 37919693605 全部 completed/SUCCESS；完整 head SHA、四个 workflow、十个 job 已核对。实际 backend/frontend/Compose、Rust format/check/test/clippy、Windows MSI/NSIS 和 Linux native GUI smoke PASS。最终本地 61 browser/12 transport PASS；TASK-07 工程 PASSED，验收记录后自动进入 TASK-08。浏览器是 MOCK HTTP；科学质量 NOT MEASURED、Win11 人工 GUI NOT EXECUTED。
+
+## TASK-08 批量 PDF 导入（2026-10-09）
+
+- 修改：domain/API 回执、详情最新 Run 指针和 pending Run 重试复用；PdfImports/Knowledge/API/error/style，9 项 MOCK 浏览器与真实 PG 并发/回执断言，旧单篇 fixture，文档/进度/证据。无依赖锁、迁移、Rust 或新任务系统修改。
+- 验证：uv locked sync 109 包，Ruff format/check、mypy 82、npm ci/lint/check/build PASS；724 pytest（516 unit /208 integration，0 skipped，67.72s），70 browser（0 skipped，报告 1.2m）/12 transport PASS；截图 PASS。真实 PostgreSQL，未使用 SQLite。
+- 修复：14 全响应比较失败来自 list/detail 新指针差异，统一详情 fixture 并核对真实回执 ID，保留完整字段保护断言；恢复行 generation undefined/0 导致 1 browser 失败，统一默认值后完整 PASS。平台认证短暂 401，后续 API/Git 读取恢复，无凭据提取或绕代理。
+- 边界：浏览器 scripted 完成不证明模型/解析质量；历史查询性能、峰值内存、科研质量 NOT MEASURED，Win11 人工 GUI NOT EXECUTED。TASK-08 实现 CI 待实际提交检查，TASK-09 NOT_STARTED。
+
+- TASK-08 验收：`b8a4d3bc4b06323528af085c096354c8c9a77d37` 的 push CI 37922681767 / Desktop 37922681780、PR CI 37922686606 / Desktop 37922686602 四个 workflow 和十个 job 全部 completed/SUCCESS，完整 SHA 核对；实际 Windows MSI/NSIS、Rust format/check/test/clippy、Linux GUI smoke PASS。云环境加载新代码、API/Web/三 worker ready，保留开发数据、无模型请求。工程 PASSED，自动进入 TASK-09；科研质量和 Win11 人工验收仍未测。
+
+## TASK-09 论文分组与标签（2026-10-09）
+
+- 修改：domain 组织契约/UUID 范围，PaperCollection/Member 与 0010 迁移、目录/关系 API，论文列表及 dense/lexical scope；Collections/Knowledge/FilterEditor/API 显式方法、Rust 受限路由/查询，真实 PG/图/浏览器/transport/bridge 覆盖与文档/证据。无依赖锁或第二任务系统修改，不复制 PDF/vector/Evidence。
+- 验证：locked sync 109、Ruff format/check、mypy 84、npm ci/lint/check/build、官方 rustfmt、真实升级/模型 check/有损降级拒绝/重升 PASS；749 pytest（525 unit /224 PG、0 skipped、63.65s）、82 browser（报告 1.2m、0 skipped）/13 transport PASS；最终截图检查。
+- 保留失败：首轮 browser 5/6、第二轮 3/8；pending checkbox 与旧发送 locator 修正，实际 api bodyless PUT/DELETE 被改 GET 的错误修复，服务器读回确认断言保留。Ruff SQL 长行/局部导入组修复。没有跳过或移除测试。
+- 边界：当前检索快照成员范围，名称版本不冻结关联数；大库性能/真实模型科研质量未测，Win11 人工 GUI 未执行；MOCK HTTP 不证明真实科研表现。本任务实际 CI 待提交；TASK-10 未开始。
+
+- TASK-09 验收：48e89dd8fa24d4e458d188292fd5ab660252e370 的 push CI 37925725221 / Desktop 37925725238、PR CI 37925731577 / Desktop 37925731446 四个实际 workflow/十个 job completed/SUCCESS，完整 SHA 核对。Rust/Windows MSI/NSIS/Linux GUI smoke PASS；749 后端、82 MOCK 浏览器、13 transport 本地 PASS。工程 PASSED，自动进入 TASK-10。TASK-17 真实评测资源经用户确认未备妥，科学质量和 Win11 人工验收仍未测。
+
+## TASK-10 实体标注状态可视化（2026-10-09）
+
+- 开始：626f7886a63c08fc47e188274f95923c2262714f，前置四个精确 SHA workflow/十个 job SUCCESS。0011 审阅覆盖/原文摘要、五状态/历史链接不自动 completed；分页实体与原文来源读、共享过滤谓词范围计数与零匹配/部分覆盖说明；固定 native 路由，不调用模型、不启动抽取、不修改源文献/证据或新建队列。
+- 验证：Ruff/mypy 86/locked sync 109/npm ci/lint/check/build/官方 rustfmt PASS；真实 PG 专项 17、迁移 2、删除恢复专项 9 PASS；完整 browser 91（MOCK HTTP，1.3m）/transport 14 PASS，截图已查看。最终 Python 增加删除回归正在验证，实际 CI 待提交。
+- 失败保留：新导航定位与旧 preview 端口占用已修复；旧会话 fixture 未模拟覆盖查询导致真实 401 授权切换，修正 MOCK 并保留全部科学/过滤断言；新增删除 fixture 提交后刷新已删除 ORM Chunk，先保留 IDs，专项 PASS。格式/SQL 行长/类型注解修正，没有跳过测试。状态与严格条件不可满足不是实体科学不存在证明。
+- 当前状态 IN_PROGRESS；TASK-11 未开始。真实模型抽取质量、真实科研质量/人工 Win11 GUI 未测量，用户确认 TASK-17 真实资源未备妥。
+
+- TASK-10 最终本地后端：768 passed（534 unit /234 integration、0 skipped/failed、54.90s），Ruff format/check 与 mypy 86 PASS；退役来源 410 和审阅 CASCADE 实际验证。最终前端 91 MOCK browser/14 transport PASS，构建/格式/type PASS，官方 rustfmt PASS。状态 IN_PROGRESS，等待新实现四个实际 workflow/十个 job 门禁。
+
+- TASK-10 验收：57bb3b5c979e5cf90264ed9ae8b2ad7a1022e7a0 的 push CI 37930288053 / Desktop 37930288107、PR CI 37930293477 / Desktop 37930293482 四个实际 workflow/十个 job completed/SUCCESS、完整 SHA 与实际 native 步骤核对。768 后端/91 MOCK browser/14 transport 本地 PASS；实际 Windows MSI/NSIS/Linux GUI smoke PASS。工程 PASSED，自动进入 TASK-11。真实科研/模型抽取质量和 Win11 人工验收仍未测；用户确认 TASK-17 真实资源未备妥。
+
+## TASK-11 实体提取与人工校正（2026-10-09）
+
+- 开始 09233791235a586592942d28b7c281a2f838c461；TASK-10 实现 57bb3b5 四个精确 SHA workflow/十个 job 全部 SUCCESS。采用本地来源标签规则产生候选、精确跨度和人工确认；严格链接仅在确认后写入，不全局改名其他论文，复用 Run/outbox/ingestion 队列，零模型 API 调用。分析中，功能和验证尚未实现；实际模型质量 NOT MEASURED。
+
+- TASK-11 后端初稿：0012 候选/版本/精确来源/待审阅，offline extractor 协议与 worker 分批来源锁/既有 Run 路由，确认/拒绝/校正/明确全类型审阅及 legacy source 校验；前端/native 尚未实现。单位 15 PASS、真实 PG 专项 8 PASS，mypy 91/后端 Ruff 初步 PASS，非完整验收。首轮 worker 2 FAIL 因过期属性导致待终态自动 flush，发布前 refresh 修复后 2 PASS；扩展 6 PASS/2 FAIL 是 fixture 未提交导致 API rollback 移除未提交来源，正确持久化测试准备后 8 PASS。原文/Embedding/Evidence 不修改，来源同名校正不全局改名、源删除取消 annotation Run，无模型调用。
+
+- TASK-11 完整后端：797 passed（549 unit /248 PG、0 skipped/failed、116.39s），真实两个连接并发只创建一个 Run/outbox 与实际 Redis/RQ worker 零模型执行；原文 Unicode 跨度、别名分别确认、严格 dense/lexical、局部旧链接移除/审阅重复安全、退役取消/级联/迟到保护和 0012 兼容迁移 PASS。前端初次完整88 PASS/7 FAIL：旧 summary 匹配嵌套面板六项、删除说明新增实体提取一项，修正具体定位/说明并保留原行为断言。专项模拟事件3/1后用 mouseup4 PASS；专项命令目录笔误记录并校正。当前完整浏览器复验及实际 CI 未完成，IN_PROGRESS。
+
+- TASK-11 最终本地：797 后端（549 unit /248 real PG、0 skipped/failed）、95 MOCK browser（1.4m、0 skipped/failed）/15 transport 全部 PASS。实际 Redis/RQ worker 与两个独立数据库连接并发、0012 迁移兼容/有损降级拒绝/重升/模型 check PASS；Ruff/mypy91/locked sync/npm ci/lint/check/build/官方 rustfmt PASS。独立提交后须四个精确 SHA workflow/十个 job SUCCESS；科研模型质量仍 NOT MEASURED。
+
+- TASK-11 验收：25f4ff06398638cf179ba7727b4a9ee48a5fe237 的 push CI 37940255984 / Desktop 37940255892、PR CI 37940261144 / Desktop 37940261151 四个 workflow/十个 job completed/SUCCESS、完整 SHA 和实际 native 步骤已核对。797 后端/95 MOCK browser/15 transport 本地 PASS；实际 Windows MSI/NSIS/Linux GUI PASS。云 schema0012、API/Web/三 worker ready，旧开发 Run 保留，无付费/模型调用。工程 PASSED，自动进入 TASK-12；真实模型抽取质量及科研质量 NOT MEASURED，Win11 人工验收 NOT EXECUTED。
+
+## TASK-12 更精确 PDF 来源定位（2026-10-09）
+
+- 开始1e505d4；前置TASK-11精确实现SHA四个workflow/十个job全部SUCCESS。检查Docling锁定上游的provenance/bbox/charspan语义，计划兼容保存Element→Chunk→Evidence原始区域和缺失降级，Evidence ID不变。调研中，尚未实现与验证；不调用付费模型。
+
+- TASK-12 本地后端：824 passed（573 unit/251 PG、0 skipped/failed，75.53s），新增24 unit/3 PG；保持稳定 Evidence ID 与真实向量/全文过滤隔离。Ruff/mypy92/locked sync/Alembic check0012/npm ci/lint/check/build/transport15/官方 rustfmt PASS。实际生成两页 PDF，锁定 Docling NativePdfPipeline 产出12来源元素/3块，0模型调用、未下载模型，PDF原页已渲染检查。几何只为元素导航提示；旧 JSON/无 provenance 有效文本仍可读。完整浏览器和精确实现 CI 待完成，状态 IN_PROGRESS；上游许可证/坐标语义/wheel SHA256 已核对，真实布局/OCR/科研质量 NOT MEASURED。
+
+- TASK-12 完整前端：97 MOCK browser PASS（1.4m），含2个旧 Run 可选坐标损坏回归。修复前正确定位的2个负向控制均失败，修复后全量成功；原始错误定位运行单独保留，不作产品缺陷证据。静态检查/构建/15 transport PASS，待精确实现 SHA CI。
+
+- TASK-12 初始实现3449f8e 的 push CI37945304885：823 passed/1 failed（Research比较追问）。原 fixture把整个证据JSON中的500当错误人数；新PDF provenance SHA256随机含500而误判。固定含500的两个论文digest使RAG/Research原断言均确定性失败，修正只排除经64hex校验的pdf_sha256，保留所有其他科学/元数据字段，生产digest仍完整保留。相关15 integration PASS；独立负向控制确认错误500原文/标题与伪造digest被拒绝。完整后端正在重跑，不重跑旧失败CI洗绿，TASK-13门禁保持关闭。
+
+- TASK-12 修正后完整后端824 passed，0 skipped/failed，67.78s；Ruff/mypy92/locked sync PASS，前端实现未变，既有97 browser/15 transport结果继续适用。初始四个 workflow已completed：push CI1失败、其余3 SUCCESS，9/10 job成功，原生步骤实际成功；全部保留，修正提交将重新触发完整门禁。
+
+- TASK-12 验收：c55c15867ab5e3647ace294527ab28dade0c7cdc push CI37946282912 / Desktop37946282951、PR CI37946292019 / Desktop37946292211四个 workflow/十个 job completed/SUCCESS，完整SHA与native实际步骤已核对。824后端/97 MOCK browser/15 transport本地PASS，真实生成两页PDF来源链验证成功、0模型调用。原失败及固定含500 digest复现/科学错误负向控制保留；旧开发Run及schema0012不变。工程PASSED，自动进入TASK-13；实际布局/OCR/科研质量NOT MEASURED，Win11人工NOT EXECUTED。
+
+## TASK-13 引用与 PDF 阅读（2026-10-09）
+
+- 开始于TASK-12验收提交3cc1c70，前置c55c158四个实现workflow/十个job全部SUCCESS。决定复用受限外部PDF阅读路径，无新PDF解析/worker依赖，不降低CSP或文件/远程WebView/API安全边界。可靠原文支持跨度在原文面板标记；元素框仅为页候选，不作逐字PDF高亮。状态IN_PROGRESS，验证尚未执行。
+
+- TASK-13 实现与本地：831后端（576 unit/255 PG、0 skipped/failed、198s）PASS，新增3 unit/4 PG，包括真实原PDF字节/摘要/论文路由读取；33专项 browser/15专项Python PASS，新增10 browser与1transport。锁定安装/Ruff/mypy92/npm ci/lint/check/build/16transport/官方rustfmt PASS。页可用性贯通引用/实体面板与列表，未知页不假装p.1；多来源/表格辅助页独立、原文Unicode支持跨度核对后标记，受限Desktop/Web路径复用，无新依赖/CSP权限变化。首次全量106browser PASS/1旧p.6–6文案断言FAIL，改成真实p.6后重跑完整回归；初始类型/ORM字段拼写错误及修正保留。工程IN_PROGRESS，CI待产生，科研/布局正确率NOT MEASURED，Win11系统阅读器人工NOT EXECUTED。
+
+- TASK-13 最终前端：107 MOCK browser PASS（1.5m、0 failed/skipped）、16 transport PASS，npm lint/check/build成功。原表格页码标签断言按p.6修正，原文/来源/版本/辅助页检查保留。最终截图已检查，上方原始PDF入口可见，表格原文数字不变；实际系统阅读器人工操作仍NOT EXECUTED。待精确实现CI门禁。
+
+- TASK-13 验收（2026-10-10 Asia/Shanghai）：dd023de01cf22a2b020df1891b4e781813302665 push CI37950083681 / Desktop37950083661、PR CI37950089001 / Desktop37950089060四个 workflow/十个 job completed/SUCCESS，完整SHA及实际native步骤已核对。831后端/107 MOCK browser/16 transport本地PASS，真实PG/API原PDF与页可用性验证PASS。云schema0012、API/Web/三worker ready，原有开发Run保留、0实际模型调用。工程PASSED，自动进入TASK-14；系统阅读器Win11人工操作NOT EXECUTED，科研/布局识别质量NOT MEASURED。
+
+## TASK-14 结构化科研报告（2026-10-10 Asia/Shanghai）
+
+- 开始2c0e798，TASK-13精确SHA四个workflow/十个job全部SUCCESS。扩展现有AnalysisResult及Reviewer语义校验，不增加自由生成Agent；报告字段只引用Claim，原文字面值必须在该来源引文中，缺失与明确未报告区分。旧图20 PASS，初稿mypy5个局部变量复用类型错误已修复；完整回归及实现CI待执行，状态IN_PROGRESS。
+
+- TASK-14 首次完整：857 PASS/1 FAIL（116.48s），旧RAG记忆隔离测试把随机PDF摘要中的500当人数。固定摘要500+61零使两模式旧断言均确定性FAIL；共享测试oracle只剔除已校验64hex源摘要和来源ID字段的完整UUID，保留原文/问题/Claim/普通元数据与非来源digest，原摘要在生产payload保留。新增11个负向/身份控制；57专项PASS。初步新报告22unit/2PG与旧图共44PASS；新增3报告边界测试；109全量MOCK browser/16transport PASS，截图已检查。初次浏览器JSON模块缺import attribute导致0test启动失败，修复后2专项执行PASS；报告表格连续行格式审查修正，无断言删除。完整后端复验及实现CI待完成，IN_PROGRESS。
+
+- TASK-14 最终本地：869 passed（612 unit/257 real PG，0 skipped/failed）、109 MOCK browser/16 transport、locked sync/Ruff/mypy94/npm ci/lint/check/build/官方rustfmt PASS；新增38后端与2浏览器，旧数值/过滤/Reviewer失败重试/记忆隔离保留。实际科研模型与人工金标仍未执行，等待独立实现精确SHA CI。
+
+- TASK-14 工程验收：63dddba45edea005d3997626c71e0bc320c63470 push CI38018734225 / Desktop38018734359、PR CI38018737804 / Desktop38018737776 四个workflow/十个job completed/SUCCESS，完整SHA及实际native步骤已核对。869后端（612 unit/257 PG）、109 MOCK browser/16 transport PASS；云schema0012、API/Web/三worker ready、旧开发Run保留、0模型调用。工程PASSED，自动进入TASK-15。实际论文人工案例/Win11人工操作NOT EXECUTED，科研质量NOT MEASURED，用户已确认资源未备妥。
+
+## TASK-15 报告导出（2026-10-10 Asia/Shanghai）
+
+- 开始93ef2ed；TASK-14工程精确SHA四workflow/十job SUCCESS。设计只读Run产物生成，四种固定格式、保留Evidence/条件/缺失元数据、不伪造字段，Web同源Blob下载与受限Desktop系统Downloads保存。无模型调用、无新依赖/队列。分析中，尚未实施或验证，IN_PROGRESS。
+
+- TASK-15 初稿：domain四格式只读生成/API无路径写入，旧Assistant正文回退；前端格式选择/Web Blob与新增受限Desktop save_export，OS Downloads固定目录+随机固定格式文件名/create_new/0600/8MiB/UTF8检查，无新依赖/迁移/模型请求。33 unit/12 real PG（45专项）PASS，7 browser/18 transport PASS。首次mypy5个混合类型dict推断错误、Ruff1未用import已修复；初次browser6PASS/1MOCK诊断轮询混入导出IPC断言FAIL，MOCK正常代理只读api_request、仍精确断言save_export后全7PASS。新增共享产物字节unit待全量验证；截图检查完成，完整本地/nativeCI未验收。
+
+- TASK-15 最终本地：915 passed（646 unit/269 PG，0 skipped/failed）、116 MOCK browser/18 transport、locked sync/Ruff/mypy95/npm ci/lint/check/build/官方rustfmt PASS。新增34 unit/12 PG/7 browser/2 transport/3 native Rust；四格式实际Web下载与生产生成fixture逐字节一致，无新增依赖/迁移/模型请求。原生Rust实际编译/测试/Clippy及精确SHA CI待验收；Win11人工保存NOT EXECUTED。
+
+- TASK-15 初始实现 f134b24：pushCI38020303629及pushDesktop38020303643/PRDesktop38020306091 SUCCESS；PRCI38020306080前端115PASS/1旧TASK-14 unfinished MOCK FAIL，backend/compose SUCCESS，9/10job通过。旧共享SSE会自动完成与运行中前提矛盾；固定未完成SSE并等待实际请求，保留运行中/无表无事实检查、新增无导出按钮与Run仍running检查。恢复旧自动完成确定性预期FAIL；修正后2专项/116全量browserPASS（1.5m），不盲重跑旧CI。生产/后端未改变，既有915Python/18transport结果适用；修正提交需新精确门禁。
+
+- TASK-15 工程验收（2026-10-10 Asia/Shanghai）：55cda0b6b2038d184dd6f89f405745e0fbcb6128 push CI38020898598 / Desktop38020898554、PR CI38020902166 / Desktop38020902249，四workflow/十job completed/SUCCESS，完整SHA及native实际步骤核对。915后端（646 unit/269 PG）、116 MOCK browser/18transport PASS；原失败保留。生产代码与f134b24相同，云ready/旧Run保留/0模型调用。工程PASSED，自动进入TASK-16；Win11人工保存NOT EXECUTED，科研质量NOT MEASURED。
+
+## TASK-16 模型费用、延迟与任务状态（2026-10-10 Asia/Shanghai）
+
+- 开始f3bd798，TASK-15精确SHA四workflow/十jobSUCCESS，验收已推送。模型/Token/费用basis/完整性补入现有Usage与Evaluation，Run/Event只读metrics投影及单调时钟完成节点区间；UI按需与有限活动读取、本地刷新无模型调用。无DDL/依赖/队列变化。
+- 初稿mypy2类型错误修复；首次48专项中47PASS/1FAIL/1teardownERROR，测试误替换全局monotonic污染asyncio；改为worker私有模块引用，断言保留。初次patch格式上下文失配未修改文件，随后按实际格式完成。Ruff/mypy96/前端check与19transport通过；完整回归待执行，状态IN_PROGRESS。
+
+- TASK-16 后端最终965 PASS（688 unit/277 PG、0 skipped/failed、71.29s）；首次963 PASS后审查补本地reranker快照/Token Unknown与计数完整性边界，再完整复验。首次全量前端117PASS/6FAIL，生产UI新增metrics和export key冲突导致重复控件，实际修复独立key并增加完整详情加载后的单控件断言；修正专项15PASS，全量待完成。首次修正命令目录误指定未改文件、构建仍旧key，8PASS/6FAIL保留；正确路径/set -e已完成修正。无断言删除，0模型调用/权重下载，真实费用/质量仍未测。
+
+- TASK-16 最终本地：965 backend（688 unit/277 real PG、0 skipped/failed）、124 MOCK browser（1.6m、0 failed/skipped）/19transport全PASS；Ruff/mypy96/locked sync/npm ci/lint/check/build/官方Rustfmt PASS。所有失败与修正保留，工程IN_PROGRESS，独立提交后需四个精确实现workflow/十job与native步骤SUCCESS。
+
+- TASK-16 CI/环境阻塞：实现f2423e56bf750164808b07983f035a112a9a476b，push CI38022345968/Desktop38022345897 SUCCESS，PR CI38022349421初次Compose Debian HTTP不可达导致apt索引缺失，保留日志并在新runner仅重跑此workflow，attempt2 SUCCESS。PR Desktop38022349417 Windows SUCCESS、Linux job114125856277 rustup安装FAIL，fmt/check/test/clippy/GUI skipped；旁边setup-uv下载超时warning不是已确认fatal根因。实际9/10成功、三workflow成功，门禁BLOCKED，不进入下一TASK。
+- api.github.com随后被云HTTPS proxy CONNECT403禁止；GitHub网页可读，已按完整SHA/步骤采集四workflow/十jobHTML证据，精确Rust失败日志尚未获取，无法发起余下重跑。artifact下载重定向sa9/sa18.blob.core.windows.net亦Forbidden，无当前制品独立下载/复核结论。网络草稿已确认saved、requires_publish=true，新增上述API/两个存储域名并保留既有preset；保存不等于应用/发布。需用户在环境设置审核保存并发布，代理/TLS/身份边界未绕过。云schema0012/API/Web/三worker ready、原开发Run保留、0模型调用。此次记录为BLOCKED，不是验收通过。
+
+- 2026-10-10 TASK-16 闭环：f2423e5 与 b20f4f7 仅三份文档不同。按用户批准的等价验证规则，b20f4f7 Push/PR CI 与 Desktop 四工作流、10/10 job 和原生步骤全部 SUCCESS，TASK-16 PASSED。原 PR Linux attempt1 FAILURE 保留，已请求仅原 job 重跑，结果未取得；日志下载受限，不虚构失败归因或重跑结果。
+
+- 2026-10-10 TASK-18 ADR 与顺序调整：用户批准16→18→19工程→测试版→17→19科研。ADR0008选择桌面 + Docker自动部署与原生助手，保留所有既有任务/测试/架构；17真实资源BLOCKED不再阻塞18，19科研NOT MEASURED，交付后暂停。
+
+- TASK-16 指定原Linux job重跑：38022349417 attempt2 SUCCESS，新Linux job114203551683所有原生步骤SUCCESS；attempt1失败保持历史原状。
+
+- TASK-18 实现待CI验收：native stdlib部署助手处理Docker/Compose/端口/配对/启动全服务、隐藏输入runtime API密钥、私有权限、备份/升级/空环境恢复和卸载保留五类卷；部署ZIP严格白名单不含user.env/secret/测试MOCK。macOS原生双架构DMG/Keychain和Linuxdeb/AppImage、WindowsMSI/NSIS/助手CI。Docling原有native文本解析可配置，旧layout默认不变；用户指南明确Docker依赖/未签名/人工NOTEXECUTED。979backend、124browser、19transport及本地实际助手通过；真实DockerMOCK和原生全门禁待CI。科研NOTMEASURED。
+
+- TASK-18复核补修：首轮9694575的Push/PR Compose新MOCK步骤失败，保留原CI/annotations，日志redirect仍403，不能无日志断言唯一原因。原test worker以隔离Python执行确定性ModuleNotFoundError tests，显式添加自有repo root后实际--help通过；CI增加此启动检查和固定stage摘要。发现桌面hash无法给普通Web用户提供凭据，新增独立Web SHA256配对，原HttpOnly/SameSite会话和桌面OS凭据保留；备份仅白名单非敏感配置，自定义credential不导出，Windows写入前限制ACL。核查真实PyInstaller6.16.0 COPY许可证bootloader exception；原生Win/Linux/ARMmac通过，Intelmac待结束，不能替代完整部署验收。
+
+- TASK-18真实日志恢复：9694575安装脚本最终not_ready，与已复现MOCK import缺陷相符但不伪造缺失worker日志；c26fd3a两Compose失败为API替换后Web授权HTTP502，实际完整日志已下载。生产Nginx静态DNS旧地址问题，改DockerDNS动态解析并让助手核查Web代理ready；CI保留WebCookie重启失效/重新授权。Dockerbackend白名单COPY避免Git checkout凭据/用户文件，测试夹具仅COPY入专用MOCK镜像。显式frontend镜像身份支持空项目恢复，build=False禁止隐式构建。新原生二进制CPU/版本/SHA真实执行核对，macOS指定Python原生CPU。981backend/124browser/19transport通过，16保护单元通过，原四平台Native成功仍不能代替新修正完整部署验收。
+
+- TASK-18 b889570真实Docker进展与失败保留：Native PDF实际解析/索引、MOCK RAG/Research/四导出、worker/DB恢复及备份通过；停止再启动port_conflict失败（Push38051995603/PR38051998729）。探针裸bind误判Docker代理关闭连接TIME_WAIT，修正实际listener检查+Unixreuse；Windows不启用可抢占监听的SO_REUSEADDR，让Docker核查保留端口。增加安全实际Artifact校验值stdout供交付核查。原失败不覆盖，不提前PASSED。
+
+- TASK-16原attempt1完整日志取得并哈希保存：fatal Rust1.90 toolchain TCP连接timeout(os error110)，另有setup-uv codeload warning。原failure和后续目标job重跑success分开记录。
+
+- TASK-18工程PASSED：最终817dd43四workflow14job全部SUCCESS，982backend/124browser/19transport及全Docker安装MOCK链路真实执行PASS；Win/Linux/macOS双CPU包和nativeCPU/版本/SHA核对成功。保留所有失败，普通用户Docker依赖、人工安装NOTEXECUTED和科研NOTMEASURED明确。按批准顺序进入19工程实际Artifact独立校验，不执行17付费科研。
+
+- TASK-19工程开始：18已验收后，从GitHubActions重新下载817dd43四平台实际Artifacts，独立重算每MSI/EXE/DMG/deb/AppImage、部署ZIP和逐成员hash，检查平台/version/buildSHA和不含secret/test文件。云直接Blob仍403，使用标准download-artifact在独立Actionsrunner校验，不绕过云代理；报告明确不执行其他OS安装程序。科研部分BLOCKED/NOTMEASURED。
+
+## TASK-19 engineering acceptance and beta delivery — 2026-10-10
+
+Independent engineering implementation e18ffc138a979daaa64ec70c9605cb0e1f6a5d14: Push/PR CI38053611080/38053615204, Desktop38053611069/38053615162 and Installer verification38053611108/38053615245 completed SUCCESS; all16 applicable jobs PASS. Actual4 accepted817 installers and deployment ZIPs downloaded by GitHubActions, all native/ZIP/member hashes verified, both reports identical. No cross-OS installer execution claimed. Delivery docs contain actualArtifactIDs/version/fullsourceSHA/filebytes/SHA256. Existing full Docker MOCK lifecycle, realPG/Redis/Docling PDF,982backend/124browser/19transport and4native architecture checks reused; no new scientific test system. Ordinary user docs cover dependencies/start/config/import/use/backup/upgrade/restore/uninstall. Updated TASK-18 stale initial snapshots as history while retaining failures. TASK-19 engineering PASSED, overall/scientific BLOCKED, humanOSinstallation NOT EXECUTED, realscience NOT MEASURED. Beta delivered using CI artifacts, then pause for local user feedback; no Release/main merge/paid scientific calls.
+
+TASK-19 final-check correction: b324 PRCI38054135126 attempt1 frontend123PASS/1FAIL retained; backend/compose and PushCI PASS. Failure was invalid concurrent-network arrival-order assumption in existing batch PDF fixture, not installation lifecycle. Added per-file response gates, exact initial membership and visible row-order assertions, then controlled single-slot release to verify c-before-d admission and1pending2active. All previous file/concurrency/indexing checks retained with corrected concurrency semantics; no production changes or deleted test. Local20repeat PASS30s, full124browser/19transport revalidation captured in final PR evidence. Delivered817 binary/source identities unchanged.
+
+## User-authorized beta Release and main merge — 2026-10-10
+
+User explicitly requests synchronized README, a test Release and merge into main, superseding the earlier no-merge/no-Release delivery restriction. Updated English/Chinese README to prioritize ordinary-user installer + Docker setup assistant, platform-specific deployment ZIPs, checksum/version/source provenance, data safety and honest MOCK/manual/scientific limits. Preserved developer/source workflow and original tests. Added a manually dispatched main-only publication workflow: require exact-SHA successful main CI/Desktop, reuse actual native artifacts, independent verification, complete deployment/docs/checksum assets, upload draft, verify GitHub server digests then publish pre-release. No publication permission question; user already authorizes these actions. No scientific evaluation/new paid model calls. Actual pre-merge/post-merge/build/publication results will be recorded in PR and Release to avoid self-SHA evidence commits.

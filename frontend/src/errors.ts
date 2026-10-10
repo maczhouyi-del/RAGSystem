@@ -1,5 +1,38 @@
 /** Recovery guidance. Unrecognized remote text is never echoed. */
 const guidance: Record<string, string> = {
+  local_export_not_allowed: "导出格式或任务位置不合法，请重新读取任务。",
+  local_export_unavailable: "报告暂不可导出，请读取最新状态并检查后端。",
+  local_export_write_failed:
+    "系统下载目录无法写入，请检查目录空间、权限与文件占用。",
+  invalid_local_export: "导出文件未通过格式或大小检查，请重新读取报告。",
+  export_too_large: "导出内容超过大小限制，请缩小报告范围。",
+  report_not_released: "本轮尚未发布最终结果，请等待完成或读取最新状态。",
+  report_not_available: "该历史任务没有可保存的报告正文。",
+  collection_not_found:
+    "分组或标签已不存在。保留的检索范围会返回空结果，请明确重选范围。",
+  collection_name_conflict: "同类型已有这个名称，请换名或刷新后使用已有项。",
+  collection_version_conflict: "分组或标签已被修改，请刷新确认最新名称后重试。",
+  collection_confirmation_mismatch: "确认的分组或标签不匹配，请重新读取。",
+  invalid_pdf: "文件没有有效的 PDF 标识，请重新选择 PDF。",
+  pdf_too_large: "PDF 超过允许的大小，请拆分文件或核对后端上传限制。",
+  paper_not_retryable: "论文正在处理或已完成，请先读取最新状态，勿重复索引。",
+  source_deleted: "来源已删除，当前不可验证。历史回答正文仍可能保留来源内容。",
+  paper_not_found: "论文已不存在，请刷新文献列表。",
+  paper_deletion_not_found:
+    "尚未查到删除记录。请先刷新状态，勿自动重复提交删除。",
+  paper_deletion_confirmation_mismatch:
+    "删除对象与确认内容不一致，请重新读取删除预览。",
+  cleanup_queue_unavailable:
+    "知识库已移除该文献；请恢复 Redis 与 ingestion worker 后重试清理。",
+  cleanup_file_unavailable:
+    "知识库已移除该文献；请检查受管文件目录权限或占用，再重试清理。",
+  cleanup_unsafe_path:
+    "清理已停止：受管路径或符号链接不安全，请管理员核对目录后重试。",
+  cleanup_file_changed:
+    "清理已停止：文件与登记摘要不符。请先另存并核对替换文件，不要强行修改摘要。",
+  cleanup_unmanaged_path: "文件位于受管目录之外，需明确选择并自行清理。",
+  paper_metadata_conflict:
+    "论文元数据已有更新。草稿已保留，请载入最新内容后核对并重新编辑。",
   local_auth_required: "需要本机授权，请打开连接授权。",
   local_auth_not_initialized: "后端尚未配对，请配置授权哈希并重启后端。",
   local_secure_storage_unavailable: "系统凭据库不可用，请检查系统钥匙串。",
@@ -27,6 +60,15 @@ const guidance: Record<string, string> = {
   request_failed: "请求失败，请检查本机后端与诊断信息。",
   invalid_response: "后端响应格式不兼容，请检查客户端与后端版本。",
   local_backend_unavailable: "本机后端不可用，请启动后端并检查连接。",
+  local_document_unavailable:
+    "原始文档暂不可用，请重新读取引用并检查原始文件是否仍在。",
+  local_document_open_failed:
+    "文档已读取，但系统阅读器未能打开，请检查默认阅读器。",
+  local_document_cache_full: "阅读缓存无法写入，请检查缓存目录空间和权限。",
+  invalid_local_pdf: "文档未通过 PDF 格式检查，请核对原始文件或重新导入。",
+  invalid_local_page: "页码无法用于跳转，请打开完整 PDF 并按原文搜索。",
+  local_resource_not_allowed:
+    "来源位置不合法，请重新读取引用并核对客户端版本。",
 };
 export function errorMessage(value: unknown): string {
   const match = typeof value === "string" ? value : "request_failed";

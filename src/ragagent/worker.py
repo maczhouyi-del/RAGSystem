@@ -2,6 +2,10 @@ import argparse
 import asyncio
 import hashlib
 import logging
+import time
+from collections.abc import Iterator
+from contextlib import contextmanager
+from datetime import UTC, datetime
 from typing import Any, TypeVar
 
 from fastapi.encoders import jsonable_encoder
@@ -16,7 +20,12 @@ from sqlalchemy.orm import Session
 from ragagent.conversations.service import context_config, prepare_context
 from ragagent.db.models import Author, ExecutionEvent, Paper, PaperAuthor, Run, new_id
 from ragagent.db.session import session_factory
+from ragagent.deletion.guards import guard_sources
+from ragagent.deletion.history import source_ids
+from ragagent.deletion.service import clean
+from ragagent.domain.papers import OriginalPaperMetadata, PaperMetadataValues
 from ragagent.errors import ApplicationError
+from ragagent.evaluation.artifacts import artifact_guard
 from ragagent.graphs.rag import build_rag
 from ragagent.graphs.research import build_research
 from ragagent.graphs.state import MultiAgentState, RAGState
@@ -86,13 +95,18 @@ def track_usage(
     usage = getattr(adapter, "usage", None)
     if isinstance(usage, Usage):
         # Local model adapters retain weights across jobs, but accounting is per Run.
-        usage = adapter.usage = Usage()
+        usage = adapter.usage = Usage(
+            configured_model=usage.configured_model, cost_basis=usage.cost_basis
+        )
         tracked[name] = usage
         usage.on_update = lambda _: persist_usage(session, run, tracked)
 
 
 def event(session: Session, run: Run, node: str, payload: dict[str, Any]) -> None:
-    ensure_running(session, run)
+    with session.no_autoflush:
+        if run.kind != "paper_delete":
+            guard_sources(session, payload)
+        ensure_running(session, run)
     session.add(ExecutionEvent(run_id=run.id, node=node, payload=payload))
     session.commit()
 
@@ -100,13 +114,28 @@ def event(session: Session, run: Run, node: str, payload: dict[str, Any]) -> Non
 async def graph_events(
     graph: Runnable[Any, Any], state: T, session: Session, run: Run, recursion_limit: int
 ) -> T:
+    previous_tick = time.monotonic()
     async for updates in graph.astream(
         state, {"recursion_limit": recursion_limit}, stream_mode="updates"
     ):
         for node, update in updates.items():
             data = jsonable_encoder(update)
             state = type(state).model_validate({**state.model_dump(), **data})
-            event(session, run, node, data)
+            tick = time.monotonic()
+            # A completed node interval includes orchestration; not pure inference time.
+            event(
+                session,
+                run,
+                node,
+                {
+                    **data,
+                    "execution_timing": {
+                        "elapsed_seconds": tick - previous_tick,
+                        "basis": "node_interval",
+                    },
+                },
+            )
+            previous_tick = time.monotonic()
     return state
 
 
@@ -125,7 +154,21 @@ async def arxiv_ingestion(session: Session, run: Run) -> Paper:
     try:
         metadata = await download_arxiv(arxiv_id, path, settings.max_upload_bytes)
         sha = hashlib.sha256(path.read_bytes()).hexdigest()
+        guard_sources(session, run.request)
         ensure_running(session, run)
+        names = list(dict.fromkeys(n.strip() for n in metadata.authors if n.strip()))
+        original = OriginalPaperMetadata(
+            kind="arxiv_atom",
+            captured_at=datetime.now(UTC),
+            values=PaperMetadataValues(
+                title=metadata.title, authors=names, year=metadata.year, venue=None
+            ),
+            pdf_sha256=sha,
+            arxiv_id=metadata.arxiv_id,
+            arxiv_family_id=metadata.arxiv_family_id,
+            arxiv_version=metadata.arxiv_version,
+            source_url=metadata.source_url,
+        ).model_dump(mode="json")
         # Let the database arbitrate concurrent imports of the same version.
         # Hash equality alone never assigns a new version to an older source.
         paper_id = session.scalar(
@@ -141,6 +184,7 @@ async def arxiv_ingestion(session: Session, run: Run) -> Paper:
                 sha256=sha,
                 original_path=str(path),
                 status="queued",
+                original_metadata=original,
             )
             .on_conflict_do_nothing()
             .returning(Paper.id)
@@ -151,7 +195,6 @@ async def arxiv_ingestion(session: Session, run: Run) -> Paper:
                 raise ApplicationError("paper_changed_retry")
             path.unlink(missing_ok=True)
             return existing
-        names = list(dict.fromkeys(n.strip() for n in metadata.authors if n.strip()))
         author_ids = {}
         for name in sorted(names):
             author_id = session.scalar(
@@ -190,8 +233,49 @@ async def execute_async(run_id: str) -> None:
         trace_id = run.trace_id
         paper: Paper | None = None
         tracked: dict[str, Usage] = {}
+
+        @contextmanager
+        def publish_artifact(payload: dict[str, Any]) -> Iterator[None]:
+            # An independent, short transaction protects the actual file write;
+            # checkpoint locks never span the evaluation's provider calls.
+            with session_factory()() as publication:
+                guard_sources(publication, [run.request, payload])
+                ensure_running(publication, run)
+                yield
+                current = locked_run(publication, run.id)
+                assert current is not None
+                # Checkpoints can contain sources outside the gold labels. Save
+                # IDs alongside the file so deletion can discover these exports
+                # without reading unbounded artifact text or trusting filenames.
+                references = source_ids([payload, (current.result or {}).get("_source_references")])
+                current.result = {
+                    **(current.result or {}),
+                    "_source_references": {
+                        "paper_ids": sorted(references.papers),
+                        "chunk_ids": sorted(references.chunks),
+                        "evidence_ids": sorted(references.evidence),
+                    },
+                }
+                publication.commit()
+
+        artifact_token = (
+            artifact_guard.set(publish_artifact) if run.kind.startswith("eval_") else None
+        )
         try:
-            if run.kind in {"ingestion", "arxiv"}:
+            if run.kind == "paper_delete":
+                from ragagent.api.queue import RQQueue
+
+                clean(session, run, RQQueue().cancel)
+            elif run.kind == "entity_annotation":
+                from ragagent.ingestion.entity_service import extract_paper
+
+                result = extract_paper(session, run)
+                # Candidate batches commit; reload expired attributes before the
+                # proposed terminal state so later kind reads cannot autoflush it.
+                session.refresh(run)
+                run.result = result
+                run.status = "completed"
+            elif run.kind in {"ingestion", "arxiv"}:
                 paper = (
                     await arxiv_ingestion(session, run)
                     if run.kind == "arxiv"
@@ -199,6 +283,7 @@ async def execute_async(run_id: str) -> None:
                 )
                 if paper is None:
                     raise ValueError("paper_not_found")
+                guard_sources(session, {"paper_id": paper.id})
                 ensure_running(session, run)
                 paper = session.scalar(
                     select(Paper)
@@ -218,18 +303,26 @@ async def execute_async(run_id: str) -> None:
                     paper.status = status
                     event(session, run, status, {"paper_id": paper.id})
 
+                def ingestion_guard() -> None:
+                    assert paper is not None
+                    guard_sources(session, {"paper_id": paper.id})
+                    ensure_running(session, run)
+
                 if paper.embedding_model is None:
                     embedder = make_embedder(settings)
                     track_usage(session, run, tracked, "embedding", embedder)
                     await ingest(
                         session,
                         paper,
-                        DoclingParser(),
+                        DoclingParser(native_pdf=True)
+                        if settings.pdf_parser_mode == "native"
+                        else DoclingParser(),
                         StructureChunker(
                             settings.chunk_target_tokens, settings.chunk_overlap_tokens
                         ),
                         embedder,
                         ingestion_progress,
+                        ingestion_guard,
                     )
                 paper.status = "indexed"
                 run.result = {"paper_id": paper.id}
@@ -240,13 +333,16 @@ async def execute_async(run_id: str) -> None:
                     track_usage(session, run, tracked, name, adapter)
                 embedder = make_embedder(settings)
                 track_usage(session, run, tracked, "embedding", embedder)
+                reranker = make_reranker(settings)
+                track_usage(session, run, tracked, "reranker", reranker)
                 search = HybridRetriever(
                     session,
                     embedder,
-                    make_reranker(settings),
+                    reranker,
                     settings.candidate_top_n,
                     settings.evidence_top_k,
                     settings.rrf_k,
+                    commit_results=True,
                 )
                 request = dict(run.request)
                 conversation_metadata = None
@@ -322,13 +418,16 @@ async def execute_async(run_id: str) -> None:
                     validate_references(dataset, session)
                 embedder = make_embedder(settings)
                 track_usage(session, run, tracked, "embedding", embedder)
+                reranker = make_reranker(settings)
+                track_usage(session, run, tracked, "reranker", reranker)
                 search = HybridRetriever(
                     session,
                     embedder,
-                    make_reranker(settings),
+                    reranker,
                     settings.candidate_top_n,
                     settings.evidence_top_k,
                     settings.rrf_k,
+                    commit_results=True,
                 )
                 directory = settings.data_dir / "evaluations" / run.id
                 resume_id = run.request.get("resume_run_id")
@@ -413,6 +512,8 @@ async def execute_async(run_id: str) -> None:
             # Re-raise only a safe error so RQ persistence/logging cannot leak exception messages.
             raise ApplicationError(code) from None
         finally:
+            if artifact_token is not None:
+                artifact_guard.reset(artifact_token)
             for usage in tracked.values():
                 usage.on_update = None
 

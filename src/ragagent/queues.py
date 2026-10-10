@@ -26,7 +26,7 @@ def freeze_queue(run: Run) -> str:
         return frozen
     if run.kind in {"rag", "research"}:
         role: QueueRole = "interactive"
-    elif run.kind in {"ingestion", "arxiv"}:
+    elif run.kind in {"ingestion", "arxiv", "paper_delete", "entity_annotation"}:
         role = "ingestion"
     elif run.kind.startswith("eval_"):
         role = "evaluation"

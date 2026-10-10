@@ -6,13 +6,72 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ragagent.db.models import Chunk, Entity, Paper, Section
+from ragagent.domain.evaluation import GoldPaper, GoldSource
 from ragagent.domain.research import Candidate
 from ragagent.evaluation.artifacts import corpus_snapshot, verify_corpus_snapshot
 from ragagent.evaluation.retrieval import evaluate_retrieval
 from ragagent.evaluation.schema import EvaluationCase, EvaluationDataset
+from ragagent.evaluation.validation import validate_references
 from ragagent.retrieval.service import HybridRetriever
 from ragagent.settings import Settings
 from tests.integration.test_retrieval import Embedder, FixtureReranker, populate
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize("changed", [None, "pdf", "paper", "quote", "page", "version", "chunk"])
+def test_source_gold_checks_real_pdf_identity_version_pages_and_exact_text(
+    empty_db: Session,
+    changed: str | None,
+) -> None:
+    pid, cid = populate(empty_db)
+    chunk = empty_db.get(Chunk, cid)
+    assert chunk is not None
+    source = GoldSource(
+        paper=GoldPaper(paper_id=pid, pdf_sha256="b" * 64, reviewed_pages=[1]),
+        chunk_id=cid,
+        page_start=1,
+        page_end=1,
+        span_start=0,
+        span_end=len(chunk.content),
+        quote=chunk.content,
+    )
+    case = EvaluationCase(
+        id="SYNTHETIC-q",
+        query="SYNTHETIC contract only",
+        question_type="fact",
+        expected_answer="SYNTHETIC",
+        relevant_chunk_ids=[cid],
+        relevant_paper_ids=[pid],
+        gold_sources=[source],
+    )
+    dataset = EvaluationDataset(
+        dataset_id="SYNTHETIC source validation",
+        label_source="synthetic",
+        description="NOT A BENCHMARK",
+        annotation_format="source_v1",
+        cases=[case],
+    )
+    if changed == "pdf":
+        source.paper.pdf_sha256 = "a" * 64
+    elif changed == "paper":
+        other = empty_db.scalar(select(Paper).where(Paper.id != pid))
+        assert other is not None
+        source.paper.paper_id = other.id
+        source.paper.pdf_sha256 = other.sha256
+    elif changed == "quote":
+        source.quote = "X" * len(source.quote)
+    elif changed == "page":
+        source.page_start = source.page_end = 2
+    elif changed == "version":
+        source.paper.arxiv_family_id = "2401.00001"
+        source.paper.arxiv_version = 2
+    elif changed == "chunk":
+        source.chunk_id = "missing"
+    if changed is None:
+        validate_references(dataset, empty_db)
+    else:
+        with pytest.raises(ValueError, match="gold_"):
+            validate_references(dataset, empty_db)
 
 
 @pytest.mark.integration

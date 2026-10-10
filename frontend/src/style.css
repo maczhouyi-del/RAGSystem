@@ -4,6 +4,25 @@
   background: #f4f7f8;
   font-size: 15px;
 }
+.first-use-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 0 24px;
+}
+.first-use-guide {
+  margin: 12px 0;
+  border-left: 4px solid #163e53;
+}
+.first-use-guide li {
+  margin: 8px 0;
+  min-width: 0;
+}
+.first-use-guide ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 12px 32px;
+  padding-left: 24px;
+}
 * {
   box-sizing: border-box;
 }
@@ -103,6 +122,20 @@ pre {
 .citation {
   font-size: 12px;
   padding: 3px 7px;
+}
+.pdf-navigation {
+  border: 1px solid #ccd8de;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin: 14px 0;
+}
+.pdf-navigation .inline {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+blockquote mark {
+  background: #fff1ad;
+  color: #172a36;
 }
 .evidence {
   display: block;
@@ -633,4 +666,101 @@ footer {
 .message-heading h3 {
   margin: 0;
   font-weight: 500;
+}
+.paper-original-metadata code {
+  overflow-wrap: anywhere;
+}
+.danger {
+  color: #942e29;
+  border-color: #c79b98;
+  background: #fff4f2;
+}
+.paper-deletion-dialog::backdrop {
+  background: #172a3666;
+}
+.paper-deletion-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.deletion-content {
+  min-height: 0;
+  overflow: auto;
+}
+.paper-deletion-dialog > .inline {
+  flex-shrink: 0;
+}
+.deletion-acknowledgement {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 16px 0;
+}
+.deletion-acknowledgement input {
+  width: auto;
+}
+.paper-deletion-status {
+  margin: 16px 0;
+  border-left: 4px solid #942e29;
+}
+.paper-deletion-status small,
+.paper-deletion-dialog small {
+  overflow-wrap: anywhere;
+}
+.source-unavailable {
+  color: #942e29;
+  border: 1px solid #c79b98;
+  background: #fff4f2;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.pdf-drop-zone {
+  border: 2px dashed #b4c7d1;
+  border-radius: 6px;
+  padding: 12px;
+}
+.pdf-drop-zone.dragging {
+  background: #e8f0f4;
+  border-color: #165674;
+}
+
+.paper-organization label.inline {
+  align-items: center;
+  flex-wrap: nowrap;
+  margin-top: 8px;
+}
+.paper-organization input[type="checkbox"] {
+  width: auto;
+  flex: 0 0 auto;
+  margin: 0;
+}
+.collection-list > li {
+  border-bottom: 1px solid #d9e3e7;
+  padding: 12px 0;
+}
+.collection-confirmation {
+  width: min(620px, calc(100vw - 48px));
+  max-height: 80dvh;
+  overflow-y: auto;
+}
+
+.annotation-source {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 24rem;
+  overflow: auto;
+}
+
+.entity-source {
+  width: 100%;
+  min-height: 12rem;
+  resize: vertical;
+}
+.entity-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.entity-check input[type="checkbox"] {
+  width: auto;
 }

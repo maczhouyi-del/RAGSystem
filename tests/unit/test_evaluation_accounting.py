@@ -130,7 +130,7 @@ async def test_retrieval_interruption_retains_pending_embedding_charge(
     embedder.usage.on_update = observer
 
     class InterruptingSearch:
-        def __init__(self, *args: Any) -> None:
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
             self.dense = SimpleNamespace(embedder=embedder, search=self.search)
             self.reranker = None
             self.top_n, self.top_k = 30, 10

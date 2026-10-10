@@ -15,6 +15,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    func,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
@@ -34,6 +35,7 @@ class Base(DeclarativeBase):
 class Paper(Base):
     __tablename__ = "papers"
     __table_args__ = (
+        CheckConstraint("metadata_version >= 1", name="ck_papers_metadata_version"),
         CheckConstraint(
             "source_status IN ('unknown', 'active', 'withdrawn', 'retracted')",
             name="ck_papers_source_status",
@@ -49,6 +51,9 @@ class Paper(Base):
             unique=True,
             postgresql_where=text("arxiv_id IS NULL"),
         ),
+        Index("ix_papers_created_id", "created_at", "id"),
+        Index("ix_papers_year_id", "year", "id"),
+        Index("ix_papers_status_created_id", "status", "created_at", "id"),
     )
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     title: Mapped[str] = mapped_column(Text)
@@ -71,12 +76,55 @@ class Paper(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )
+    original_metadata: Mapped[dict[str, Any] | None] = mapped_column(JSONB(none_as_null=True))
+    metadata_version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+    overridden_fields: Mapped[list[str]] = mapped_column(
+        JSONB, default=list, server_default=text("'[]'::jsonb")
+    )
+
+
+class PaperCollection(Base):
+    __tablename__ = "paper_collections"
+    __table_args__ = (
+        CheckConstraint("kind IN ('group', 'tag')", name="ck_paper_collections_kind"),
+        CheckConstraint("version >= 1", name="ck_paper_collections_version"),
+        UniqueConstraint("kind", "name_key", name="uq_paper_collections_kind_name"),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    kind: Mapped[Literal["group", "tag"]] = mapped_column(String(16))
+    name: Mapped[str] = mapped_column(String(80))
+    name_key: Mapped[str] = mapped_column(Text)
+    version: Mapped[int] = mapped_column(Integer, default=1, server_default="1")
+
+
+class PaperCollectionMember(Base):
+    __tablename__ = "paper_collection_members"
+    __table_args__ = (Index("ix_collection_members_collection_paper", "collection_id", "paper_id"),)
+    paper_id: Mapped[str] = mapped_column(
+        ForeignKey("papers.id", ondelete="CASCADE"), primary_key=True
+    )
+    collection_id: Mapped[str] = mapped_column(
+        ForeignKey("paper_collections.id", ondelete="CASCADE"), primary_key=True
+    )
 
 
 class Author(Base):
     __tablename__ = "authors"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
     name: Mapped[str] = mapped_column(String(256), unique=True)
+
+
+for table_column, index_name, expression_name in [
+    (Paper.title, "ix_papers_title_trgm", "title_search"),
+    (Paper.venue, "ix_papers_venue_trgm", "venue_search"),
+    (Author.name, "ix_authors_name_trgm", "author_search"),
+]:
+    Index(
+        index_name,
+        func.lower(table_column).label(expression_name),
+        postgresql_using="gin",
+        postgresql_ops={expression_name: "gin_trgm_ops"},
+    )
 
 
 class PaperAuthor(Base):
@@ -86,6 +134,7 @@ class PaperAuthor(Base):
     )
     author_id: Mapped[str] = mapped_column(ForeignKey("authors.id"), primary_key=True)
     position: Mapped[int] = mapped_column(Integer)
+    __table_args__ = (Index("ix_paper_authors_author_paper", "author_id", "paper_id"),)
 
 
 class Section(Base):
@@ -126,6 +175,32 @@ class Chunk(Base):
     )
 
 
+class ChunkAnnotationReview(Base):
+    """Coverage of all dataset/method/metric types for one exact chunk revision.
+
+    Occurrence links alone never create this record. No work queue lives here.
+    """
+
+    __tablename__ = "chunk_annotation_reviews"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('queued', 'processing', 'needs_review', 'completed', 'failed')",
+            name="ck_annotation_review_status",
+        ),
+        CheckConstraint("content_sha256 ~ '^[0-9a-f]{64}$'", name="ck_annotation_review_hash"),
+    )
+    chunk_id: Mapped[str] = mapped_column(
+        ForeignKey("chunks.id", ondelete="CASCADE"), primary_key=True
+    )
+    content_sha256: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(16))
+    run_id: Mapped[str | None] = mapped_column(ForeignKey("runs.id", ondelete="SET NULL"))
+    extractor_version: Mapped[str | None] = mapped_column(String(64))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+
+
 class Entity(Base):
     __tablename__ = "entities"
     __table_args__ = (UniqueConstraint("name", "entity_type"),)
@@ -140,6 +215,50 @@ class ChunkEntity(Base):
         ForeignKey("chunks.id", ondelete="CASCADE"), primary_key=True
     )
     entity_id: Mapped[str] = mapped_column(ForeignKey("entities.id"), primary_key=True)
+
+
+class EntityMention(Base):
+    """A local source occurrence; correction never renames a shared Entity."""
+
+    __tablename__ = "entity_mentions"
+    __table_args__ = (
+        CheckConstraint(
+            "entity_type IN ('dataset', 'method', 'metric')", name="ck_entity_mentions_type"
+        ),
+        CheckConstraint(
+            "state IN ('proposed', 'confirmed', 'rejected')", name="ck_entity_mentions_state"
+        ),
+        CheckConstraint(
+            "span_start >= 0 AND span_end > span_start", name="ck_entity_mentions_span"
+        ),
+        CheckConstraint("version >= 1", name="ck_entity_mentions_version"),
+        CheckConstraint("content_sha256 ~ '^[0-9a-f]{64}$'", name="ck_entity_mentions_hash"),
+        UniqueConstraint(
+            "chunk_id",
+            "entity_type",
+            "name",
+            "span_start",
+            "span_end",
+            "content_sha256",
+            name="uq_entity_mentions_occurrence",
+        ),
+    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    chunk_id: Mapped[str] = mapped_column(ForeignKey("chunks.id", ondelete="CASCADE"), index=True)
+    entity_id: Mapped[str | None] = mapped_column(ForeignKey("entities.id"))
+    name: Mapped[str] = mapped_column(String(256))
+    entity_type: Mapped[str] = mapped_column(String(16))
+    span_start: Mapped[int] = mapped_column(Integer)
+    span_end: Mapped[int] = mapped_column(Integer)
+    content_sha256: Mapped[str] = mapped_column(String(64))
+    state: Mapped[str] = mapped_column(String(16), default="proposed")
+    origin: Mapped[str] = mapped_column(String(64))
+    alias_group: Mapped[str | None] = mapped_column(String(36))
+    owns_link: Mapped[bool] = mapped_column(Boolean, default=False)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
 
 
 class EntityRelation(Base):
@@ -210,6 +329,26 @@ class Run(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=lambda: datetime.now(UTC)
     )
+
+
+class PaperDeletion(Base):
+    """Tombstone and durable cleanup intent, deliberately without source text."""
+
+    __tablename__ = "paper_deletions"
+    __table_args__ = (
+        Index("ix_paper_deletions_chunk_ids", "chunk_ids", postgresql_using="gin"),
+        Index("ix_paper_deletions_evidence_ids", "evidence_ids", postgresql_using="gin"),
+    )
+    paper_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    deleted_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC)
+    )
+    chunk_ids: Mapped[list[str]] = mapped_column(JSONB)
+    evidence_ids: Mapped[list[str]] = mapped_column(JSONB)
+    files: Mapped[list[dict[str, Any]]] = mapped_column(JSONB)
+    cancelled_run_ids: Mapped[list[str]] = mapped_column(JSONB)
+    affected_evaluation_ids: Mapped[list[str]] = mapped_column(JSONB)
+    last_cleanup_run_id: Mapped[str] = mapped_column(ForeignKey("runs.id"), index=True)
 
 
 class ExecutionEvent(Base):

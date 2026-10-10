@@ -12,7 +12,19 @@ from sqlalchemy import text
 from starlette.exceptions import HTTPException
 
 from ragagent import __version__
-from ragagent.api import auth, conversations, diagnostics, evaluations, papers, providers, runs
+from ragagent.api import (
+    annotations,
+    auth,
+    collections,
+    conversations,
+    deletions,
+    diagnostics,
+    entities,
+    evaluations,
+    papers,
+    providers,
+    runs,
+)
 from ragagent.api.dependencies import get_search
 from ragagent.api.dispatcher import dispatcher_lifespan
 from ragagent.api.papers import DB
@@ -44,6 +56,10 @@ app = LocalAPI(
 app.include_router(auth.router)
 app.include_router(diagnostics.router)
 app.include_router(papers.router)
+app.include_router(collections.router)
+app.include_router(annotations.router)
+app.include_router(entities.router)
+app.include_router(deletions.router)
 app.include_router(runs.router)
 app.include_router(providers.router)
 app.include_router(evaluations.router)

@@ -7,38 +7,83 @@ inspectable conversation memory and a Tauri desktop entry. It retains the existi
 evidence-grounded knowledge base and Supervisor workflows. MIT licensed; paper and model-weight licenses remain
 independent. No langgraph-supervisor dependency. No fabricated benchmark claims.
 
-The final reviewed code is on
+The default source branch is
 [`main`](https://github.com/maczhouyi-del/RAGSystem/tree/main).
 This copy retains the original commit history and MIT license. The
 [original repository](https://github.com/chouytong/RAGAgent) is preserved;
 the migration starts from its `fix/engineering-hardening` commit `df75bdd`.
 Historical CI and installer evidence links still refer to runs in that repository.
 
+## Install the beta
+
+Download **[v0.2.0-beta.1](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.1)** from GitHub Releases. The native application version is **0.2.0**.
+Choose a desktop installer **and the deployment ZIP for the same platform**. The installer is the client;
+the native setup assistant starts PostgreSQL/pgvector, Redis, API, three workers and Web through Docker.
+**Docker is required. Host Python, Node.js, Rust and Git are not required for packaged installation.**
+
+| Platform | Desktop installer | Matching deployment package |
+| --- | --- | --- |
+| Windows 11 x64 | MSI or EXE (choose one) | `RAGSystem-deployment-windows-x86_64.zip` |
+| macOS Apple Silicon | aarch64 DMG | `RAGSystem-deployment-macos-aarch64.zip` |
+| macOS Intel | x64 DMG | `RAGSystem-deployment-macos-x86_64.zip` |
+| Linux x64 (Ubuntu 24.04) | deb or AppImage | `RAGSystem-deployment-linux-x86_64.zip` |
+
+1. Download the matching files and compare their SHA256 with the Release's `SHA256SUMS.txt`.
+   `release-manifest.json` records the actual build SHA, platform, version and checksums.
+2. Install Docker Desktop on Windows/macOS, or Docker Engine with Compose ≥2.24 on Linux.
+   Start Docker; Windows requires Linux containers and the prerequisites in Docker's official guide.
+3. Install the desktop client. Unpack the deployment ZIP into a permanent, user-writable directory.
+4. Open the desktop's Connection authorization panel and copy its nonsecret pairing hash.
+   Run `RAGSystem-Setup.exe` (Windows) or `./RAGSystem-Setup` (macOS/Linux), select **2 Pair and start**,
+   and paste the hash. The assistant checks prerequisites and initializes the complete local backend.
+5. Use the assistant's hidden **API key** input, restart services, then configure provider/model roles
+   in Settings. Import PDF files, wait for `indexed`, and use RAG or Research; export reports from results.
+   Real model calls may incur fees. Local embedding/reranker weights download on first use.
+
+[Complete installation and first-use guide](docs/installation/README.md) ·
+[Backup, upgrade, restore and uninstall](docs/installation/data-and-upgrades.md) ·
+[Troubleshooting](docs/installation/troubleshooting.md) ·
+[Local scientific evaluation after installation](docs/installation/local-evaluation.md)
+
+Recommended: **16 GB RAM and at least 20 GB free disk**, plus model/paper storage.
+First backend construction requires Internet access. Web remains available at `http://127.0.0.1:8080`;
+use the assistant's separate **9 Web pairing** option. Closing the desktop does not stop the backend;
+stop it with the assistant. Uninstalling containers retains all five data volumes. Never use volume deletion to repair an installation.
+API keys are saved in private runtime files; pairing credentials use the OS vault. Do not put keys in reports or backups.
+
+This is an **unsigned pre-release**, without macOS notarization. Native Windows/macOS ARM64/Intel/Linux builds
+and automated engineering checks are recorded in CI; **human Windows 11/macOS/Linux installation is NOT EXECUTED**.
+Engineering end-to-end tests use **MOCK models**, real PostgreSQL/Redis and real Docling Native PDF parsing.
+**Real scientific quality is NOT MEASURED**; TASK-17 and TASK-19 scientific acceptance remain blocked pending user papers,
+human gold and approved models/budgets. MOCK results do not establish Research superiority over RAG.
+Windows/Linux ARM64 and other Linux distributions are NOT EXECUTED. See the Release notes and
+[engineering evidence](docs/product-improvement/task-19-evidence.json) for actual results and limits;
+[earlier CI artifact delivery](docs/product-improvement/task-18-delivery.md) retains its original build SHA/checksums.
+
+## Developer source setup
+
+The following commands are for contributors with Git, Node.js/npm, Rust and platform WebView development dependencies.
+Ordinary users should use the packaged beta above. Preserve an existing runtime `.env`.
+
 ```bash
 git clone --branch main https://github.com/maczhouyi-del/RAGSystem.git
 cd RAGSystem
 # First checkout only; preserve an existing runtime .env.
 cp .env.example .env
-# Install/start Desktop first and open Connection authorization.
 npm --prefix frontend ci
 npm --prefix frontend run desktop:dev
-# Copy its nonsecret pairing hash into LOCAL_AUTH_TOKEN_HASH in .env.
-# Then start Compose in another terminal and reconnect Desktop.
+# Copy Desktop's nonsecret pairing hash into LOCAL_AUTH_TOKEN_HASH in .env.
+# Start Compose in another terminal and reconnect Desktop.
 docker compose up --build
 ```
 
-Open the [Web fallback](http://localhost:8080) using the optional development authorization
-described in [local pairing](docs/deployment.md#local-owner-authentication).
-[API docs](http://localhost:8000/docs) require a bearer for protected requests.
-For an independent window, pair Desktop first as above, then start Compose.
-The desktop shell connects only to `http://127.0.0.1:8000`; it does not bundle or
-start Python, PostgreSQL or Redis. Rust and platform WebView prerequisites are
-listed in [deployment](docs/deployment.md#desktop-ui-with-local-backend).
-Requires Docker Compose v2, Git, recommended 8 GB RAM and 20 GB free disk.
-The backend requires local authorization configuration; model API keys are optional for startup; inference requires configured chat providers
-or local models. Local parsing/embedding/reranker weights download on first use.
-`/api/health` reports process liveness; `/api/ready` checks DB, Redis and a queue
-worker, without asserting model/provider inference readiness.
+Developer diagnostics: `./scripts/diagnose.sh` (Linux) or
+`powershell -NoProfile -File .\scripts\diagnose.ps1` (Windows).
+[Read-only diagnostics](docs/environment-diagnostics.md), [deployment](docs/deployment.md)
+and the [first-use guide](docs/first-use.md) describe advanced setup.
+`/api/health` reports process liveness; `/api/ready` checks DB, Redis and the interactive worker,
+without asserting model/provider inference readiness. API docs are at `http://127.0.0.1:8000/docs`;
+protected requests require local authorization.
 
 RAG/Research conversation turns use the `interactive` queue; PDF/arXiv use
 `ingestion`; benchmarks use `evaluation`. Compose starts one dedicated worker
@@ -330,6 +375,7 @@ actual verification.
 [Repair decisions](docs/adr/README.md) ·
 [Reference/license review](docs/reference-review.md) · [Architecture](docs/architecture.md) ·
 [Data model](docs/data-model.md) · [Conversation and memory](docs/conversation-memory.md) · [Retrieval](docs/retrieval.md) ·
+[Paper library search](docs/paper-library.md) ·
 [Agents](docs/agents.md) · [API](docs/api.md) · [Deployment](docs/deployment.md) ·
 [Contributor rules](AGENTS.md).
 
@@ -364,4 +410,4 @@ authorization, database, Redis, workload queues and build provenance from
 model loading/inference, which remains untested until actual tasks run.
 See [engineering evidence and unverified acceptance](ENGINEERING_REVIEW.md).
 
-Validated implementation `f803d824`: backend/frontend/Compose and Linux/Windows Desktop CI passed. Actual unsigned MSI/NSIS artifacts and independently checked SHA-256 are linked in [the engineering report](ENGINEERING_REVIEW.md#final-implementation-ci-and-inspected-windows-artifacts). Real multilingual quality and Windows 11 human acceptance remain unverified.
+Historical engineering baseline `f803d824`: backend/frontend/Compose and Linux/Windows Desktop CI passed. Actual unsigned MSI/NSIS artifacts and independently checked SHA-256 are linked in [the engineering report](ENGINEERING_REVIEW.md#final-implementation-ci-and-inspected-windows-artifacts). Real multilingual quality and Windows 11 human acceptance remain unverified.

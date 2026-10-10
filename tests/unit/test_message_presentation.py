@@ -81,3 +81,17 @@ def test_research_and_legacy_projection_keep_lazy_detail_available() -> None:
         "limitations": [],
         "citation_refs": [],
     }
+
+
+@pytest.mark.parametrize("page_location", ["unavailable", "available", None])
+def test_compact_citation_preserves_page_availability_without_pdf_geometry(page_location) -> None:
+    value = result()
+    source = value["reranked_evidence"][0]
+    if page_location is None:
+        source.pop("page_location", None)  # Legacy source pages remain readable.
+    else:
+        source["page_location"] = page_location
+    small = message_presentation(value)
+    assert small["citation_refs"][0]["page_location"] == (page_location or "available")
+    assert "pdf_regions" not in json.dumps(small)
+    assert source["quote"] not in json.dumps(small)

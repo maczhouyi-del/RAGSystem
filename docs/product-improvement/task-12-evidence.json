@@ -1,0 +1,998 @@
+{
+  "task": "TASK-12",
+  "status": "PASSED",
+  "start_commit": "1e505d499fbf65834d6504a7087d324e5662812a",
+  "implementation_commit": "c55c15867ab5e3647ace294527ab28dade0c7cdc",
+  "changed_files": [
+    "docs/pdf-source-locations.md",
+    "docs/product-improvement/PROGRESS.md",
+    "docs/product-improvement/task-12-evidence.json",
+    "docs/stage-log.md",
+    "frontend/src/api.ts",
+    "frontend/src/components.tsx",
+    "frontend/tests/pdf-location.spec.ts",
+    "scripts/pdf_fixture.py",
+    "scripts/verify_pdf_provenance.py",
+    "src/ragagent/api/annotations.py",
+    "src/ragagent/deletion/history.py",
+    "src/ragagent/domain/annotations.py",
+    "src/ragagent/domain/documents.py",
+    "src/ragagent/domain/locations.py",
+    "src/ragagent/domain/research.py",
+    "src/ragagent/ingestion/chunker.py",
+    "src/ragagent/ingestion/parser.py",
+    "src/ragagent/ingestion/service.py",
+    "src/ragagent/retrieval/evidence.py",
+    "src/ragagent/retrieval/service.py",
+    "tests/integration/test_conversation_evaluation.py",
+    "tests/integration/test_pdf_locations.py",
+    "tests/unit/test_pdf_locations.py"
+  ],
+  "scientific_quality": "NOT MEASURED",
+  "standard_docling_layout_ocr_accuracy": "NOT MEASURED",
+  "windows_11_human_acceptance": "NOT EXECUTED",
+  "tests": {
+    "pytest": 824,
+    "unit": 573,
+    "integration": 251,
+    "new_unit": 24,
+    "new_integration": 3,
+    "failures": 0,
+    "skipped": 0,
+    "python_seconds": 67.776,
+    "playwright": 97,
+    "new_playwright": 2,
+    "transport": 15,
+    "truth": "Actual PostgreSQL/pgvector ingestion, metadata, source API, dense/lexical retrieval and stable Evidence UUID; synthetic structured fixtures. MOCK browser contracts. Actual native PDF parsing is separate from layout/OCR and scientific quality.",
+    "browser_duration": "1.4m (reported)",
+    "corrected_full_regression": "824 PASS after deterministic hash oracle fix; no skips/failures"
+  },
+  "checks": {
+    "uv_sync_locked": "PASS, base 109 packages",
+    "ruff_format": "PASS",
+    "ruff_check": "PASS",
+    "mypy": "PASS, 92 files",
+    "npm_ci": "PASS",
+    "npm_lint": "PASS",
+    "npm_check": "PASS",
+    "npm_build": "PASS, existing bundle-size warning",
+    "transport": "PASS, 15 tests",
+    "rustfmt": "PASS, verified official Rust 1.90",
+    "cargo_local": "NOT EXECUTED; actual native CI required",
+    "migration": "PASS Alembic check at 0012, no DDL or destructive backfill required",
+    "actual_pdf": "PASS, pinned Docling NativePdfPipeline, two-page generated PDF, both rendered pages visually inspected",
+    "git_diff_check": "PASS",
+    "playwright": "PASS, 97 MOCK browser tests, zero failed/skipped",
+    "hash_oracle_regression": "PASS 15 integration tests; fixed provenance hashes contain 500; scientific text negative controls remain rejected",
+    "native_ci": "PASS: Rust format/check/test/clippy, Windows actual Credential Manager tests and MSI/NSIS, Linux native GUI verification."
+  },
+  "gate": {
+    "prior_acceptance_ci": [
+      {
+        "conclusion": "success",
+        "databaseId": 37941077713,
+        "event": "push",
+        "headSha": "1e505d499fbf65834d6504a7087d324e5662812a",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:03:19Z",
+            "conclusion": "success",
+            "databaseId": 113855300660,
+            "name": "frontend",
+            "startedAt": "2026-10-09T14:01:22Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941077713/job/113855300660"
+          },
+          {
+            "completedAt": "2026-10-09T14:03:18Z",
+            "conclusion": "success",
+            "databaseId": 113855301167,
+            "name": "backend",
+            "startedAt": "2026-10-09T14:01:21Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941077713/job/113855301167"
+          },
+          {
+            "completedAt": "2026-10-09T14:03:20Z",
+            "conclusion": "success",
+            "databaseId": 113855301198,
+            "name": "compose",
+            "startedAt": "2026-10-09T14:01:22Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941077713/job/113855301198"
+          }
+        ],
+        "name": "CI",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941077713"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 37941077606,
+        "event": "push",
+        "headSha": "1e505d499fbf65834d6504a7087d324e5662812a",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:04:42Z",
+            "conclusion": "success",
+            "databaseId": 113855298730,
+            "name": "linux-desktop",
+            "startedAt": "2026-10-09T14:01:20Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941077606/job/113855298730"
+          },
+          {
+            "completedAt": "2026-10-09T14:06:23Z",
+            "conclusion": "success",
+            "databaseId": 113855299426,
+            "name": "windows-desktop",
+            "startedAt": "2026-10-09T14:01:21Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941077606/job/113855299426"
+          }
+        ],
+        "name": "Desktop",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941077606"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 37941087339,
+        "event": "pull_request",
+        "headSha": "1e505d499fbf65834d6504a7087d324e5662812a",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:03:10Z",
+            "conclusion": "success",
+            "databaseId": 113855329967,
+            "name": "frontend",
+            "startedAt": "2026-10-09T14:01:24Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941087339/job/113855329967"
+          },
+          {
+            "completedAt": "2026-10-09T14:03:19Z",
+            "conclusion": "success",
+            "databaseId": 113855330269,
+            "name": "compose",
+            "startedAt": "2026-10-09T14:01:25Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941087339/job/113855330269"
+          },
+          {
+            "completedAt": "2026-10-09T14:03:26Z",
+            "conclusion": "success",
+            "databaseId": 113855330296,
+            "name": "backend",
+            "startedAt": "2026-10-09T14:01:25Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941087339/job/113855330296"
+          }
+        ],
+        "name": "CI",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941087339"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 37941087459,
+        "event": "pull_request",
+        "headSha": "1e505d499fbf65834d6504a7087d324e5662812a",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:05:55Z",
+            "conclusion": "success",
+            "databaseId": 113855330233,
+            "name": "windows-desktop",
+            "startedAt": "2026-10-09T14:01:28Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941087459/job/113855330233"
+          },
+          {
+            "completedAt": "2026-10-09T14:13:42Z",
+            "conclusion": "success",
+            "databaseId": 113855330608,
+            "name": "linux-desktop",
+            "startedAt": "2026-10-09T14:01:25Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941087459/job/113855330608"
+          }
+        ],
+        "name": "Desktop",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37941087459"
+      }
+    ],
+    "implementation_ci": [
+      {
+        "conclusion": "success",
+        "databaseId": 37946282912,
+        "event": "push",
+        "headSha": "c55c15867ab5e3647ace294527ab28dade0c7cdc",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:45:13Z",
+            "conclusion": "success",
+            "databaseId": 113873256020,
+            "name": "frontend",
+            "startedAt": "2026-10-09T14:43:18Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946282912/job/113873256020"
+          },
+          {
+            "completedAt": "2026-10-09T14:45:13Z",
+            "conclusion": "success",
+            "databaseId": 113873256252,
+            "name": "compose",
+            "startedAt": "2026-10-09T14:43:18Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946282912/job/113873256252"
+          },
+          {
+            "completedAt": "2026-10-09T14:45:25Z",
+            "conclusion": "success",
+            "databaseId": 113873256451,
+            "name": "backend",
+            "startedAt": "2026-10-09T14:43:18Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946282912/job/113873256451"
+          }
+        ],
+        "name": "CI",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946282912"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 37946282951,
+        "event": "push",
+        "headSha": "c55c15867ab5e3647ace294527ab28dade0c7cdc",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:48:46Z",
+            "conclusion": "success",
+            "databaseId": 113873250460,
+            "name": "windows-desktop",
+            "startedAt": "2026-10-09T14:43:20Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946282951/job/113873250460",
+            "verification_steps": [
+              {
+                "conclusion": "success",
+                "name": "Run cd src-tauri; cargo fmt --check",
+                "number": 13,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run npm run desktop:check",
+                "number": 14,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Test Rust including actual Windows Credential Manager",
+                "number": 15,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run cd src-tauri; cargo clippy --locked -- -D warnings",
+                "number": 16,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Build actual MSI and NSIS installers",
+                "number": 17,
+                "status": "completed"
+              }
+            ]
+          },
+          {
+            "completedAt": "2026-10-09T14:47:02Z",
+            "conclusion": "success",
+            "databaseId": 113873250654,
+            "name": "linux-desktop",
+            "startedAt": "2026-10-09T14:43:17Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946282951/job/113873250654",
+            "verification_steps": [
+              {
+                "conclusion": "success",
+                "name": "Run cd src-tauri && cargo fmt --check",
+                "number": 11,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run npm run desktop:check",
+                "number": 12,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run npm run desktop:test",
+                "number": 13,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run cd src-tauri && cargo clippy --locked -- -D warnings",
+                "number": 14,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run npm run desktop:build",
+                "number": 15,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Start GUI and verify rendered frontend",
+                "number": 19,
+                "status": "completed"
+              }
+            ]
+          }
+        ],
+        "name": "Desktop",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946282951"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 37946292019,
+        "event": "pull_request",
+        "headSha": "c55c15867ab5e3647ace294527ab28dade0c7cdc",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:45:15Z",
+            "conclusion": "success",
+            "databaseId": 113873281192,
+            "name": "compose",
+            "startedAt": "2026-10-09T14:43:20Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946292019/job/113873281192"
+          },
+          {
+            "completedAt": "2026-10-09T14:45:32Z",
+            "conclusion": "success",
+            "databaseId": 113873281366,
+            "name": "backend",
+            "startedAt": "2026-10-09T14:43:20Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946292019/job/113873281366"
+          },
+          {
+            "completedAt": "2026-10-09T14:45:19Z",
+            "conclusion": "success",
+            "databaseId": 113873281396,
+            "name": "frontend",
+            "startedAt": "2026-10-09T14:43:20Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946292019/job/113873281396"
+          }
+        ],
+        "name": "CI",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946292019"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 37946292211,
+        "event": "pull_request",
+        "headSha": "c55c15867ab5e3647ace294527ab28dade0c7cdc",
+        "jobs": [
+          {
+            "completedAt": "2026-10-09T14:46:41Z",
+            "conclusion": "success",
+            "databaseId": 113873282739,
+            "name": "linux-desktop",
+            "startedAt": "2026-10-09T14:43:20Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946292211/job/113873282739",
+            "verification_steps": [
+              {
+                "conclusion": "success",
+                "name": "Run cd src-tauri && cargo fmt --check",
+                "number": 11,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run npm run desktop:check",
+                "number": 12,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run npm run desktop:test",
+                "number": 13,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run cd src-tauri && cargo clippy --locked -- -D warnings",
+                "number": 14,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run npm run desktop:build",
+                "number": 15,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Start GUI and verify rendered frontend",
+                "number": 19,
+                "status": "completed"
+              }
+            ]
+          },
+          {
+            "completedAt": "2026-10-09T14:49:01Z",
+            "conclusion": "success",
+            "databaseId": 113873283178,
+            "name": "windows-desktop",
+            "startedAt": "2026-10-09T14:43:21Z",
+            "status": "completed",
+            "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946292211/job/113873283178",
+            "verification_steps": [
+              {
+                "conclusion": "success",
+                "name": "Run cd src-tauri; cargo fmt --check",
+                "number": 13,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run npm run desktop:check",
+                "number": 14,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Test Rust including actual Windows Credential Manager",
+                "number": 15,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Run cd src-tauri; cargo clippy --locked -- -D warnings",
+                "number": 16,
+                "status": "completed"
+              },
+              {
+                "conclusion": "success",
+                "name": "Build actual MSI and NSIS installers",
+                "number": 17,
+                "status": "completed"
+              }
+            ]
+          }
+        ],
+        "name": "Desktop",
+        "status": "completed",
+        "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37946292211"
+      }
+    ],
+    "conclusion": "PASSED: exact implementation SHA, four workflows/ten successful jobs and executed native checks."
+  },
+  "actual_pdf": {
+    "truth": "Actual generated two-page PDF, actual pinned Docling NativePdfPipeline. SYNTHETIC ONLY / NOT A BENCHMARK / NOT MANUALLY ANNOTATED. Native pipeline has no table/formula classification or layout/OCR accuracy claim.",
+    "pdf_sha256": "9f4e298964b136c23447bc9b72b7220ccd4f2762998a4843486197c62fd17bff",
+    "elements": 12,
+    "chunks": 3,
+    "pages": 2,
+    "model_calls": 0,
+    "layout_models_downloaded": false,
+    "artifacts": "/workspace/.rag-task12/pdf-release/synthetic-pdf-cvijoz9c"
+  },
+  "upstream_inspection": {
+    "artifacts": [
+      {
+        "package": "docling-core",
+        "version": "2.99.0",
+        "sha256": "2ce0bae815de8139e8c0dc93736ba613609db777c3cbe392d9ec76bfabec6104",
+        "url": "https://files.pythonhosted.org/packages/d4/02/61a226c0ba319dc7da463fd137f88a728e4eb0353591d85064181a5016bb/docling_core-2.99.0-py3-none-any.whl",
+        "wheel": "/workspace/.rag-task12/upstream/docling_core-2.99.0-py3-none-any.whl"
+      },
+      {
+        "package": "docling-slim",
+        "version": "2.133.0",
+        "sha256": "419c26b89d65b113e9bea6293b128bb7503e3ef104d271525279e31423fe8153",
+        "url": "https://files.pythonhosted.org/packages/da/7e/650b15e2cbc6e78c62b408ae7f69b128c98c21952849586bf7055738d7a9/docling_slim-2.133.0-py3-none-any.whl",
+        "wheel": "/workspace/.rag-task12/upstream/docling_slim-2.133.0-py3-none-any.whl"
+      },
+      {
+        "package": "pypdfium2",
+        "version": "5.13.0",
+        "sha256": "81df25c1ab4c13ff773102d3cbea1967511d079123b067fc077bd0c4d57d91d8",
+        "url": "https://files.pythonhosted.org/packages/d3/7c/74a2fb48e5b0d2402d9ca64b39074c722d67e9a8a2c58449a843a8c2329a/pypdfium2-5.13.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl",
+        "wheel": "/workspace/.rag-task12/upstream/pypdfium2-5.13.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+      }
+    ],
+    "licenses": "Docling slim/core/parse MIT; pypdfium2 BSD-3-Clause/Apache-2.0 and bundled dependency notices. Locked wheel SHA256 verified; no external implementation copied. No model weights downloaded or invoked."
+  },
+  "compatibility": {
+    "evidence_id": "Unchanged UUID5(chunk_id, full content span); tested legacy and current records",
+    "storage": "Existing Chunk JSON metadata; source_location_version=1; no DDL",
+    "legacy": "Missing geometry unavailable, existing original page metadata retained; raw cached malformed optional metadata cannot suppress original quote",
+    "missing_parser_provenance": "Text retained, page_location unavailable; numeric placeholder must not be presented as actual page 1",
+    "regions": "Element-level navigation only; table Markdown offsets never masquerade as PDF character coordinates",
+    "deletion": "Retired source text/context/regions redacted"
+  },
+  "failures_retained": [
+    {
+      "check": "initial model import",
+      "result": "3 collection errors",
+      "fix": "Pydantic class validator uses cls; subsequent focused and full tests passed"
+    },
+    {
+      "check": "initial mypy",
+      "result": "7 errors",
+      "fix": "Typed origin/charspan/reason plus three documented narrow computed_field/property ignores"
+    },
+    {
+      "check": "initial new PG provenance",
+      "result": "24 passed / 1 failed",
+      "fix": "Match test embedding fingerprint on ingestion and retrieval; isolation remained enforced"
+    },
+    {
+      "check": "initial frontend check",
+      "result": "3 errors",
+      "fix": "SourceProvenance prop restricts to three metadata fields it displays"
+    },
+    {
+      "check": "initial optional geometry browser",
+      "result": "2 failures with wrong dialog label",
+      "fix": "Correct existing dialog name before negative control; no product claim based on invalid locator"
+    },
+    {
+      "check": "corrected optional geometry negative control",
+      "result": "2 expected failures before fallback; valid source dialog could not open",
+      "fix": "Validate/skip malformed optional regions and safely coerce unavailable metadata; full 97 browser tests passed"
+    },
+    {
+      "check": "initial implementation push CI 37945304885",
+      "result": "823 passed / 1 failed: comparison followup research fixture",
+      "cause": "LargestSampleFacts checked forbidden scientific count 500 against entire evidence JSON; newly preserved random PDF SHA256 could contain 500",
+      "fix": "Only remove validated 64-hex pdf_sha256 from test scientific-text oracle; retain all remaining fields and production hash. Both modes now force fixed digest containing 500. Existing integration file 15 passed; original oracle with deterministic hashes failed both modes. Separate negative controls reject scientific quote/title 500 and malformed hash. Full corrected backend: 824 passed, zero failed/skipped; no blind CI rerun."
+    }
+  ],
+  "external_resources": {
+    "user_response": "尚未备妥，先继续工程任务",
+    "TASK-17": "True corpus/human gold/authorized model configuration and budget unavailable; no paid calls or claimed scientific results"
+  },
+  "evidence_hashes": {
+    "ruff-imports.log": "072a3dfea7d4c191e9de0e2e54df8e199c366f430a04cd22832fd8bba0d46c80",
+    "alembic-check.log": "43d345b67ace77ab8c4cbf575a3baddf66e8623cf7d1e0b78e602b1d641ecf50",
+    "locations-pg.log": "37436412ee7ebe4dc11f0d72c31625a258c114d40b499d50ef4bec76518f9faa",
+    "format-initial.log": "a744a0f284324c01bf54e7200593cf282141acfd6e1d9498a1d0bccf90f60135",
+    "ruff-fixed.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "npm-build-final.log": "0596257dce3d0878cccc247273f568e68f250070b5b04cb0223fdf5059fa52ac",
+    "ruff-initial.log": "6cce93e37d5eda89af268948d66a212a561d6284b0ca1c43d19ee5844fbec90f",
+    "mypy-final.log": "4ceb57b647f65ad9bc4a2ac12b1f1d95323ae55da4304fb3e5014cf75bf56502",
+    "ruff-format-final.log": "a6e4a7e4b58254d53ab0311e25831f5a8558fd01eec36d38b6dbc312d71f4132",
+    "npm-check-final.log": "196b45f34199cfaf004469ea02ae4cbed2f638e3ce548d1a62d6c9f50855ec0e",
+    "npm-check-release.log": "196b45f34199cfaf004469ea02ae4cbed2f638e3ce548d1a62d6c9f50855ec0e",
+    "format-fixed.log": "fc91f386bcb227537b8c6d62e1ce95f801485b92c1e1d41525a468096484fff5",
+    "mypy-initial.log": "5b986df585efb4c58de0f584d103e61a7e407b9e448efe184209c8a2633e4e04",
+    "provenance-fixed.log": "40fdaac36aab5fc04a78a046c73e88463cbdd70c9592465dec55d3f278796bd4",
+    "uv-sync-final.log": "7bc411979dd8f98af351044c3c93456c45d1b1c4cb2e13cf676ec589637213e3",
+    "transport-final.log": "845b5ecb6dfc902e5b7ff9bbd02fbf98103e307ee4bf872ef5b1afcabea828d9",
+    "docling-install.log": "af1a9e3d2d6db8f3e2a5bc792798d483e97fde236bb3850d2cecb0234b1797f7",
+    "browser-release.log": "e878112571d9b581712c42da717d6a8bc66eb003cd73400c552866908b215f42",
+    "browser-final.log": "7b40efa8cc112dfdf3da94a6b76af9929dd47bc98f2bd00bdc68969bf62d54d8",
+    "frontend-before-fallback.log": "b6ec9ee480103db533c5c55667fdefc6b0959841014f316203322dd0a827f850",
+    "ruff-check-final.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "transport-release.log": "6bd6750e837af0eb3e78aca018eec9648c3962ebcb1d82e9cb607798144abfb8",
+    "pdf-release.log": "321e11dd33e87e39b5ae6063a5a87136cbb81228dac20922b0a74ab382e18ffc",
+    "npm-build-release.log": "ef4d552a108452e15d8e10837ae95a32fc6c07883f04fcb0f263a9ef3ee60b33",
+    "pdf-actual.log": "bf901ac606a4b79e974ecc6d5efa89049abdc044c48a2233f11379ad54d7ed12",
+    "npm-lint-final.log": "0c5a6ec8ad6e8f1ac414d1cc914a131352a62ebcf91ce289676a6a3f91356abc",
+    "locations-pg-fixed.log": "e14b73085d292d81273126a11549c6dae68947c53f9632fed5d3ea361da9d0c3",
+    "locations-focused.log": "d61c3ab9582591171717a3f824efec5f6578bd5f09187b5af330c67726084ac1",
+    "provenance-focused.log": "31b28856ec37dd762e391ddc1957d6e225709541f5ffdb8cd3574a9c1fb4e49d",
+    "browser-optional-negative-corrected.log": "7c4ece2f38e4bcfec0c95d72e1683df3a4b07f4e5d74148c50301c1c116a1bfb",
+    "rustfmt-final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "npm-lint-release.log": "0c5a6ec8ad6e8f1ac414d1cc914a131352a62ebcf91ce289676a6a3f91356abc",
+    "npm-ci-final.log": "ae9cd4c8c2df7e92d8302b383e551c2a05c7b004b30ba4c58b66ec7787003de3",
+    "ruff-locations.log": "2e4018dd35a308bd7f60dc35d8bb565b0552b580a4c61d44344bc8ee99c0d621",
+    "pytest-final.log": "d90d501d16c95c03c375f7d0d1f5d6e98e9d9c202eabc870b9b03558cbf9ac9a",
+    "mypy-fixed.log": "4ceb57b647f65ad9bc4a2ac12b1f1d95323ae55da4304fb3e5014cf75bf56502",
+    "browser-optional-negative.log": "a49daa4981bd1ccd2f9ea71a9df055bf33e894b5fa408b5eea087d674b0a906f",
+    "pytest-corrected.log": "e0507de99989970a8479293f4c5dbba90756608007bec9c90df422d265f4d874",
+    "hash-mypy.log": "4ceb57b647f65ad9bc4a2ac12b1f1d95323ae55da4304fb3e5014cf75bf56502",
+    "hash-oracle-negative.log": "304a542329db08dec5d540fb7ce4ab22fa9be4aa855fed2bc8e1802379c924c6",
+    "hash-oracle-fixed.log": "491855cb0054086d3827432c00afd43d0318646fd2a1c0dd8926347dc1f322ff",
+    "hash-oracle-controls.log": "a793e70f6c26c3a7a32bec3f14fe9b832f8484a5ed7b2ef798ecd5b44b794c56",
+    "hash-ruff-check.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "hash-sync.log": "7bc411979dd8f98af351044c3c93456c45d1b1c4cb2e13cf676ec589637213e3",
+    "ci-push-failure.log": "ca86a2fb8cc20ef0ff70bd5dcf21c982144c4f0f6de8912dafa24dd858d630ae",
+    "hash-ruff-format.log": "9faa9aea34d7537854052aaa582295864db3fd79d8d1fd688f512860c0b0a002",
+    "ci-37945315674.json": "96fa2d1eae811d8b291fa411a5aa9e82843436ce9c73619816284099837b9405",
+    "ci-37945304885.json": "56adce62b49d63b02846a5e7d0b1b55daeaf800253e751ef22d23c79e6d63c07",
+    "ci-37946282951.json": "eea91c8d1424eff7ea2d1a1d1f3234856b26f4a0df16ccf7d058641d992cd12d",
+    "ci-37946292211.json": "ec5804d2b5ff5ef7e80707d5da5b0675840e154e284f3d8a8d5adf2bca223dfc",
+    "ci-37945315701.json": "e74d63c8590de513a4d53acd6280168a02676f71795842def6a15f4bea4e4aa7",
+    "ci-runs.json": "a838562a62182e29ff8ece40bf90088527f415b24a34f859448033a6cc01691f",
+    "ci-37946282912.json": "16fdca190c4c0c884ce76efec080e02cec43a802e14d359cb6b3d4ca4768d4ca",
+    "ci-37946292019.json": "dfbe58f6df7da8d6dc7d1c2c78d3c207d3ee77c5f0fe39f9caa5731a5f9f42ff",
+    "ci-37945304936.json": "e18bb50253902971f37fc7c55a373429b6e3b6b4a9f83c35fea1a9fb5f0bb9e8",
+    "runtime-final.json": "c3547dddd926732f989b3dd5382897e05f0778973877f1e3e713edd6c96f2688"
+  },
+  "initial_implementation_commit": "3449f8e6ed03ccd534338ae6f32663ef3c0d7b2c",
+  "initial_implementation_ci": [
+    {
+      "conclusion": "failure",
+      "databaseId": 37945304885,
+      "event": "push",
+      "headSha": "3449f8e6ed03ccd534338ae6f32663ef3c0d7b2c",
+      "jobs": [
+        {
+          "completedAt": "2026-10-09T14:37:26Z",
+          "conclusion": "success",
+          "databaseId": 113869917595,
+          "name": "frontend",
+          "startedAt": "2026-10-09T14:35:30Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945304885/job/113869917595"
+        },
+        {
+          "completedAt": "2026-10-09T14:37:42Z",
+          "conclusion": "failure",
+          "databaseId": 113869917670,
+          "name": "backend",
+          "startedAt": "2026-10-09T14:35:30Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945304885/job/113869917670"
+        },
+        {
+          "completedAt": "2026-10-09T14:37:14Z",
+          "conclusion": "success",
+          "databaseId": 113869917765,
+          "name": "compose",
+          "startedAt": "2026-10-09T14:35:30Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945304885/job/113869917765"
+        }
+      ],
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945304885"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 37945304936,
+      "event": "push",
+      "headSha": "3449f8e6ed03ccd534338ae6f32663ef3c0d7b2c",
+      "jobs": [
+        {
+          "completedAt": "2026-10-09T14:38:50Z",
+          "conclusion": "success",
+          "databaseId": 113869918046,
+          "name": "linux-desktop",
+          "startedAt": "2026-10-09T14:35:30Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945304936/job/113869918046",
+          "verification_steps": [
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri && cargo fmt --check",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:check",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:test",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri && cargo clippy --locked -- -D warnings",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:build",
+              "number": 15,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Start GUI and verify rendered frontend",
+              "number": 19,
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "completedAt": "2026-10-09T14:40:22Z",
+          "conclusion": "success",
+          "databaseId": 113869918281,
+          "name": "windows-desktop",
+          "startedAt": "2026-10-09T14:35:31Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945304936/job/113869918281",
+          "verification_steps": [
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri; cargo fmt --check",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:check",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Test Rust including actual Windows Credential Manager",
+              "number": 15,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri; cargo clippy --locked -- -D warnings",
+              "number": 16,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build actual MSI and NSIS installers",
+              "number": 17,
+              "status": "completed"
+            }
+          ]
+        }
+      ],
+      "name": "Desktop",
+      "status": "completed",
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945304936"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 37945315674,
+      "event": "pull_request",
+      "headSha": "3449f8e6ed03ccd534338ae6f32663ef3c0d7b2c",
+      "jobs": [
+        {
+          "completedAt": "2026-10-09T14:37:31Z",
+          "conclusion": "success",
+          "databaseId": 113869952403,
+          "name": "frontend",
+          "startedAt": "2026-10-09T14:35:35Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945315674/job/113869952403"
+        },
+        {
+          "completedAt": "2026-10-09T14:37:43Z",
+          "conclusion": "success",
+          "databaseId": 113869952600,
+          "name": "backend",
+          "startedAt": "2026-10-09T14:35:35Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945315674/job/113869952600"
+        },
+        {
+          "completedAt": "2026-10-09T14:37:22Z",
+          "conclusion": "success",
+          "databaseId": 113869952690,
+          "name": "compose",
+          "startedAt": "2026-10-09T14:35:35Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945315674/job/113869952690"
+        }
+      ],
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945315674"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 37945315701,
+      "event": "pull_request",
+      "headSha": "3449f8e6ed03ccd534338ae6f32663ef3c0d7b2c",
+      "jobs": [
+        {
+          "completedAt": "2026-10-09T14:41:16Z",
+          "conclusion": "success",
+          "databaseId": 113869952042,
+          "name": "windows-desktop",
+          "startedAt": "2026-10-09T14:35:34Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945315701/job/113869952042",
+          "verification_steps": [
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri; cargo fmt --check",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:check",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Test Rust including actual Windows Credential Manager",
+              "number": 15,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri; cargo clippy --locked -- -D warnings",
+              "number": 16,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build actual MSI and NSIS installers",
+              "number": 17,
+              "status": "completed"
+            }
+          ]
+        },
+        {
+          "completedAt": "2026-10-09T14:38:53Z",
+          "conclusion": "success",
+          "databaseId": 113869952541,
+          "name": "linux-desktop",
+          "startedAt": "2026-10-09T14:35:35Z",
+          "status": "completed",
+          "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945315701/job/113869952541",
+          "verification_steps": [
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri && cargo fmt --check",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:check",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:test",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run cd src-tauri && cargo clippy --locked -- -D warnings",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run npm run desktop:build",
+              "number": 15,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Start GUI and verify rendered frontend",
+              "number": 19,
+              "status": "completed"
+            }
+          ]
+        }
+      ],
+      "name": "Desktop",
+      "status": "completed",
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/37945315701"
+    }
+  ],
+  "runtime_validation": {
+    "implementation_commit": "3449f8e6ed03ccd534338ae6f32663ef3c0d7b2c",
+    "launcher_pid": 187780,
+    "public_readiness": [
+      {
+        "url": "http://127.0.0.1:8000/api/health",
+        "status": 200,
+        "body": {
+          "status": "ok"
+        }
+      },
+      {
+        "url": "http://127.0.0.1:8000/api/ready",
+        "status": 200,
+        "body": {
+          "status": "ready"
+        }
+      },
+      {
+        "url": "http://127.0.0.1:8080/api/ready",
+        "status": 200,
+        "body": {
+          "status": "ready"
+        }
+      }
+    ],
+    "provider_calls_issued_by_validation": 0,
+    "database": {
+      "schema": "0012",
+      "papers": 0,
+      "runs": 1,
+      "active_runs": 0,
+      "mentions": 0,
+      "existing_run_preserved": true
+    },
+    "validated_checkout_commit": "c55c15867ab5e3647ace294527ab28dade0c7cdc",
+    "application_source_changes_since_start": []
+  },
+  "artifact_api_metadata": {
+    "truth": "GitHub artifact API listing; not independently downloaded or rehashed. PR artifact uses the normal merge checkout SHA, distinct from verified workflow head SHA.",
+    "runs": {
+      "37946282951": {
+        "total_count": 1,
+        "artifacts": [
+          {
+            "id": 11624387014,
+            "node_id": "MDg6QXJ0aWZhY3QxMTYyNDM4NzAxNA==",
+            "name": "scientific-ragagent-windows-unsigned-c55c15867ab5e3647ace294527ab28dade0c7cdc",
+            "size_in_bytes": 5529443,
+            "url": "https://api.github.com/repos/maczhouyi-del/RAGSystem/actions/artifacts/11624387014",
+            "archive_download_url": "https://api.github.com/repos/maczhouyi-del/RAGSystem/actions/artifacts/11624387014/zip",
+            "expired": false,
+            "digest": "sha256:8925af1babb612d87c817fce3763094ec563f06a4c2a2770b4ec00b3eefae9a9",
+            "created_at": "2026-10-09T14:48:42Z",
+            "updated_at": "2026-10-09T14:48:42Z",
+            "expires_at": "2027-01-07T14:43:13Z",
+            "workflow_run": {
+              "id": 37946282951,
+              "repository_id": 1410199384,
+              "head_repository_id": 1410199384,
+              "head_branch": "codex/research-product-improvement",
+              "head_sha": "c55c15867ab5e3647ace294527ab28dade0c7cdc"
+            }
+          }
+        ]
+      },
+      "37946292211": {
+        "total_count": 1,
+        "artifacts": [
+          {
+            "id": 11624286665,
+            "node_id": "MDg6QXJ0aWZhY3QxMTYyNDI4NjY2NQ==",
+            "name": "scientific-ragagent-windows-unsigned-210685bb10bac86d264f03dbeac1fe39cb9db640",
+            "size_in_bytes": 5530255,
+            "url": "https://api.github.com/repos/maczhouyi-del/RAGSystem/actions/artifacts/11624286665",
+            "archive_download_url": "https://api.github.com/repos/maczhouyi-del/RAGSystem/actions/artifacts/11624286665/zip",
+            "expired": false,
+            "digest": "sha256:0152d6719bc745c584fe2f4a83cf740a62dd25d561122f8dc7642e65f12c8620",
+            "created_at": "2026-10-09T14:48:56Z",
+            "updated_at": "2026-10-09T14:48:56Z",
+            "expires_at": "2027-01-07T14:43:17Z",
+            "workflow_run": {
+              "id": 37946292211,
+              "repository_id": 1410199384,
+              "head_repository_id": 1410199384,
+              "head_branch": "codex/research-product-improvement",
+              "head_sha": "c55c15867ab5e3647ace294527ab28dade0c7cdc"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

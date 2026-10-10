@@ -12,6 +12,9 @@ from tests.unit.helpers import candidate
 
 
 class StubSession:
+    def scalars(self, statement: Any) -> list[str]:
+        return ["method", "dataset"]
+
     def get(self, model: Any, identifier: str) -> object:
         return object()
 

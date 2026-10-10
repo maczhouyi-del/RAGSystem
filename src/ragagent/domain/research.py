@@ -1,13 +1,17 @@
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel, Field, FiniteFloat, model_validator
+from pydantic import BaseModel, Field, FiniteFloat, field_validator, model_validator
 
+from ragagent.domain.collections import collection_ids
 from ragagent.domain.documents import SourceContext, SourceSpan
+from ragagent.domain.locations import LocatedSource, PageLocation
 
 
 class MetadataFilter(BaseModel):
     paper_ids: list[str] = Field(default_factory=list)
+    group_ids: list[str] = Field(default_factory=list, max_length=50)
+    tag_ids: list[str] = Field(default_factory=list, max_length=50)
     authors: list[str] = Field(default_factory=list)
     year_start: int | None = Field(default=None, ge=1000, le=2100)
     year_end: int | None = Field(default=None, ge=1000, le=2100)
@@ -17,6 +21,11 @@ class MetadataFilter(BaseModel):
     datasets: list[str] = Field(default_factory=list)
     methods: list[str] = Field(default_factory=list)
     metrics: list[str] = Field(default_factory=list)
+
+    @field_validator("group_ids", "tag_ids")
+    @classmethod
+    def valid_collection_ids(cls, values: list[str]) -> list[str]:
+        return collection_ids(values)
 
     @model_validator(mode="after")
     def valid_years(self) -> "MetadataFilter":
@@ -44,9 +53,10 @@ class PaperMetadata(BaseModel):
     arxiv_family_id: str | None = None
     arxiv_version: int | None = None
     source_status: Literal["unknown", "active", "withdrawn", "retracted"] = "unknown"
+    pdf_sha256: str | None = None
 
 
-class EvidenceRecord(BaseModel):
+class EvidenceRecord(LocatedSource):
     evidence_id: str
     paper: PaperMetadata
     chunk_id: str
@@ -54,6 +64,7 @@ class EvidenceRecord(BaseModel):
     section_path: str
     page_start: int
     page_end: int
+    page_location: PageLocation = "available"
     content: str
     quote: str
     span_start: int
@@ -113,6 +124,7 @@ class CitationValidation(BaseModel):
     missing_aspects: list[str] = Field(default_factory=list)
     comparison_entities: list[ComparisonEntityCoverage] = Field(default_factory=list)
     comparison_errors: list[str] = Field(default_factory=list)
+    report_bindings_verified: bool = False
 
 
 class Sufficiency(StrEnum):
@@ -140,6 +152,7 @@ class VerificationResponse(BaseModel):
     question_answered: bool = False
     missing_aspects: list[str] = Field(default_factory=list)
     comparison_entities: list[ComparisonEntityCoverage] = Field(default_factory=list)
+    report_bindings_verified: bool = False
 
 
 class QueryExpansion(BaseModel):

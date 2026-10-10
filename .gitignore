@@ -11,3 +11,6 @@ data/
 results/
 *.egg-info/
 .coverage
+.runtime-secrets.env
+deployment-dist/
+*.spec

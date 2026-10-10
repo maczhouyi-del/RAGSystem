@@ -1,14 +1,37 @@
+from typing import TypeVarTuple
+
 from sqlalchemy import Select, func, or_, select
 
-from ragagent.db.models import Author, Chunk, ChunkEntity, Entity, Paper, PaperAuthor
+from ragagent.db.models import (
+    Author,
+    Chunk,
+    ChunkEntity,
+    Entity,
+    Paper,
+    PaperAuthor,
+    PaperCollection,
+    PaperCollectionMember,
+)
 from ragagent.domain.research import MetadataFilter
 
+Columns = TypeVarTuple("Columns")
 
-def apply_filters(
-    statement: Select[Chunk, Paper, float], filters: MetadataFilter
-) -> Select[Chunk, Paper, float]:
+
+def apply_filters(statement: Select[*Columns], filters: MetadataFilter) -> Select[*Columns]:
     if filters.paper_ids:
         statement = statement.where(Paper.id.in_(filters.paper_ids))
+    for ids, kind in [(filters.group_ids, "group"), (filters.tag_ids, "tag")]:
+        if ids:
+            statement = statement.where(
+                select(PaperCollectionMember.paper_id)
+                .join(PaperCollection)
+                .where(
+                    PaperCollectionMember.paper_id == Paper.id,
+                    PaperCollection.id.in_(ids),
+                    PaperCollection.kind == kind,
+                )
+                .exists()
+            )
     if filters.year_start is not None:
         statement = statement.where(Paper.year >= filters.year_start)
     if filters.year_end is not None:

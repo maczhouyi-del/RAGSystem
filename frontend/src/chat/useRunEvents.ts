@@ -10,40 +10,75 @@ export function useRunEvents(
   details: boolean,
   onReconcile: (messageId: string) => Promise<void>,
 ) {
-  const [fullRun, setFullRun] = useState<RunType | null>(null);
-  const [events, setEvents] = useState<(EventType & { eventId: string })[]>([]);
+  const revision = `${message.run_id}:${message.updated_at}`;
+  const latestRevision = useRef(revision);
+  latestRevision.current = revision;
+  const [detail, setDetail] = useState<{
+    revision: string;
+    run: RunType;
+  } | null>(null);
+  const fullRun = detail?.revision === revision ? detail.run : null;
+  const [eventState, setEvents] = useState<{
+    revision: string;
+    items: (EventType & { eventId: string })[];
+  }>({ revision, items: [] });
+  const events = eventState.revision === revision ? eventState.items : [];
   const [connection, setConnection] = useState("");
   const cursor = useRef(0);
   const callback = useRef(onReconcile);
   callback.current = onReconcile;
-  const pendingDetail = useRef<Promise<RunType> | null>(null);
+  const pendingDetail = useRef<{
+    revision: string;
+    promise: Promise<RunType>;
+    controller: AbortController;
+  } | null>(null);
   const full = useRef(fullRun);
   full.current = fullRun;
   const runId = message.run_id;
   const running = activeStatus(message.status);
-  const loadRun = async () => {
-    if (full.current && !activeStatus(full.current.status)) return full.current;
+  const loadRun = async (fresh = false) => {
+    if (!fresh && full.current && !activeStatus(full.current.status))
+      return full.current;
     if (!runId) throw new Error("run_not_found");
-    if (!pendingDetail.current)
-      pendingDetail.current = api(`/api/runs/${runId}`, Run)
+    if (pendingDetail.current?.revision !== revision) {
+      pendingDetail.current?.controller.abort();
+      pendingDetail.current = null;
+    }
+    if (!pendingDetail.current) {
+      const controller = new AbortController();
+      const promise = api(
+        `/api/runs/${runId}`,
+        Run,
+        undefined,
+        "GET",
+        AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]),
+      )
         .then((run) => {
+          if (latestRevision.current !== revision || controller.signal.aborted)
+            throw new DOMException("Source revision changed", "AbortError");
           full.current = run;
-          setFullRun(run);
+          setDetail({ revision, run });
           return run;
         })
         .finally(() => {
-          pendingDetail.current = null;
+          if (pendingDetail.current?.promise === promise)
+            pendingDetail.current = null;
         });
-    return pendingDetail.current;
+      pendingDetail.current = { revision, promise, controller };
+    }
+    return pendingDetail.current.promise;
   };
 
   useEffect(() => {
     cursor.current = 0;
-    setEvents([]);
+    setEvents({ revision, items: [] });
     setConnection("");
-    setFullRun(null);
-    pendingDetail.current = null;
-  }, [runId]);
+    setDetail(null);
+    return () => {
+      pendingDetail.current?.controller.abort();
+      pendingDetail.current = null;
+    };
+  }, [revision]);
   useEffect(() => {
     if (!runId || (!running && !details)) {
       setConnection("");
@@ -82,7 +117,7 @@ export function useRunEvents(
         }
       },
       onExecution: (data, eventId) => {
-        if (!live) return;
+        if (!live || latestRevision.current !== revision) return;
         try {
           const parsed = Event.parse(JSON.parse(data));
           const next = Number(eventId);
@@ -91,18 +126,24 @@ export function useRunEvents(
           if (eventId && Number.isFinite(next)) cursor.current = next;
           stopRecovery();
           setConnection("");
-          setEvents((previous) => [...previous, { ...parsed, eventId }]);
+          setEvents((previous) => ({
+            revision,
+            items: [
+              ...(previous.revision === revision ? previous.items : []),
+              { ...parsed, eventId },
+            ],
+          }));
         } catch {
           setConnection("执行事件格式错误，正在从数据库恢复状态。");
           scheduleRecovery();
         }
       },
       onDone: (data) => {
-        if (!live) return;
+        if (!live || latestRevision.current !== revision) return;
         stopRecovery();
         try {
           const run = Run.parse(JSON.parse(data));
-          setFullRun(run);
+          setDetail({ revision, run });
           full.current = run;
           setConnection("");
         } catch {
@@ -127,6 +168,6 @@ export function useRunEvents(
       stopRecovery();
       close();
     };
-  }, [runId, running, details, message.id]);
+  }, [runId, running, details, message.id, revision]);
   return { fullRun, events, connection, loadRun };
 }

@@ -8,7 +8,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from ragagent.domain.research import Claim, EvidenceRecord
-from ragagent.errors import ApplicationError
+from ragagent.errors import ApplicationError, EvaluationError
 from ragagent.evaluation.artifacts import (
     canonical_hash,
     checkpoint_usage,
@@ -27,6 +27,7 @@ from ragagent.evaluation.artifacts import (
 )
 from ragagent.evaluation.metrics import average, ratio
 from ragagent.evaluation.schema import EvaluationCase, EvaluationDataset, RAGJudgment
+from ragagent.evaluation.validation import validate_references
 from ragagent.graphs.rag import build_rag
 from ragagent.graphs.research import build_research
 from ragagent.graphs.state import MultiAgentState, RAGState
@@ -238,6 +239,10 @@ async def evaluate_generation(
     dataset.generation_runnable()
     session = getattr(search, "session", None)
     session = session if isinstance(session, Session) else None
+    if session is not None:
+        validate_references(dataset, session)
+    elif dataset.annotation_format == "source_v1" and dataset.label_source == "human":
+        raise EvaluationError("gold_source_verification_requires_corpus")
     corpus = corpus_snapshot(session)
     provenance = manifest(
         dataset,

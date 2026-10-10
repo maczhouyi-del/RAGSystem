@@ -19,6 +19,27 @@ unique; distinct versions may have the same PDF checksum. Uploaded PDFs retain
 a partial unique checksum constraint. Legacy unversioned IDs keep null version;
 the migration does not invent the old PDF's historical version.
 
+Migration 0008 adds immutable application-captured `original_metadata` (JSONB;
+SQL NULL for unknown legacy origins), positive `metadata_version` and
+`overridden_fields`. Upload origins describe user-filled values; arXiv origins
+record fetched Atom fields and pinned identity/byte checksum. Current Paper
+fields/author links can be corrected separately. New PATCH clients provide the
+expected version, checked under a row lock before atomic updates; unchanged
+updates do not increment it. Legacy unchecked PATCH remains compatible.
+PDF bytes, source version and chunk/section/vector associations are untouched.
+Downgrade rejects non-pristine provenance/edit records to prevent silent loss.
+
+Migration 0009 adds `paper_deletions`: immutable source/chunk/Evidence IDs,
+deletion time, owned relative file manifests/checksums, revoked Run IDs,
+affected evaluation IDs and the latest cleanup Run FK. GIN indexes support
+deleted chunk/Evidence checks. It has no FK to the removed Paper and contains
+no source text. An explicit confirmation retires Paper and cascaded derivatives
+in one transaction, redacts attributed historical snapshots and creates the
+cleanup Run/outbox. Shared authors/entities remain; associated orphans and
+their entity subtypes are pruned. Failed file/Redis cleanup leaves the ledger
+and retired library state intact; retry moves forward with a new Run ID.
+Nonempty ledgers prevent downgrade. See [lifecycle](paper-deletion.md).
+
 Chunk records UUID, paper/section, complete section path,
 pages, element type, exact text, ordinal, lexical token count, JSON metadata,
 configured-dimensional vector and a generated English tsvector with GIN index.

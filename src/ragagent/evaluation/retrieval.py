@@ -56,6 +56,7 @@ async def evaluate_retrieval(
         search.top_n,
         max(10, search.top_k),
         search.fusion.k,
+        commit_results=getattr(search, "commit_results", False),
     )
     provenance["retrieval_configuration"]["evaluation_top_k"] = search.top_k
     previous = resume_results(resume_directory, "retrieval", provenance)

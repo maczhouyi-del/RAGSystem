@@ -1,12 +1,15 @@
 """Authenticated infrastructure/configuration diagnostics; never performs inference."""
 
+from importlib.util import find_spec
+
 from fastapi import APIRouter
-from sqlalchemy import text
+from sqlalchemy import func, select, text
 
 from ragagent.api import auth
 from ragagent.api.papers import DB
 from ragagent.api.queue import RQQueue
 from ragagent.build_info import build_info
+from ragagent.db.models import Chunk, Paper
 from ragagent.errors import ApplicationError
 from ragagent.providers.config import load_config
 from ragagent.providers.environment import runtime_value
@@ -28,9 +31,20 @@ def diagnostics(db: DB) -> dict[str, object]:
     try:
         db.execute(text("SELECT 1"))
         result["database"] = "available"
+        usable = db.scalar(
+            select(func.count())
+            .select_from(Paper)
+            .where(
+                Paper.status == "indexed",
+                Paper.source_status.not_in(["withdrawn", "retracted"]),
+                select(Chunk.id).where(Chunk.paper_id == Paper.id).exists(),
+            )
+        )
+        result["corpus"] = {"usable_papers": usable, "state": "available" if usable else "empty"}
     except Exception:
         db.rollback()
         result["database"] = "unavailable"
+        result["corpus"] = {"state": "unknown"}
     try:
         connection = RQQueue().connection()
         connection.ping()
@@ -47,6 +61,14 @@ def diagnostics(db: DB) -> dict[str, object]:
         result["redis"] = "unavailable"
         result["queues"] = None
     settings = get_settings()
+    result["runtime_dependencies"] = {
+        "docling": "installed" if find_spec("docling") else "missing",
+        "local_models": (
+            "installed" if find_spec("sentence_transformers") and find_spec("torch") else "missing"
+        )
+        if settings.embedding_backend == "local" or settings.reranker_backend == "local"
+        else "not_required",
+    }
     try:
         config = load_config(settings.agent_config)
         result["chat_configuration"] = {

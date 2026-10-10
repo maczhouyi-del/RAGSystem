@@ -117,17 +117,86 @@ pub fn client_with_token(token: Option<&str>) -> Result<Client, String> {
 fn uuid(value: &str) -> bool {
     value.len() == 36 && Uuid::parse_str(value).is_ok()
 }
+fn library_query(query: &str) -> bool {
+    // Decode values only on the fixed library-search route. Percent-encoded
+    // paths, redirects, arbitrary keys and duplicate parameters remain denied.
+    let bytes = query.as_bytes();
+    let mut index = 0;
+    while index < bytes.len() {
+        if bytes[index] == b'%' {
+            if index + 2 >= bytes.len()
+                || !bytes[index + 1].is_ascii_hexdigit()
+                || !bytes[index + 2].is_ascii_hexdigit()
+            {
+                return false;
+            }
+            index += 3;
+        } else {
+            index += 1;
+        }
+    }
+    if query.is_empty()
+        || query.split('&').any(|entry| {
+            !entry.split_once('=').is_some_and(|(key, _)| {
+                !key.is_empty() && key.bytes().all(|b| b.is_ascii_lowercase())
+            })
+        })
+    {
+        return false;
+    }
+    let Ok(url) = reqwest::Url::parse(&format!("{API_BASE}/api/papers/search?{query}")) else {
+        return false;
+    };
+    let mut names = Vec::new();
+    for (key, value) in url.query_pairs() {
+        if names.contains(&key.to_string()) {
+            return false;
+        }
+        names.push(key.to_string());
+        let numeric = |min: u32, max: u32| {
+            !value.is_empty()
+                && value.bytes().all(|b| b.is_ascii_digit())
+                && value.parse::<u32>().is_ok_and(|n| (min..=max).contains(&n))
+        };
+        let valid = match key.as_ref() {
+            "title" | "author" | "venue" => {
+                !value.trim().is_empty()
+                    && value.chars().count() <= if key == "title" { 1000 } else { 256 }
+                    && !value.chars().any(char::is_control)
+                    && !value.contains('\u{fffd}')
+            }
+            "year" => numeric(1000, 2100),
+            "group" | "tag" => uuid(&value),
+            "limit" => numeric(1, 200),
+            "offset" => numeric(0, 1_000_000),
+            "status" => matches!(
+                value.as_ref(),
+                "queued" | "parsing" | "indexing" | "indexed" | "failed"
+            ),
+            "sort" => matches!(value.as_ref(), "created_at" | "year"),
+            "direction" => matches!(value.as_ref(), "asc" | "desc"),
+            _ => false,
+        };
+        if !valid {
+            return false;
+        }
+    }
+    true
+}
 fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
-    if path.len() > 4096
+    let (route, query) = path
+        .split_once('?')
+        .map_or((path, None), |(route, query)| (route, Some(query)));
+    let search = route == "/api/papers/search";
+    if path.len() > if search { 24576 } else { 4096 }
         || !path.is_ascii()
-        || path.contains(['\\', '#', '%'])
+        || path.contains(['\\', '#'])
+        || route.contains('%')
+        || (!search && path.contains('%'))
         || path.chars().any(char::is_whitespace)
     {
         return Err("invalid_local_path".into());
     }
-    let (route, query) = path
-        .split_once('?')
-        .map_or((path, None), |(route, query)| (route, Some(query)));
     if !route.starts_with("/api/")
         || route.contains("//")
         || route.split('/').any(|s| s == "." || s == "..")
@@ -135,6 +204,57 @@ fn api_path(path: &str) -> Result<(&str, Option<&str>), String> {
         return Err("invalid_local_path".into());
     }
     if let Some(query) = query {
+        if route == "/api/collections"
+            || route.ends_with("/annotations")
+            || route.ends_with("/annotation-chunks")
+            || route.ends_with("/entity-mentions")
+        {
+            let mut names = Vec::new();
+            let valid = !query.is_empty()
+                && query.split('&').all(|entry| {
+                    let Some((key, value)) = entry.split_once('=') else {
+                        return false;
+                    };
+                    if names.contains(&key) {
+                        return false;
+                    }
+                    names.push(key);
+                    if key == "chunk_id" && route.ends_with("/entity-mentions") {
+                        return uuid(value) && value.bytes().all(|b| !b.is_ascii_uppercase());
+                    }
+                    !value.is_empty()
+                        && value.bytes().all(|b| b.is_ascii_digit())
+                        && value.parse::<u32>().is_ok_and(|n| match key {
+                            "limit" => (1..=200).contains(&n),
+                            "offset" => n <= 1_000_000,
+                            _ => false,
+                        })
+                });
+            return if valid {
+                Ok((route, Some(query)))
+            } else {
+                Err("invalid_local_query".into())
+            };
+        }
+        if route.split('/').any(|part| part == "collections")
+            || route.ends_with("/source")
+            || route == "/api/annotations/coverage"
+            || route.split('/').any(|part| {
+                matches!(
+                    part,
+                    "entity-mentions" | "annotation-runs" | "annotation-review" | "entities"
+                )
+            })
+        {
+            return Err("invalid_local_query".into());
+        }
+        if search {
+            return if library_query(query) {
+                Ok((route, Some(query)))
+            } else {
+                Err("invalid_local_query".into())
+            };
+        }
         // Only pagination/cursors and the explicit workflow mode are accepted.
         let mut cursor = None;
         if query.is_empty()
@@ -177,14 +297,46 @@ pub fn validate_request(path: &str, method: &str) -> Result<(), String> {
         ["api", "providers"] => matches!(method, "GET" | "PUT"),
         ["api", "providers", "test"] => method == "POST",
         ["api", "papers"] => method == "GET",
+        ["api", "papers", "search"] => method == "GET",
+        ["api", "collections"] => matches!(method, "GET" | "POST"),
+        ["api", "collections", id] if uuid(id) => matches!(method, "GET" | "PATCH" | "DELETE"),
+        ["api", "papers", id, "collections"] if uuid(id) => method == "GET",
+        ["api", "papers", id, "collections", collection] if uuid(id) && uuid(collection) => {
+            matches!(method, "PUT" | "DELETE")
+        }
         ["api", "papers", "upload" | "arxiv"] => method == "POST",
-        ["api", "papers", id] if uuid(id) => matches!(method, "GET" | "PATCH"),
-        ["api", "papers", id, "chunks"] if uuid(id) => method == "GET",
-        ["api", "papers", id, "retry"] if uuid(id) => method == "POST",
-        ["api", "papers", id, "chunks", chunk, "entities"] if uuid(id) && uuid(chunk) => {
+        ["api", "papers", id] if uuid(id) => matches!(method, "GET" | "PATCH" | "DELETE"),
+        ["api", "papers", id, "deletion-preview" | "deletion"] if uuid(id) => method == "GET",
+        ["api", "papers", id, "deletion", "retry"] if uuid(id) => method == "POST",
+        ["api", "papers", id, "chunks" | "annotations" | "annotation-chunks" | "entity-mentions"]
+            if uuid(id) =>
+        {
+            method == "GET"
+        }
+        ["api", "papers", id, "annotation-runs"] if uuid(id) => method == "POST",
+        ["api", "papers", id, "entity-mentions", mention] if uuid(id) && uuid(mention) => {
+            method == "PATCH"
+        }
+        ["api", "papers", id, "chunks", chunk, "entity-mentions" | "annotation-review"]
+            if uuid(id) && uuid(chunk) =>
+        {
             method == "POST"
         }
+        ["api", "papers", id, "chunks", chunk, "entities", entity]
+            if uuid(id) && uuid(chunk) && uuid(entity) =>
+        {
+            method == "DELETE"
+        }
+        ["api", "annotations", "coverage"] => method == "POST",
+        ["api", "papers", id, "chunks", chunk, "source"] if uuid(id) && uuid(chunk) => {
+            method == "GET"
+        }
+        ["api", "papers", id, "retry"] if uuid(id) => method == "POST",
+        ["api", "papers", id, "chunks", chunk, "entities"] if uuid(id) && uuid(chunk) => {
+            matches!(method, "GET" | "POST")
+        }
         ["api", "runs" | "rag" | "research", id] if uuid(id) => method == "GET",
+        ["api", "runs", id, "metrics"] if uuid(id) => method == "GET" && query.is_none(),
         ["api", "runs", id, "cancel"] if uuid(id) => method == "POST",
         ["api", "evaluations", "retrieval" | "rag" | "multi-agent" | "conversation"] => {
             method == "POST"
@@ -494,6 +646,166 @@ mod tests {
     use super::*;
     const ID: &str = "12345678-1234-1234-1234-123456789abc";
     #[test]
+    fn library_search_supports_unicode_without_expanding_route_access() {
+        for query in [
+            "title=%E4%B8%AD%E6%96%87&author=Alice+Demo&venue=Science&year=2024&status=indexed&sort=year&direction=asc&limit=50&offset=200",
+            "title=100%25_literal",
+            "title=Two..dots",
+            "title=http%3A%2F%2Fexample.com%2Fapi%3Fx%3D1",
+        ] {
+            assert!(validate_request(&format!("/api/papers/search?{query}"), "GET").is_ok(), "{query}");
+        }
+        for query in [
+            "title=%",
+            "title=%FF",
+            "title=%0A",
+            "title=%00",
+            "title=+",
+            "title=a&title=b",
+            "limit=0",
+            "limit=201",
+            "offset=-1",
+            "offset=1000001",
+            "year=999",
+            "year=2101",
+            "status=active",
+            "sort=title",
+            "direction=none",
+            "url=http%3A%2F%2Fevil",
+            "%74itle=value",
+            "title=value&",
+        ] {
+            assert!(
+                validate_request(&format!("/api/papers/search?{query}"), "GET").is_err(),
+                "{query}"
+            );
+        }
+        assert!(validate_request("/api/papers/search?title=value", "POST").is_err());
+        assert!(validate_request("/api/health?title=value", "GET").is_err());
+        assert!(validate_request("/api/papers/%73earch?title=value", "GET").is_err());
+        assert!(validate_request(
+            &format!("/api/papers/search?title={}", "%F0%9F%8C%8D".repeat(1000)),
+            "GET"
+        )
+        .is_ok());
+        assert!(validate_request(
+            &format!("/api/papers/search?title={}", "a".repeat(1001)),
+            "GET"
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn metrics_route_is_read_only_and_has_no_query_or_remote_destination() {
+        let route = format!("/api/runs/{ID}/metrics");
+        assert!(validate_request(&route, "GET").is_ok());
+        for method in ["POST", "PUT", "DELETE", "PATCH"] {
+            assert!(validate_request(&route, method).is_err());
+        }
+        for path in [
+            format!("{route}?after=1"),
+            format!("{route}?url=http://evil"),
+            format!("http://evil{route}"),
+            "/api/runs/not-uuid/metrics".into(),
+        ] {
+            assert!(validate_request(&path, "GET").is_err());
+        }
+    }
+
+    #[test]
+    fn entity_review_routes_preserve_resource_and_query_boundaries() {
+        let root = format!("/api/papers/{ID}");
+        for (path, method) in [
+            (format!("{root}/annotation-runs"), "POST"),
+            (format!("{root}/annotation-chunks?limit=50&offset=0"), "GET"),
+            (
+                format!("{root}/entity-mentions?chunk_id={ID}&limit=50&offset=0"),
+                "GET",
+            ),
+            (format!("{root}/entity-mentions/{ID}"), "PATCH"),
+            (format!("{root}/chunks/{ID}/entity-mentions"), "POST"),
+            (format!("{root}/chunks/{ID}/annotation-review"), "POST"),
+            (format!("{root}/chunks/{ID}/entities"), "GET"),
+            (format!("{root}/chunks/{ID}/entities/{ID}"), "DELETE"),
+        ] {
+            assert!(validate_request(&path, method).is_ok(), "{path}");
+        }
+        for path in [
+            format!("{root}/annotation-runs?offset=0"),
+            format!("{root}/annotation-chunks?chunk_id={ID}"),
+            format!("{root}/entity-mentions?chunk_id=invalid"),
+            format!("{root}/entity-mentions?chunk_id={ID}&chunk_id={ID}"),
+            format!("{root}/entity-mentions?after=0"),
+            format!("{root}/entity-mentions/{ID}?limit=1"),
+            format!("{root}/chunks/{ID}/entities?limit=1"),
+            format!("{root}/entity-mentions/invalid"),
+        ] {
+            for method in ["GET", "POST", "PATCH", "DELETE"] {
+                assert!(validate_request(&path, method).is_err(), "{path} {method}");
+            }
+        }
+        assert!(validate_request(&format!("{root}/entity-mentions/{ID}"), "DELETE").is_err());
+        assert!(validate_request(&format!("{root}/annotation-runs"), "GET").is_err());
+    }
+
+    #[test]
+    fn annotation_visibility_uses_fixed_read_routes() {
+        let annotations = format!("/api/papers/{ID}/annotations");
+        let source = format!("/api/papers/{ID}/chunks/{ID}/source");
+        assert!(validate_request(&annotations, "GET").is_ok());
+        assert!(validate_request(&format!("{annotations}?limit=50&offset=0"), "GET").is_ok());
+        assert!(validate_request(&source, "GET").is_ok());
+        assert!(validate_request("/api/annotations/coverage", "POST").is_ok());
+        for path in [
+            format!("{annotations}?after=0"),
+            format!("{annotations}?limit=0"),
+            format!("{annotations}?limit=1&limit=2"),
+            format!("{source}?offset=0"),
+            "/api/papers/invalid/annotations".into(),
+            "/api/annotations/coverage?limit=1".into(),
+        ] {
+            assert!(validate_request(&path, "GET").is_err());
+        }
+        assert!(validate_request(&annotations, "POST").is_err());
+        assert!(validate_request(&source, "DELETE").is_err());
+        assert!(validate_request("/api/annotations/coverage", "GET").is_err());
+    }
+
+    #[test]
+    fn organization_routes_and_search_scope_are_fixed_uuid_resources() {
+        let collection = format!("/api/collections/{ID}");
+        let member = format!("/api/papers/{ID}/collections/{ID}");
+        for method in ["GET", "POST"] {
+            assert!(validate_request("/api/collections", method).is_ok());
+        }
+        for method in ["GET", "PATCH", "DELETE"] {
+            assert!(validate_request(&collection, method).is_ok());
+        }
+        for method in ["PUT", "DELETE"] {
+            assert!(validate_request(&member, method).is_ok());
+        }
+        assert!(validate_request(&format!("/api/papers/{ID}/collections"), "GET").is_ok());
+        assert!(validate_request("/api/collections?limit=200&offset=200", "GET").is_ok());
+        assert!(
+            validate_request(&format!("/api/papers/search?group={ID}&tag={ID}"), "GET").is_ok()
+        );
+        for path in [
+            "/api/collections/invalid",
+            "/api/collections?limit=0",
+            "/api/collections?limit=201",
+            "/api/collections?limit=2&limit=2",
+            "/api/collections?url=http://evil",
+            "/api/papers/search?group=invalid",
+            "/api/papers/search?tag=invalid",
+        ] {
+            assert!(validate_request(path, "GET").is_err(), "{path}");
+        }
+        assert!(validate_request(&member, "POST").is_err());
+        assert!(validate_request(&member, "GET").is_err());
+        assert!(validate_request(&format!("{collection}?limit=1"), "GET").is_err());
+        assert!(validate_request(&format!("{member}?offset=1"), "DELETE").is_err());
+    }
+    #[test]
     fn requests_are_local_and_scoped() {
         assert!(validate_request("/api/health", "GET").is_ok());
         assert!(validate_request(&format!("/api/conversations/{ID}/messages"), "POST").is_ok());
@@ -514,6 +826,35 @@ mod tests {
         assert!(validate_request(&format!("/api/runs/{ID}/events"), "GET").is_err());
         assert!(validate_request("/api/conversations?limit=20&offset=0", "GET").is_ok());
         assert!(validate_request("/api/conversations?mode=research", "GET").is_ok());
+    }
+    #[test]
+    fn paper_deletion_is_scoped_by_uuid_route_and_method() {
+        let paper = format!("/api/papers/{ID}");
+        assert!(validate_request(&paper, "DELETE").is_ok());
+        for suffix in ["deletion-preview", "deletion"] {
+            let route = format!("{paper}/{suffix}");
+            assert!(validate_request(&route, "GET").is_ok());
+            for method in ["POST", "PUT", "PATCH", "DELETE"] {
+                assert!(validate_request(&route, method).is_err());
+            }
+            assert!(validate_request(&format!("{route}?next=http://evil"), "GET").is_err());
+        }
+        let retry = format!("{paper}/deletion/retry");
+        assert!(validate_request(&retry, "POST").is_ok());
+        for method in ["GET", "PUT", "PATCH", "DELETE"] {
+            assert!(validate_request(&retry, method).is_err());
+        }
+        for route in [
+            "/api/papers/not-a-uuid",
+            "/api/papers/not-a-uuid/deletion",
+            "/api/papers/not-a-uuid/deletion/retry",
+            "/api/papers/deletion",
+        ] {
+            assert!(validate_request(route, "DELETE").is_err());
+            assert!(validate_request(route, "POST").is_err());
+        }
+        assert!(validate_request(&format!("{paper}/deletion/../retry"), "POST").is_err());
+        assert!(validate_request(&format!("{paper}/%64eletion"), "GET").is_err());
     }
     #[test]
     fn message_cursors_and_reconciliation_remain_scoped() {

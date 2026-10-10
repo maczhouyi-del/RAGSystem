@@ -100,7 +100,7 @@ async def test_reused_providers_keep_failed_run_usage_separate_and_release_obser
     monkeypatch.setattr(worker, "make_agents", lambda settings: agents)
     monkeypatch.setattr(worker, "make_embedder", lambda settings: SimpleNamespace())
     monkeypatch.setattr(worker, "make_reranker", lambda settings: None)
-    monkeypatch.setattr(worker, "HybridRetriever", lambda *args: Search())
+    monkeypatch.setattr(worker, "HybridRetriever", lambda *args, **kwargs: Search())
     with saved_run(job_sessions) as first_id, saved_run(job_sessions) as second_id:
         expected_code = "job_failed" if failure == "schema" else "fixture_reviewer_failed"
         ledgers: dict[str, dict[str, Any]] = {}
