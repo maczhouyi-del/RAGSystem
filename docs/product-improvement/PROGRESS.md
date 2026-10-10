@@ -37,7 +37,7 @@
 | TASK-13 | 引用与 PDF 阅读 | 12 | 复用 source metadata/受限 bridge；新增依赖先许可证审查 | 正确论文/页/多引用/表格/缺坐标降级，Web/Desktop | PASSED |
 | TASK-14 | 结构化研究报告生成 | 13；03 提供评测基础 | 扩展确定性 synthesis；保留 Reviewer、单位/实验条件边界 | 多论文/矛盾/不充分证据/重试；人工案例与 mock 分开 | PASSED |
 | TASK-15 | 报告与比较结果导出 | 14；05 元数据；13 来源 | Markdown/CSV/BibTeX/引用清单，安全文件名与下载 | 旧会话/数字/条件/Evidence ID/缺字段/中文/特殊字符 | PASSED |
-| TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | BLOCKED |
+| TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | PASSED |
 | TASK-17 | RAG 与 Research 对照评测 | 16；03 框架及人工金标/模型条件 | 同语料/问题/范围/配置，不预设 Research 更优 | 真实失败逐例记录；无真实资源 BLOCKED / NOT MEASURED | NOT_STARTED |
 | TASK-18 | 最终安装方案与完整部署 | 17；01/02 诊断引导 | 先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI | 实际 Windows artifact/哈希、版本/auth/升级备份卸载；人工平台单列 | NOT_STARTED |
 | TASK-19 | 科研用户端到端验收 | 18；03/17 真实评测资源 | 停止新功能；A–L 全场景，工程与人工证据分开 | 全新 Win11、20 PDF、数值/比较/记忆/删除/报告/恢复/升级/跨语言 | NOT_STARTED |
@@ -250,7 +250,7 @@
 
 ### TASK-16：模型费用、延迟与任务状态
 
-- 状态：BLOCKED（CI门禁/云网络）；开始 commit：`f3bd798f91a6bf5647a36ec067bb4195a485dd21`；最终实现 commit：`f2423e56bf750164808b07983f035a112a9a476b`。
+- 状态：PASSED（用户授权的可执行代码等价验证）；开始 commit：`f3bd798f91a6bf5647a36ec067bb4195a485dd21`；最终实现 commit：`f2423e56bf750164808b07983f035a112a9a476b`。
 - 前置：TASK-15 修正实现55cda0b四个精确SHA workflow/十个job全部SUCCESS，独立验收已推送。
 - 实现：现有Run/Usage/Event只读投影，冻结配置/返回模型，SDK估算与精确账单区分；Token已知子总量与完整性、缺失Unknown不伪造零；单调时钟完成节点区间，不声称纯推理时间。聊天/评测按需展开统计，活动读取最多60次、关面板/切换取消，终态支持手动读取迟到费用；不调用模型。
 - 新增验证：实际SDK MOCK usage缺失/零/非法值、真实PG只读/状态/取消后补账/新调度拒绝、浏览器刷新/SSE/重试兼容、native仅GET固定UUID无query路径。
@@ -296,3 +296,10 @@
 真实金标、模型授权或 Windows GUI 缺失分别记录，不能用 mock/CI 构建冒充科学/人工验收。
 
 - 用户已确认 TASK-17 真实语料、人工金标、获准模型与预算尚未备妥，授权先继续工程任务；真实科研质量仍 NOT MEASURED，不使用合成夹具冒充评测。
+
+### TASK-16 验收闭环（2026-10-10）
+
+- `f2423e5 → b20f4f7` 仅 PROGRESS、TASK-16 evidence、stage-log 三份文档变化，业务、测试、锁文件、Rust 与 CI 配置完全一致。
+- 等价验证提交完整 SHA `b20f4f784034bbe7f2bac8df27efd231ed9b6e0a`：Push CI [38023034139](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023034139)、PR CI [38023037503](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023037503)、Push Desktop [38023034100](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023034100)、PR Desktop [38023037440](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023037440) 全部 completed/SUCCESS，全部十个适用 job 和原生测试/构建步骤 SUCCESS，已通过 API 逐项核对。
+- 用户本次明确认可此等价关系作为验收证据，TASK-16 工程 PASSED。原实现 PR Linux attempt1 仍 FAILURE；已优先请求仅原 Linux job 重跑，结果待取得，不能称原失败作业成功。历史日志下载仍受限；用户说明原因为 Rust1.90下载连接超时，现有历史步骤证据证明安装失败/后续 skipped，无证据归咎业务代码。
+- 原 Compose 初次失败及后来 attempt2 成功、所有本地失败记录均保留。没有删除测试或重设计 TASK-00～15。

@@ -1222,3 +1222,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 
 - TASK-16 CI/环境阻塞：实现f2423e56bf750164808b07983f035a112a9a476b，push CI38022345968/Desktop38022345897 SUCCESS，PR CI38022349421初次Compose Debian HTTP不可达导致apt索引缺失，保留日志并在新runner仅重跑此workflow，attempt2 SUCCESS。PR Desktop38022349417 Windows SUCCESS、Linux job114125856277 rustup安装FAIL，fmt/check/test/clippy/GUI skipped；旁边setup-uv下载超时warning不是已确认fatal根因。实际9/10成功、三workflow成功，门禁BLOCKED，不进入下一TASK。
 - api.github.com随后被云HTTPS proxy CONNECT403禁止；GitHub网页可读，已按完整SHA/步骤采集四workflow/十jobHTML证据，精确Rust失败日志尚未获取，无法发起余下重跑。artifact下载重定向sa9/sa18.blob.core.windows.net亦Forbidden，无当前制品独立下载/复核结论。网络草稿已确认saved、requires_publish=true，新增上述API/两个存储域名并保留既有preset；保存不等于应用/发布。需用户在环境设置审核保存并发布，代理/TLS/身份边界未绕过。云schema0012/API/Web/三worker ready、原开发Run保留、0模型调用。此次记录为BLOCKED，不是验收通过。
+
+- 2026-10-10 TASK-16 闭环：f2423e5 与 b20f4f7 仅三份文档不同。按用户批准的等价验证规则，b20f4f7 Push/PR CI 与 Desktop 四工作流、10/10 job 和原生步骤全部 SUCCESS，TASK-16 PASSED。原 PR Linux attempt1 FAILURE 保留，已请求仅原 job 重跑，结果未取得；日志下载受限，不虚构失败归因或重跑结果。
