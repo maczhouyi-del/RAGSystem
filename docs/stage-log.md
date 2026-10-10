@@ -1208,3 +1208,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-15 最终本地：915 passed（646 unit/269 PG，0 skipped/failed）、116 MOCK browser/18 transport、locked sync/Ruff/mypy95/npm ci/lint/check/build/官方rustfmt PASS。新增34 unit/12 PG/7 browser/2 transport/3 native Rust；四格式实际Web下载与生产生成fixture逐字节一致，无新增依赖/迁移/模型请求。原生Rust实际编译/测试/Clippy及精确SHA CI待验收；Win11人工保存NOT EXECUTED。
 
 - TASK-15 初始实现 f134b24：pushCI38020303629及pushDesktop38020303643/PRDesktop38020306091 SUCCESS；PRCI38020306080前端115PASS/1旧TASK-14 unfinished MOCK FAIL，backend/compose SUCCESS，9/10job通过。旧共享SSE会自动完成与运行中前提矛盾；固定未完成SSE并等待实际请求，保留运行中/无表无事实检查、新增无导出按钮与Run仍running检查。恢复旧自动完成确定性预期FAIL；修正后2专项/116全量browserPASS（1.5m），不盲重跑旧CI。生产/后端未改变，既有915Python/18transport结果适用；修正提交需新精确门禁。
+
+- TASK-15 工程验收（2026-10-10 Asia/Shanghai）：55cda0b6b2038d184dd6f89f405745e0fbcb6128 push CI38020898598 / Desktop38020898554、PR CI38020902166 / Desktop38020902249，四workflow/十job completed/SUCCESS，完整SHA及native实际步骤核对。915后端（646 unit/269 PG）、116 MOCK browser/18transport PASS；原失败保留。生产代码与f134b24相同，云ready/旧Run保留/0模型调用。工程PASSED，自动进入TASK-16；Win11人工保存NOT EXECUTED，科研质量NOT MEASURED。
