@@ -1186,3 +1186,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-13 实现与本地：831后端（576 unit/255 PG、0 skipped/failed、198s）PASS，新增3 unit/4 PG，包括真实原PDF字节/摘要/论文路由读取；33专项 browser/15专项Python PASS，新增10 browser与1transport。锁定安装/Ruff/mypy92/npm ci/lint/check/build/16transport/官方rustfmt PASS。页可用性贯通引用/实体面板与列表，未知页不假装p.1；多来源/表格辅助页独立、原文Unicode支持跨度核对后标记，受限Desktop/Web路径复用，无新依赖/CSP权限变化。首次全量106browser PASS/1旧p.6–6文案断言FAIL，改成真实p.6后重跑完整回归；初始类型/ORM字段拼写错误及修正保留。工程IN_PROGRESS，CI待产生，科研/布局正确率NOT MEASURED，Win11系统阅读器人工NOT EXECUTED。
 
 - TASK-13 最终前端：107 MOCK browser PASS（1.5m、0 failed/skipped）、16 transport PASS，npm lint/check/build成功。原表格页码标签断言按p.6修正，原文/来源/版本/辅助页检查保留。最终截图已检查，上方原始PDF入口可见，表格原文数字不变；实际系统阅读器人工操作仍NOT EXECUTED。待精确实现CI门禁。
+
+- TASK-13 验收（2026-10-10 Asia/Shanghai）：dd023de01cf22a2b020df1891b4e781813302665 push CI37950083681 / Desktop37950083661、PR CI37950089001 / Desktop37950089060四个 workflow/十个 job completed/SUCCESS，完整SHA及实际native步骤已核对。831后端/107 MOCK browser/16 transport本地PASS，真实PG/API原PDF与页可用性验证PASS。云schema0012、API/Web/三worker ready，原有开发Run保留、0实际模型调用。工程PASSED，自动进入TASK-14；系统阅读器Win11人工操作NOT EXECUTED，科研/布局识别质量NOT MEASURED。

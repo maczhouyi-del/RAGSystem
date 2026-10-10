@@ -34,7 +34,7 @@
 | TASK-10 | 实体标注状态可视化 | 09 | 区分未标注与不存在；严格过滤不等于全文搜索 | 部分标注语料、来源片段、状态/警示与过滤语义 | PASSED |
 | TASK-11 | 实体提取与人工校正 | 10 | 保守带来源提取；费用显式、重试幂等、同名消歧 | 证据关联/校正持久化/严格过滤/重复导入；实际质量独立测量 | PASSED |
 | TASK-12 | 更精确 PDF 来源定位 | 11 | 保留 stable Evidence ID；旧索引兼容；不可伪造 bbox | 文本/表格/公式 PDF、无坐标降级、迁移兼容 | PASSED |
-| TASK-13 | 引用与 PDF 阅读 | 12 | 复用 source metadata/受限 bridge；新增依赖先许可证审查 | 正确论文/页/多引用/表格/缺坐标降级，Web/Desktop | IN_PROGRESS |
+| TASK-13 | 引用与 PDF 阅读 | 12 | 复用 source metadata/受限 bridge；新增依赖先许可证审查 | 正确论文/页/多引用/表格/缺坐标降级，Web/Desktop | PASSED |
 | TASK-14 | 结构化研究报告生成 | 13；03 提供评测基础 | 扩展确定性 synthesis；保留 Reviewer、单位/实验条件边界 | 多论文/矛盾/不充分证据/重试；人工案例与 mock 分开 | NOT_STARTED |
 | TASK-15 | 报告与比较结果导出 | 14；05 元数据；13 来源 | Markdown/CSV/BibTeX/引用清单，安全文件名与下载 | 旧会话/数字/条件/Evidence ID/缺字段/中文/特殊字符 | NOT_STARTED |
 | TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | NOT_STARTED |
@@ -222,13 +222,13 @@
 
 ### TASK-13：引用与 PDF 阅读
 
-- 状态：IN_PROGRESS；开始 commit：`3cc1c70`（完整 SHA 随证据保存）；最终实现 commit：待产生。
+- 状态：PASSED；开始 commit：`3cc1c70b6f98a4572bfab0e1d30dadfb1eb2b09a`；最终实现 commit：`dd023de01cf22a2b020df1891b4e781813302665`。
 - 前置 TASK-12 修正实现c55c158的四个 workflow/十个 job及真实原生步骤全部SUCCESS，验收已单独提交。
 - 方案：复用现有Web PDF页码片段及Desktop受限系统阅读器；新增原文支持片段高亮、候选页导航、表格辅助来源与缺位置说明。只有逐结论原文跨度通过核对才在原文中高亮，不把元素bbox冒充逐字PDF高亮。
 - 依赖/安全评估：现有Docling bbox为元素级，当前无可靠逐字PDF坐标；嵌入PDF.js需要新增解析/worker依赖、包体和桌面frame/CSP边界，不能带来可靠逐字结论框。采用现有外部阅读器+原文核查，无新依赖、不改变Tauri文件/远程WebView/CSP或本机API安全设置。
 - 实现：新增 PdfReading 面板/候选页入口/Unicode 原文 mark；引用主入口上移；有效 RAG/Research Reviewer 支持跨度核对；新增页码可用性进入轻量引用/实体来源与列表；可选损坏 region/hash 兼容降级；Desktop unknown page 不加page1、显式页边界校验，阅读失败恢复提示。
 - 文件：frontend PdfReading/api/components/ResultPanel/transport/errors/Annotations/EntityReview/style、chat/reading/location/ui/transport fixtures；backend presentation/annotations/entities/domain occurrence；3 unit/4 PG和10 browser/1 transport；阅读说明及进度/证据/stage log。
-- 本地：831 Python（576 unit/255 PG、0 skipped/failed、198.00s），新增3 unit/4 PG；locked sync/Ruff/mypy92/npm ci/lint/check/build/transport16/官方 rustfmt PASS，专项33 browser/15 Python PASS。全量浏览器106 PASS/1旧单页文案断言FAIL，已按p.6更新，最终107 MOCK browser PASS（1.5m，0 skipped/failed），截图已检查。实现提交CI待产生，TASK-14不得开始。
+- 本地：831 Python（576 unit/255 PG、0 skipped/failed、198.00s），新增3 unit/4 PG；locked sync/Ruff/mypy92/npm ci/lint/check/build/transport16/官方 rustfmt PASS，专项33 browser/15 Python PASS。全量浏览器106 PASS/1旧单页文案断言FAIL，已按p.6更新，最终107 MOCK browser PASS（1.5m，0 skipped/failed），截图已检查。实现提交四个精确 SHA workflow/十个 job completed/SUCCESS：push CI37950083681 / Desktop37950083661、PR CI37950089001 / Desktop37950089060。实际 Rust/Windows MSI/NSIS/Linux GUI PASS，云 schema0012、API/Web/三 worker ready，旧开发 Run 保留、0实际模型调用。工程 PASSED，自动进入 TASK-14。
 
 
 ### TASK-14：结构化研究报告生成
