@@ -6,6 +6,7 @@ import { Citations, Json } from "../components";
 import { activeStatus } from "./useConversationMessages";
 import { useRunEvents } from "./useRunEvents";
 import { errorMessage } from "../errors";
+import { ReportExports } from "./ReportExports";
 
 export const statusLabels: Record<string, string> = {
   queued: "排队中",
@@ -154,6 +155,9 @@ export function ResultPanel({
               : []
           }
         />
+      )}
+      {text && released && message.run_id && (
+        <ReportExports key={message.run_id} runId={message.run_id} />
       )}
       {unavailable && (
         <p role="status">

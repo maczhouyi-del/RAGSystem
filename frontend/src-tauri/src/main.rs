@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 mod auth;
 mod bridge;
+mod exports;
 use base64::{engine::general_purpose::STANDARD, Engine};
 use bridge::{ApiRequest, ApiResponse, Pending, StreamEvent, API_BASE};
 use std::{
@@ -16,6 +17,36 @@ struct Backend {
     pending: Arc<Pending>,
     document_lock: tokio::sync::Mutex<()>,
     credentials: auth::CredentialStatus,
+}
+
+#[tauri::command]
+async fn save_export(
+    path: String,
+    app: tauri::AppHandle,
+    state: State<'_, Backend>,
+) -> Result<exports::Receipt, String> {
+    let resource = exports::resource(&path)?;
+    let _guard = state.document_lock.lock().await;
+    let response = state
+        .client
+        .get(format!("{API_BASE}{}", resource.path))
+        .timeout(std::time::Duration::from_secs(60))
+        .send()
+        .await
+        .map_err(|_| "local_backend_unavailable")?;
+    if response.status() == reqwest::StatusCode::UNAUTHORIZED {
+        return Err("local_auth_required".into());
+    }
+    if !response.status().is_success() {
+        return Err("local_export_unavailable".into());
+    }
+    let bytes = bridge::limited_bytes(response, exports::MAX_EXPORT_BYTES).await?;
+    let directory = app
+        .path()
+        .download_dir()
+        .map_err(|_| "local_export_write_failed")?;
+    fs::create_dir_all(&directory).map_err(|_| "local_export_write_failed")?;
+    exports::save(&directory, &resource, &bytes)
 }
 
 #[tauri::command]
@@ -216,7 +247,7 @@ fn main() {
     }
     let smoke = std::env::args().any(|arg| arg == "--smoke-test");
     tauri::Builder::default().manage(Backend{client,credentials,pending:Arc::new(Pending::default()),document_lock:tokio::sync::Mutex::new(())})
-        .invoke_handler(tauri::generate_handler![api_request,cancel_request,run_events,open_resource,local_auth_status,desktop_build_info])
+        .invoke_handler(tauri::generate_handler![api_request,cancel_request,run_events,open_resource,save_export,local_auth_status,desktop_build_info])
         .setup(move|app|{
             let window=WebviewWindowBuilder::new(app,"main",WebviewUrl::App("index.html".into()))
                 .title("Scientific RAGAgent").inner_size(1320.,900.).min_inner_size(800.,560.)

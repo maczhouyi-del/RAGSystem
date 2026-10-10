@@ -185,3 +185,61 @@ export async function openPaperPdf(
     `/api/papers/${paperId}/pdf${page === undefined ? "" : `#page=${page}`}`,
   );
 }
+
+export type ExportFile =
+  "report.md" | "comparison.csv" | "references.bib" | "citations.json";
+const exportFiles = [
+  "report.md",
+  "comparison.csv",
+  "references.bib",
+  "citations.json",
+];
+export async function downloadReport(
+  runId: string,
+  format: ExportFile,
+): Promise<{ filename: string; destination: string }> {
+  if (!new RegExp(`^${uuid}$`).test(runId) || !exportFiles.includes(format))
+    throw new Error("local_export_not_allowed");
+  const path = `/api/runs/${runId}/exports/${format}`;
+  if (isDesktop()) {
+    try {
+      return await invoke("save_export", { path });
+    } catch (error) {
+      if (error === "local_auth_required")
+        window.dispatchEvent(new Event(AUTH_REQUIRED));
+      throw new Error(
+        typeof error === "string" && /^[a-z][a-z0-9_]{0,100}$/.test(error)
+          ? error
+          : "local_export_unavailable",
+      );
+    }
+  }
+  const response = await request(path, {
+    signal: AbortSignal.timeout(30000),
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(
+      typeof error?.error_code === "string" &&
+        /^[a-z][a-z0-9_]{0,100}$/.test(error.error_code)
+        ? error.error_code
+        : "local_export_unavailable",
+    );
+  }
+  const blob = await response.blob();
+  if (!blob.size || blob.size > 8 * 1024 * 1024)
+    throw new Error("invalid_local_export");
+  const filename = `ragagent-${runId}-${format}`;
+  const url = URL.createObjectURL(blob);
+  try {
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  return { filename, destination: "browser" };
+}

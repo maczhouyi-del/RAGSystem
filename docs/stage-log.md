@@ -1198,3 +1198,11 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-14 最终本地：869 passed（612 unit/257 real PG，0 skipped/failed）、109 MOCK browser/16 transport、locked sync/Ruff/mypy94/npm ci/lint/check/build/官方rustfmt PASS；新增38后端与2浏览器，旧数值/过滤/Reviewer失败重试/记忆隔离保留。实际科研模型与人工金标仍未执行，等待独立实现精确SHA CI。
 
 - TASK-14 工程验收：63dddba45edea005d3997626c71e0bc320c63470 push CI38018734225 / Desktop38018734359、PR CI38018737804 / Desktop38018737776 四个workflow/十个job completed/SUCCESS，完整SHA及实际native步骤已核对。869后端（612 unit/257 PG）、109 MOCK browser/16 transport PASS；云schema0012、API/Web/三worker ready、旧开发Run保留、0模型调用。工程PASSED，自动进入TASK-15。实际论文人工案例/Win11人工操作NOT EXECUTED，科研质量NOT MEASURED，用户已确认资源未备妥。
+
+## TASK-15 报告导出（2026-10-10 Asia/Shanghai）
+
+- 开始93ef2ed；TASK-14工程精确SHA四workflow/十job SUCCESS。设计只读Run产物生成，四种固定格式、保留Evidence/条件/缺失元数据、不伪造字段，Web同源Blob下载与受限Desktop系统Downloads保存。无模型调用、无新依赖/队列。分析中，尚未实施或验证，IN_PROGRESS。
+
+- TASK-15 初稿：domain四格式只读生成/API无路径写入，旧Assistant正文回退；前端格式选择/Web Blob与新增受限Desktop save_export，OS Downloads固定目录+随机固定格式文件名/create_new/0600/8MiB/UTF8检查，无新依赖/迁移/模型请求。33 unit/12 real PG（45专项）PASS，7 browser/18 transport PASS。首次mypy5个混合类型dict推断错误、Ruff1未用import已修复；初次browser6PASS/1MOCK诊断轮询混入导出IPC断言FAIL，MOCK正常代理只读api_request、仍精确断言save_export后全7PASS。新增共享产物字节unit待全量验证；截图检查完成，完整本地/nativeCI未验收。
+
+- TASK-15 最终本地：915 passed（646 unit/269 PG，0 skipped/failed）、116 MOCK browser/18 transport、locked sync/Ruff/mypy95/npm ci/lint/check/build/官方rustfmt PASS。新增34 unit/12 PG/7 browser/2 transport/3 native Rust；四格式实际Web下载与生产生成fixture逐字节一致，无新增依赖/迁移/模型请求。原生Rust实际编译/测试/Clippy及精确SHA CI待验收；Win11人工保存NOT EXECUTED。

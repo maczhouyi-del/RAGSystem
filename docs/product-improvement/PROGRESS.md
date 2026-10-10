@@ -36,7 +36,7 @@
 | TASK-12 | 更精确 PDF 来源定位 | 11 | 保留 stable Evidence ID；旧索引兼容；不可伪造 bbox | 文本/表格/公式 PDF、无坐标降级、迁移兼容 | PASSED |
 | TASK-13 | 引用与 PDF 阅读 | 12 | 复用 source metadata/受限 bridge；新增依赖先许可证审查 | 正确论文/页/多引用/表格/缺坐标降级，Web/Desktop | PASSED |
 | TASK-14 | 结构化研究报告生成 | 13；03 提供评测基础 | 扩展确定性 synthesis；保留 Reviewer、单位/实验条件边界 | 多论文/矛盾/不充分证据/重试；人工案例与 mock 分开 | PASSED |
-| TASK-15 | 报告与比较结果导出 | 14；05 元数据；13 来源 | Markdown/CSV/BibTeX/引用清单，安全文件名与下载 | 旧会话/数字/条件/Evidence ID/缺字段/中文/特殊字符 | NOT_STARTED |
+| TASK-15 | 报告与比较结果导出 | 14；05 元数据；13 来源 | Markdown/CSV/BibTeX/引用清单，安全文件名与下载 | 旧会话/数字/条件/Evidence ID/缺字段/中文/特殊字符 | IN_PROGRESS |
 | TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | NOT_STARTED |
 | TASK-17 | RAG 与 Research 对照评测 | 16；03 框架及人工金标/模型条件 | 同语料/问题/范围/配置，不预设 Research 更优 | 真实失败逐例记录；无真实资源 BLOCKED / NOT MEASURED | NOT_STARTED |
 | TASK-18 | 最终安装方案与完整部署 | 17；01/02 诊断引导 | 先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI | 实际 Windows artifact/哈希、版本/auth/升级备份卸载；人工平台单列 | NOT_STARTED |
@@ -241,11 +241,12 @@
 
 ### TASK-15：报告与比较结果导出
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
-- 修改目标、依赖、验收计划：见上表 TASK-15；前置门禁 14；05 元数据；13 来源。
-- 风险与已知限制：Markdown/CSV/BibTeX/引用清单，安全文件名与下载。
+- 状态：IN_PROGRESS；开始 commit：`93ef2edfc175e1501c6639708f7523c88e0b90d7`；最终实现 commit：待产生。
+- 前置：TASK-14 实现63dddba四个精确SHA workflow/十个job全部SUCCESS，验收记录已推送。
+- 范围：Markdown/CSV/BibTeX/引用清单；后端只读生成，Web下载与Desktop固定系统下载目录保存，无任意路径、无新模型/队列；旧报告及来源退役状态保留。
+- 涉及：domain exports/runs API、ReportExports/ResultPanel/transport/error、Rust exports/main、34 unit/12 PG/7 browser/2 transport/3 Rust及共享产物/doc/evidence。无新依赖/迁移/队列。
+- 本地：915 pytest（646 unit/269 real PG，0 skipped/failed），116 MOCK browser/18 transport、locked sync/Ruff/mypy95/npm ci/lint/check/build/官方rustfmt PASS；Web四个实际下载逐字节一致、截图检查成功。旧消息/已删除来源/未发布拒绝/CSV条件数字/BibTeX缺失与中文特殊字符/权限路径边界验证通过；native compile/test/clippy和四个精确SHA CI待执行，TASK-16不得开始。
+- 边界：真实科研质量NOT MEASURED，Win11人工保存操作NOT EXECUTED。
 
 ### TASK-16：模型费用、延迟与任务状态
 

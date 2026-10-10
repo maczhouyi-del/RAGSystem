@@ -1,5 +1,13 @@
 /** Recovery guidance. Unrecognized remote text is never echoed. */
 const guidance: Record<string, string> = {
+  local_export_not_allowed: "导出格式或任务位置不合法，请重新读取任务。",
+  local_export_unavailable: "报告暂不可导出，请读取最新状态并检查后端。",
+  local_export_write_failed:
+    "系统下载目录无法写入，请检查目录空间、权限与文件占用。",
+  invalid_local_export: "导出文件未通过格式或大小检查，请重新读取报告。",
+  export_too_large: "导出内容超过大小限制，请缩小报告范围。",
+  report_not_released: "本轮尚未发布最终结果，请等待完成或读取最新状态。",
+  report_not_available: "该历史任务没有可保存的报告正文。",
   collection_not_found:
     "分组或标签已不存在。保留的检索范围会返回空结果，请明确重选范围。",
   collection_name_conflict: "同类型已有这个名称，请换名或刷新后使用已有项。",

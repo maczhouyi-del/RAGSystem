@@ -6,6 +6,7 @@ import {
   stream,
   openLocalResource,
   openPaperPdf,
+  downloadReport,
 } from "../../src/transport.ts";
 import { errorMessage } from "../../src/errors.ts";
 
@@ -38,6 +39,59 @@ beforeEach(() => {
 afterEach(() => {
   mock.restoreAll();
   Object.assign(globalThis, { isTauri: false });
+});
+
+test("desktop report exports send only a fixed route to the native saver", async () => {
+  const id = "00000000-0000-4000-8000-000000000015";
+  native = async () => ({
+    filename: "safe-report.md",
+    destination: "Downloads",
+  });
+  for (const format of [
+    "report.md",
+    "comparison.csv",
+    "references.bib",
+    "citations.json",
+  ] as const) {
+    assert.equal((await downloadReport(id, format)).destination, "Downloads");
+    assert.deepEqual(commands.at(-1), {
+      command: "save_export",
+      args: { path: `/api/runs/${id}/exports/${format}` },
+    });
+  }
+  const previous = commands.length;
+  await assert.rejects(
+    downloadReport("../escape", "report.md"),
+    /local_export_not_allowed/,
+  );
+  await assert.rejects(
+    downloadReport(id, "../escape" as "report.md"),
+    /local_export_not_allowed/,
+  );
+  assert.equal(commands.length, previous);
+});
+
+test("native save failures stay safe and authorization can be recovered", async () => {
+  const dispatched: string[] = [];
+  Object.assign(window, {
+    dispatchEvent: (event: Event) => {
+      dispatched.push(event.type);
+      return true;
+    },
+  });
+  const id = "00000000-0000-4000-8000-000000000015";
+  native = async () => {
+    throw "local_auth_required";
+  };
+  await assert.rejects(downloadReport(id, "report.md"), /local_auth_required/);
+  assert.deepEqual(dispatched, ["ragagent-auth-required"]);
+  native = async () => {
+    throw "PRIVATE_DATA Bearer SYNTHETIC";
+  };
+  await assert.rejects(
+    downloadReport(id, "report.md"),
+    /^Error: local_export_unavailable$/,
+  );
 });
 
 test("web fetch remains same-origin and forwards abort signal", async () => {
