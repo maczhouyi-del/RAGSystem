@@ -1196,3 +1196,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-14 首次完整：857 PASS/1 FAIL（116.48s），旧RAG记忆隔离测试把随机PDF摘要中的500当人数。固定摘要500+61零使两模式旧断言均确定性FAIL；共享测试oracle只剔除已校验64hex源摘要和来源ID字段的完整UUID，保留原文/问题/Claim/普通元数据与非来源digest，原摘要在生产payload保留。新增11个负向/身份控制；57专项PASS。初步新报告22unit/2PG与旧图共44PASS；新增3报告边界测试；109全量MOCK browser/16transport PASS，截图已检查。初次浏览器JSON模块缺import attribute导致0test启动失败，修复后2专项执行PASS；报告表格连续行格式审查修正，无断言删除。完整后端复验及实现CI待完成，IN_PROGRESS。
 
 - TASK-14 最终本地：869 passed（612 unit/257 real PG，0 skipped/failed）、109 MOCK browser/16 transport、locked sync/Ruff/mypy94/npm ci/lint/check/build/官方rustfmt PASS；新增38后端与2浏览器，旧数值/过滤/Reviewer失败重试/记忆隔离保留。实际科研模型与人工金标仍未执行，等待独立实现精确SHA CI。
+
+- TASK-14 工程验收：63dddba45edea005d3997626c71e0bc320c63470 push CI38018734225 / Desktop38018734359、PR CI38018737804 / Desktop38018737776 四个workflow/十个job completed/SUCCESS，完整SHA及实际native步骤已核对。869后端（612 unit/257 PG）、109 MOCK browser/16 transport PASS；云schema0012、API/Web/三worker ready、旧开发Run保留、0模型调用。工程PASSED，自动进入TASK-15。实际论文人工案例/Win11人工操作NOT EXECUTED，科研质量NOT MEASURED，用户已确认资源未备妥。

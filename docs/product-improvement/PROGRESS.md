@@ -35,7 +35,7 @@
 | TASK-11 | 实体提取与人工校正 | 10 | 保守带来源提取；费用显式、重试幂等、同名消歧 | 证据关联/校正持久化/严格过滤/重复导入；实际质量独立测量 | PASSED |
 | TASK-12 | 更精确 PDF 来源定位 | 11 | 保留 stable Evidence ID；旧索引兼容；不可伪造 bbox | 文本/表格/公式 PDF、无坐标降级、迁移兼容 | PASSED |
 | TASK-13 | 引用与 PDF 阅读 | 12 | 复用 source metadata/受限 bridge；新增依赖先许可证审查 | 正确论文/页/多引用/表格/缺坐标降级，Web/Desktop | PASSED |
-| TASK-14 | 结构化研究报告生成 | 13；03 提供评测基础 | 扩展确定性 synthesis；保留 Reviewer、单位/实验条件边界 | 多论文/矛盾/不充分证据/重试；人工案例与 mock 分开 | IN_PROGRESS |
+| TASK-14 | 结构化研究报告生成 | 13；03 提供评测基础 | 扩展确定性 synthesis；保留 Reviewer、单位/实验条件边界 | 多论文/矛盾/不充分证据/重试；人工案例与 mock 分开 | PASSED |
 | TASK-15 | 报告与比较结果导出 | 14；05 元数据；13 来源 | Markdown/CSV/BibTeX/引用清单，安全文件名与下载 | 旧会话/数字/条件/Evidence ID/缺字段/中文/特殊字符 | NOT_STARTED |
 | TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | NOT_STARTED |
 | TASK-17 | RAG 与 Research 对照评测 | 16；03 框架及人工金标/模型条件 | 同语料/问题/范围/配置，不预设 Research 更优 | 真实失败逐例记录；无真实资源 BLOCKED / NOT MEASURED | NOT_STARTED |
@@ -233,10 +233,10 @@
 
 ### TASK-14：结构化研究报告生成
 
-- 状态：IN_PROGRESS；开始 commit：`2c0e798aafb9c12e9d687cc72800d944198dc625`；最终实现 commit：待产生。
+- 状态：PASSED；开始 commit：`2c0e798aafb9c12e9d687cc72800d944198dc625`；最终实现 commit：`63dddba45edea005d3997626c71e0bc320c63470`。
 - 前置：TASK-13 精确实现 SHA 的四个 workflow/十个 job completed/SUCCESS；验收记录已推送。
 - 修改：Claim 引用型实验字段、当前 Reviewer 字段语义门禁、确定性十章节报告/逐来源比较/不同单位划分条件保留；旧 Claim 兼容但不猜字段；未验证 limitations 保留于独立面板；来源删除清除新增原文字段。
-- 本地：869 pytest（612 unit/257 real PG，0 skipped/failed），109 MOCK browser/16 transport、locked sync/Ruff/mypy94/npm ci/lint/check/build/官方 rustfmt PASS；新增25报告 unit/11 oracle unit/2 PG/2 browser，最终截图与原文检查成功。57专项 PASS；初始857 PASS/1旧随机摘要误判FAIL、固定摘要双模式旧oracle预期FAIL均保留。四个精确实现CI待产生，TASK-15不得开始。
+- 本地：869 pytest（612 unit/257 real PG，0 skipped/failed），109 MOCK browser/16 transport、locked sync/Ruff/mypy94/npm ci/lint/check/build/官方 rustfmt PASS；新增25报告 unit/11 oracle unit/2 PG/2 browser，最终截图与原文检查成功。57专项 PASS；初始857 PASS/1旧随机摘要误判FAIL、固定摘要双模式旧oracle预期FAIL均保留。四个精确实现 workflow/十个 job completed/SUCCESS：push CI38018734225 / Desktop38018734359、PR CI38018737804 / Desktop38018737776，实际 Rust/Windows MSI/NSIS/Linux GUI PASS。云 schema0012、API/Web/三 worker ready，旧开发 Run 保留、0实际模型调用。工程 PASSED，自动进入 TASK-15；真实人工科研质量验收未执行，用户确认资源尚未备妥。
 - 边界：无新 Agent、无模型调用、无单位换算或无条件排名；真实人工科研金标/模型比较 NOT MEASURED，人工 Win11 NOT EXECUTED。
 
 ### TASK-15：报告与比较结果导出
