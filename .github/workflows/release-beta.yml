@@ -94,18 +94,27 @@ jobs:
           python - <<'PY'
           import hashlib, json, os, subprocess
           from pathlib import Path
-          release = json.loads(subprocess.check_output(['gh', 'api', 'repos/' + os.environ['GH_REPO'] + '/releases/tags/' + os.environ['RELEASE_TAG']]))
+          base = 'repos/' + os.environ['GH_REPO'] + '/releases'
+          pages = json.loads(subprocess.check_output(['gh', 'api', '--paginate', '--slurp', base + '?per_page=100']))
+          matches = [r for page in pages for r in page if r['tag_name'] == os.environ['RELEASE_TAG']]
+          assert len(matches) == 1, 'Expected exactly one release for the beta tag'
+          release_id = matches[0]['id']
+          release = json.loads(subprocess.check_output(['gh', 'api', base + '/' + str(release_id)]))
           assert release['draft'] and release['prerelease']
+          assert release['target_commitish'] == os.environ['SOURCE_SHA']
           local = {p.name: p for p in Path('release-assets').iterdir()}
           assert set(local) == {a['name'] for a in release['assets']}
           for item in release['assets']:
               path = local[item['name']]
+              assert item['state'] == 'uploaded'
               assert item['size'] == path.stat().st_size
               assert item['digest'] == 'sha256:' + hashlib.sha256(path.read_bytes()).hexdigest()
+          with open(os.environ['GITHUB_ENV'], 'a') as env:
+              env.write('VERIFIED_RELEASE_ID=' + str(release_id) + '\n')
           print('All uploaded assets match local bytes and GitHub SHA256; safe to publish beta.')
           PY
       - name: Publish pre-release
-        run: gh release edit "$RELEASE_TAG" --draft=false --prerelease
+        run: gh api --method PATCH "repos/$GH_REPO/releases/$VERIFIED_RELEASE_ID" -F draft=false -F prerelease=true -f make_latest=false --silent
       - uses: actions/upload-artifact@v4
         with:
           name: beta-release-verification-${{ inputs.source_sha }}
