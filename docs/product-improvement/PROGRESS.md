@@ -39,7 +39,7 @@
 | TASK-15 | 报告与比较结果导出 | 14；05 元数据；13 来源 | Markdown/CSV/BibTeX/引用清单，安全文件名与下载 | 旧会话/数字/条件/Evidence ID/缺字段/中文/特殊字符 | PASSED |
 | TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | PASSED |
 | TASK-17 | RAG 与 Research 对照评测 | 测试版交付后；03 框架及真实资源 | 同语料/问题/范围/配置，不预设 Research 更优 | 真实失败逐例记录；无真实资源 BLOCKED / NOT MEASURED | BLOCKED |
-| TASK-18 | 最终安装方案与完整部署 | 16；01/02 诊断引导；不依赖17 | 先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI | 实际 Windows/macOS/Linux artifact/哈希、完整后端、配置/备份/升级/数据保护；人工平台单列 | IN_PROGRESS |
+| TASK-18 | 最终安装方案与完整部署 | 16；01/02 诊断引导；不依赖17 | 先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI | 实际 Windows/macOS/Linux artifact/哈希、完整后端、配置/备份/升级/数据保护；人工平台单列 | PASSED |
 | TASK-19 | 科研用户端到端验收 | 工程：18；科研：17真实资源 | 工程与科研两部分；工程通过可交付测试版，科研未执行不能PASSED | 全新 Win11、20 PDF、数值/比较/记忆/删除/报告/恢复/升级/跨语言 | NOT_STARTED |
 
 ## TASK-00 初次执行记录（历史，后续恢复见下节）
@@ -271,7 +271,7 @@
 
 ### TASK-18：最终安装方案与完整部署
 
-- 状态：IN_PROGRESS；开始 commit：`c2b0140`；最终实现 commit 尚未产生。
+- 状态：PASSED；开始 commit：`ec638a4`；最终实现 commit：`817dd43a4c4d8f525f5173d48474357ff6814d9c`。
 - ADR：[0008](../adr/0008-complete-local-installation.md)，选择桌面 + 自动化 Docker 后端，提供原生部署助手；普通用户仍需 Docker，明确不宣称免依赖。
 - 涉及文件：local_deploy/deployment_data/package_deployment/artifact_manifest/build_metadata脚本、Compose/private runtime env、既有Settings/Docling worker native模式、Windows/Linux与macOS双架构原生CI、实际Docker MOCK测试、14项离线部署保护测试、安装/升级/卸载/故障/本地评测文档。
 - 已完成本地验证：979 backend（702 unit/277 real PG，0fail/skip、63.43s）、124 browser（1.7m）、19 transport；Ruff/mypy96/npm ci/lint/check/build PASS；实际Linux原生助手build/help/缺Docker路径PASS，Rustfmt PASS。原生客户端/真实Docker工程测试与四workflow门禁尚待实际CI，不标PASSED。
@@ -317,3 +317,9 @@
 - TASK-16 原 Linux job 定向重跑结果补录：PR Desktop38022349417 attempt2 completed/SUCCESS，新 Linux job114203551683的 Rust安装/fmt/check/test/clippy/GUI smoke全部SUCCESS。attempt1 job114125856277仍为FAILURE，未覆盖或声称原失败attempt成功。
 
 - TASK-16原日志最终核实：REST attempt1真实ZIP已取得，Linux114125856277 rustup下载static.rust-lang.org/channel-rust-1.90.0.toml TCP连接超时(os error110)；setup-uv的codeload100秒超时是另一个warning。原失败与后续attempt2成功分别保留，确认不能归咎业务代码。
+
+### TASK-18工程验收（实际最终SHA）
+
+- 最终实现817dd43；Push CI38052578129 / Desktop38052578187、PR CI38052582203 / Desktop38052582202四workflow completed/SUCCESS，全部14适用job、原生真实CPU/版本/SHA检查与Docker安装全流程PASS。最终CI982backend（705unit/277realPG）、124browser、19transport，0skip/fail。
+- 实际安装链路：原生Docling文本PDF导入/索引，MOCK RAG/Research与4导出，DB/worker失败恢复、密钥配置重启/WebCookie、备份、重启迁移/历史、独立空项目恢复、卸载重装5卷保留均PASS。普通用户仍需Docker，模型真实调用/复杂扫描OCR不以MOCK冒充通过。所有历史失败保留。
+- TASK-18 PASSED；下一TASK-19工程独立校验实际产物并交付。科学质量NOTMEASURED、Windows11/macOS人工安装NOTEXECUTED；17资源BLOCKED不影响本工程交付。

@@ -1238,3 +1238,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-18 b889570真实Docker进展与失败保留：Native PDF实际解析/索引、MOCK RAG/Research/四导出、worker/DB恢复及备份通过；停止再启动port_conflict失败（Push38051995603/PR38051998729）。探针裸bind误判Docker代理关闭连接TIME_WAIT，修正实际listener检查+Unixreuse；Windows不启用可抢占监听的SO_REUSEADDR，让Docker核查保留端口。增加安全实际Artifact校验值stdout供交付核查。原失败不覆盖，不提前PASSED。
 
 - TASK-16原attempt1完整日志取得并哈希保存：fatal Rust1.90 toolchain TCP连接timeout(os error110)，另有setup-uv codeload warning。原failure和后续目标job重跑success分开记录。
+
+- TASK-18工程PASSED：最终817dd43四workflow14job全部SUCCESS，982backend/124browser/19transport及全Docker安装MOCK链路真实执行PASS；Win/Linux/macOS双CPU包和nativeCPU/版本/SHA核对成功。保留所有失败，普通用户Docker依赖、人工安装NOTEXECUTED和科研NOTMEASURED明确。按批准顺序进入19工程实际Artifact独立校验，不执行17付费科研。
