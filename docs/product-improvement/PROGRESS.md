@@ -10,7 +10,7 @@
 
 - TASK-00：**PASSED**；日志已恢复，引用 UUID 误判已修复；固定 ID 回归、负向控制、604 项完整测试及修复提交 push/PR CI、Windows/Linux Desktop 均通过。
 - 起点：`a8d5c1f0ace08573c5e5787bf5eef39570405191`（fetch 后 origin/main）。
-- 分支：`codex/research-product-improvement`；不直接提交 main，不 force push，不自动合并。
+- 原实施分支：`codex/research-product-improvement`；2026-10-10 用户明确批准 README 同步、测试版 Release 与合并 main，PR#1 已合并。后续修复仍通过 PR，不直接提交 main，不 force push。
 - TASK-01：PASSED；实现 `238403a` / 验证提交 `9e650ae` 的本地验证与最新 push/PR CI、Windows/Linux Desktop 四个 workflow 已通过；TASK-02：PASSED；本地 39 项浏览器/10 项 transport 验证及实现提交 `088e8be` 的 push/PR CI、Windows/Linux Desktop 四个 workflow 全部 SUCCESS；TASK-03：PASSED；645 项后端测试及实现提交四个实际 workflow 全部 SUCCESS；真实科研质量 NOT MEASURED；TASK-04：PASSED，672 项后端/43 项浏览器/11 transport 与四个实现 workflow 全部通过；TASK-05：PASSED，687 项后端/47 浏览器/11 transport 与四个实现 workflow 全部 SUCCESS。
 - [基线报告](BASELINE.md)；[实际验证记录](task-00-evidence.json)。
 
@@ -341,3 +341,15 @@
 ### 用户追加授权：README、测试版Release和main合并
 
 用户明确要求同步README、发布测试版本Release并合并main，覆盖此前禁止发布/合并的限制；科研评测继续暂停。采用v0.2.0-beta.1 Pre-release（应用版本0.2.0），安装产物必须来自同SHA成功的main Push CI/Desktop，不复用旧817的SHA256冒充新包。发布先上传草稿、核对服务端hash再公开。中英文README同步说明普通安装路径、Docker依赖、人工NOT EXECUTED与科研NOT MEASURED。最终实际CI、mergeSHA、tag/sourceSHA和发布结果记录于PR/Release。
+
+
+## 测试版 Release 与 main 合并实录（2026-10-10）
+
+- 用户明确授权发布测试版本和合并 main，覆盖此前限制；未启动真实科研评测。
+- README 同步提交 `2fe9abfa9be832910411e1acb370e999a625dd21`：Push CI38057271660、PR CI38057275005、Push Desktop38057271698、PR Desktop38057275002、PR Installer verification38057275029 全部SUCCESS，15/15实际job通过。
+- [PR#1](https://github.com/maczhouyi-del/RAGSystem/pull/1) 正常merge，main安装源 `717ac44d2105ef152371a0ead4f4ea6a49c3177e`。Push CI38057950840、Desktop38057950832、Installer verification38057950816全部SUCCESS，8/8实际job通过。后者校验原817交付物，发布流程另行校验717新产物，不混用哈希。
+- [v0.2.0-beta.1](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.1) 已于2026-10-10T14:29:58Z公开发布为Pre-release；17附件包含6原生安装器、4部署ZIP、4ZIP校验文件、安装指南、manifest和SHA256SUMS。客户端版本0.2.0，tag及manifest源SHA为上述717。
+- [发布作业38059510080](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38059510080) **FAILURE**保留：main/CI门禁、实际安装包独立下载/成员校验、17附件上传均成功，但未创建tag的草稿按`releases/tags`查询404，自动公开步骤未执行。未声称该作业成功。
+- 人工恢复使用GitHub标准REST实际Release ID408997976；先实际下载全部17附件，逐一核对server digest/size、16条SHA256SUMS、6安装器和4部署ZIP的manifest/source身份，再按ID公开Pre-release，并核查tag准确指向717。没有修改安装文件/哈希或移动tag。
+- 发布自动化修复为分页列出草稿并按唯一tag定位实际ID，再按ID核查/公开；保留所有source/CI/hash门禁。修复的完整发布工作流未再次执行，以免重复创建既有beta；实际接口定位与附件校验已验证。
+- Docker必需、未签名/未notarize；人工操作系统安装NOT EXECUTED，TASK-17和19科研仍BLOCKED/NOT MEASURED。交付后暂停等待本地反馈，不自动发起付费科研测试。
