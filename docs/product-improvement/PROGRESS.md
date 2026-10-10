@@ -283,8 +283,8 @@
 
 ### TASK-19：科研用户端到端验收
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
+- 状态：IN_PROGRESS（工程验收）；开始commit：`f0f90e9`；最终工程commit尚未产生。科研部分BLOCKED/NOTMEASURED，整体不能PASSED。
+- 涉及文件：独立installers verifier脚本与Actions workflow、进度/证据/交付清单。复用18真实Docker安装和既有PG/Playwright科研操作工程证据，不引入新的科研评测系统。
 - 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
 - 修改目标、依赖、验收计划：见上表 TASK-19；前置门禁 18；03/17 真实评测资源。
 - 风险与已知限制：停止新功能；A–L 全场景，工程与人工证据分开。

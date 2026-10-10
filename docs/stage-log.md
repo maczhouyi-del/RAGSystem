@@ -1240,3 +1240,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-16原attempt1完整日志取得并哈希保存：fatal Rust1.90 toolchain TCP连接timeout(os error110)，另有setup-uv codeload warning。原failure和后续目标job重跑success分开记录。
 
 - TASK-18工程PASSED：最终817dd43四workflow14job全部SUCCESS，982backend/124browser/19transport及全Docker安装MOCK链路真实执行PASS；Win/Linux/macOS双CPU包和nativeCPU/版本/SHA核对成功。保留所有失败，普通用户Docker依赖、人工安装NOTEXECUTED和科研NOTMEASURED明确。按批准顺序进入19工程实际Artifact独立校验，不执行17付费科研。
+
+- TASK-19工程开始：18已验收后，从GitHubActions重新下载817dd43四平台实际Artifacts，独立重算每MSI/EXE/DMG/deb/AppImage、部署ZIP和逐成员hash，检查平台/version/buildSHA和不含secret/test文件。云直接Blob仍403，使用标准download-artifact在独立Actionsrunner校验，不绕过云代理；报告明确不执行其他OS安装程序。科研部分BLOCKED/NOTMEASURED。

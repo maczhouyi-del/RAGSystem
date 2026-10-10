@@ -1,0 +1,40 @@
+name: Installer verification
+on:
+  push:
+    paths:
+      - '.github/workflows/installer-verification.yml'
+      - 'scripts/verify_installers.py'
+  pull_request:
+    paths:
+      - '.github/workflows/installer-verification.yml'
+      - 'scripts/verify_installers.py'
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify-delivered-installers:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      # Accepted TASK-18 push build. Distinct from this verification workflow SHA.
+      INSTALLER_SOURCE: '817dd43a4c4d8f525f5173d48474357ff6814d9c'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download all four actual platform artifacts independently
+        uses: actions/download-artifact@v4
+        with:
+          repository: maczhouyi-del/RAGSystem
+          run-id: '38052578187'
+          github-token: ${{ github.token }}
+          path: incoming-installers
+      - name: Rehash installers, deployment archives and every manifest member
+        run: |
+          python scripts/verify_installers.py --directory incoming-installers --source "$INSTALLER_SOURCE" --output installer-verification.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-verification-${{ github.sha }}
+          path: installer-verification.json
+          if-no-files-found: error

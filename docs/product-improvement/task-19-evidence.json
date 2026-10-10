@@ -1,0 +1,25 @@
+{
+  "task": "TASK-19",
+  "status": "IN_PROGRESS",
+  "engineering": {
+    "status": "IN_PROGRESS",
+    "source_installation_commit": "817dd43a4c4d8f525f5173d48474357ff6814d9c",
+    "accepted_task18": "four exact-SHA workflows/14jobsSUCCESS, actual Docker MOCK all lifecycle stages and native4platforms",
+    "scope": "independent real artifact download and SHA256 verification, deployment whitelist and version/source identities; combine existing DB/UI/worker lifecycle evidence",
+    "verification_workflow": "Installer verification (GitHubActions independently downloads because cloud Blob hosts still403)",
+    "no_installer_execution_on_other_OS": true
+  },
+  "scientific": {
+    "status": "BLOCKED",
+    "quality": "NOT MEASURED",
+    "execution": "NOT EXECUTED",
+    "reason": "User has not provided real papers, human gold, approved model config/budget; deferred until beta delivery/local feedback"
+  },
+  "manual_installation": {
+    "Windows11": "NOT EXECUTED",
+    "macOSarm64": "NOT EXECUTED",
+    "macOSx64": "NOT EXECUTED",
+    "Linux": "NOT EXECUTED"
+  },
+  "stop_condition": "After test build delivery stop; no paid/real science evaluation automatically."
+}
