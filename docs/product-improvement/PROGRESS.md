@@ -337,3 +337,7 @@
 - b324bd7 的PR CI38054135126/frontend原attempt1保留FAILURE（123browser PASS/1FAIL）；backend/compose与PushCI均PASS。未称原作业成功。
 - 已确认PDF批量上传fixture同时释放两个请求后错误要求网络到达严格a,b,c,d，实际a,b,d,c；UI本身先占两槽、异步读取后发送，不能把并行网络顺序当队列顺序。只修测试响应控制：初始a/b精确成员与UI行顺序；释放a后只允许c进入/剩1等待2上传，再释放b允许d；保留全部文件/并发≤2/索引状态断言。
 - 20次重复专项实际PASS（30.0s）；完整124browser/19transport与最新CI由PR最终检查记录。不修改交付817的业务/运行依赖/安装包，不删除测试或掩盖失败。
+
+### 用户追加授权：README、测试版Release和main合并
+
+用户明确要求同步README、发布测试版本Release并合并main，覆盖此前禁止发布/合并的限制；科研评测继续暂停。采用v0.2.0-beta.1 Pre-release（应用版本0.2.0），安装产物必须来自同SHA成功的main Push CI/Desktop，不复用旧817的SHA256冒充新包。发布先上传草稿、核对服务端hash再公开。中英文README同步说明普通安装路径、Docker依赖、人工NOT EXECUTED与科研NOT MEASURED。最终实际CI、mergeSHA、tag/sourceSHA和发布结果记录于PR/Release。

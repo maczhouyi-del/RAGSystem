@@ -7,36 +7,78 @@ Tauri 桌面入口。它保留了现有的基于证据的知识库和 Supervisor
 项目采用 MIT 许可证；论文和模型权重分别受各自许可证约束。
 不依赖 langgraph-supervisor，不声称未经验证的基准测试成绩。
 
-最终审查版本位于
+默认源码分支为
 [`main`](https://github.com/maczhouyi-del/RAGSystem/tree/main)。
 此副本保留原始提交历史和 MIT 许可证；
 [原仓库](https://github.com/chouytong/RAGAgent)继续保留。
 迁移基于原仓库 `fix/engineering-hardening` 分支的 `df75bdd` 提交。
 历史 CI 和安装包验证证据仍链接到原仓库中的实际运行记录。
 
+## 下载与安装测试版
+
+从 GitHub Releases 下载 **[v0.2.0-beta.1 测试版](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.1)**，应用内部版本为 **0.2.0**。
+需要同时下载**桌面安装包和同平台部署 ZIP**。桌面安装包是客户端；原生部署助手通过 Docker
+启动 PostgreSQL/pgvector、Redis、API、三个 worker 和 Web。
+**仍需安装 Docker；普通用户不需要在电脑上安装 Python、Node.js、Rust 或 Git。**
+
+| 平台 | 桌面安装包 | 配套部署包 |
+| --- | --- | --- |
+| Windows 11 x64（优先） | MSI 或 EXE，二选一 | `RAGSystem-deployment-windows-x86_64.zip` |
+| macOS Apple Silicon | aarch64 DMG | `RAGSystem-deployment-macos-aarch64.zip` |
+| macOS Intel | x64 DMG | `RAGSystem-deployment-macos-x86_64.zip` |
+| Linux x64（Ubuntu 24.04） | deb 或 AppImage | `RAGSystem-deployment-linux-x86_64.zip` |
+
+1. 下载对应文件，按照 Release 的 `SHA256SUMS.txt` 核对 SHA256。
+   `release-manifest.json` 记录实际构建 SHA、平台、版本和校验值。
+2. Windows/macOS 安装并启动 Docker Desktop；Linux 安装 Docker Engine 与 Compose ≥2.24。
+   Windows 按 Docker 官方引导开启 WSL2/虚拟化并使用 Linux containers。
+3. 安装桌面客户端，把部署 ZIP 解压到长期保留、当前用户可写的目录。
+4. 打开桌面的“本机授权”，复制非敏感配对哈希。运行 `RAGSystem-Setup.exe`（Windows）或
+   `./RAGSystem-Setup`（macOS/Linux），选择 **2 配对并启动**，粘贴哈希；等待完整后端初始化成功。
+5. 在助手中通过隐藏输入保存 API 密钥并重启服务，在 Settings 配置 provider/model 角色。
+   导入 PDF，等待 indexed 后进入 RAG 或 Research，按需导出报告。真实模型调用可能收费；
+   本地 embedding/reranker 的权重会在首次使用时下载。
+
+[Windows/macOS/Linux 完整安装与首次使用教程](docs/installation/README.md) ·
+[数据、备份、升级、还原和卸载](docs/installation/data-and-upgrades.md) ·
+[常见问题](docs/installation/troubleshooting.md) ·
+[安装后本地真实科研评测](docs/installation/local-evaluation.md)
+
+建议 **16 GB 内存、至少 20 GB 可用磁盘**，模型与论文另需空间。首次后端构建需要互联网。
+Web 保留 `http://127.0.0.1:8080` 入口，通过助手 **9 Web 配对**设置独立凭据。
+关闭桌面窗口不会自动停止后端；用助手停止。卸载容器保留全部五个数据卷，不要通过删除卷修复安装。
+API 密钥只保存到私有运行时文件，桌面凭据保存在系统密钥库；不得写入报告或备份。
+
+这是**未签名、未 macOS notarize 的 Pre-release**。各平台原生构建与自动化工程结果可在 CI 核查；
+**真实 Windows 11/macOS/Linux 人工安装仍为 NOT EXECUTED**。
+安装端到端验证使用 **MOCK 模型**、真实 PostgreSQL/Redis 和真实 Docling Native PDF 解析。
+**真实科研质量仍为 NOT MEASURED**；TASK-17 与 TASK-19 科研部分等待用户论文、人工金标与获准模型/预算。
+不得据 MOCK 分数认定 Research 优于 RAG。Windows/Linux ARM64、其他 Linux 发行版 NOT EXECUTED。
+实际结果见 Release 说明及[工程验收证据](docs/product-improvement/task-19-evidence.json)；
+[此前 CI Artifact 交付记录](docs/product-improvement/task-18-delivery.md)保留原构建 SHA 与校验值，不能与新 Release 混用。
+
+## 开发者源码部署
+
+以下命令面向具备 Git、Node.js/npm、Rust 与平台 WebView 开发依赖的贡献者。
+普通用户使用上面的测试版安装流程。已有运行时 `.env` 必须保留。
+
 ```bash
 git clone --branch main https://github.com/maczhouyi-del/RAGSystem.git
 cd RAGSystem
-# First checkout only; preserve an existing runtime .env.
+# 仅首次 checkout；保留已有运行时 .env。
 cp .env.example .env
-# 先安装并启动 Desktop，打开“连接授权”。
 npm --prefix frontend ci
 npm --prefix frontend run desktop:dev
-# 将非秘密配对哈希填入 .env 的 LOCAL_AUTH_TOKEN_HASH。
+# 将 Desktop 的非敏感配对哈希填入 LOCAL_AUTH_TOKEN_HASH。
 # 在另一个终端启动 Compose，再回到 Desktop 检查授权。
 docker compose up --build
 ```
 
-打开 [Web 备用入口](http://localhost:8080) 和 [API 文档](http://localhost:8000/docs)。
-首次使用先在 Desktop 完成本机配对，再启动 Compose；Web 开发授权见部署文档。
-桌面壳只连接 `http://127.0.0.1:8000`，不会打包或启动 Python、PostgreSQL、Redis。
-Rust 和各平台的 WebView 前置依赖列在
-[部署文档](docs/deployment.md#desktop-ui-with-local-backend) 中。
-需要 Docker Compose v2 和 Git；建议至少 8 GB 内存、20 GB 可用磁盘空间。
-后端需要先配置本机授权；模型 API key 可为空启动；推理需要配置聊天服务商或本地模型。
-本地解析、嵌入和重排模型的权重会在首次使用时下载。
-`/api/health` 报告进程是否存活；`/api/ready` 检查数据库、Redis 和队列 worker，
-不代表模型或服务商已经具备推理条件。
+开发诊断使用 `./scripts/diagnose.sh`（Linux）或
+`powershell -NoProfile -File .\scripts\diagnose.ps1`（Windows）。
+详见[环境诊断](docs/environment-diagnostics.md)、[部署说明](docs/deployment.md)和[首次使用引导](docs/first-use.md)。
+`/api/health` 检查进程存活；`/api/ready` 检查数据库、Redis 与交互 worker，不代表模型能够实际推理。
+API 文档位于 `http://127.0.0.1:8000/docs`，受保护接口需要本机授权。
 
 RAG/Research 会话使用 `interactive` 队列，PDF/arXiv 使用 `ingestion`，评测使用
 `evaluation`。Compose 分别启动三个独立 worker；`/api/ready` 检查交互服务所需
@@ -347,7 +389,4 @@ PDF 面板明确目标页，系统查看器可能需要手动跳页。Settings �
 分别显示授权、数据库、Redis、各任务队列与构建来源；模型加载和推理需真实任务验证。
 实际测试证据与尚未验证的验收项见 [工程整改报告](ENGINEERING_REVIEW.md)。
 
-实现提交 `f803d824` 的 backend/frontend/Compose 与 Linux/Windows Desktop CI 均已通过。真实未签名 MSI/NSIS 制品及下载后独立核对的 SHA-256 见[工程报告](ENGINEERING_REVIEW.md#final-implementation-ci-and-inspected-windows-artifacts)。多语言真实质量与 Windows 11 人工验收仍未验证。
-
-
-本地测试版完整安装：见[Windows/macOS/Linux安装教程](docs/installation/README.md)。桌面客户端需配合Docker后端与对应部署ZIP；构建/人工平台结果以[交付记录](docs/product-improvement/task-18-delivery.md)为准。真实科研评测后置，目前NOT MEASURED。
+历史工程基线提交 `f803d824` 的 backend/frontend/Compose 与 Linux/Windows Desktop CI 均已通过。真实未签名 MSI/NSIS 制品及下载后独立核对的 SHA-256 见[工程报告](ENGINEERING_REVIEW.md#final-implementation-ci-and-inspected-windows-artifacts)。多语言真实质量与 Windows 11 人工验收仍未验证。

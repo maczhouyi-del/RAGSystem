@@ -5,10 +5,13 @@
 并由部署助手启动 PostgreSQL/pgvector、Redis、API、三个 worker 和 Web。
 不需要在个人电脑安装 Python、Node.js 或 Rust，也不宣称完全免依赖或离线一键安装。
 
-版本：0.2.0 测试构建；具体构建 SHA、SHA256、实际 CI 与 Artifact 链接见
-[交付验证记录](../product-improvement/task-18-delivery.md)。同一套客户端和部署 ZIP 应来自同一个 Artifact。
+版本：0.2.0 测试构建，对应 [v0.2.0-beta.1 Pre-release](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.1)。
+优先下载 Release 的对应客户端和部署 ZIP，核对同一 Release 的 `SHA256SUMS.txt` 和 `release-manifest.json`；manifest提供实际构建SHA、版本、平台与文件校验值。
+Release 中安装器文件名的空格替换为下划线，内容字节不变。
+[早期CI交付验证记录](../product-improvement/task-18-delivery.md)仍保留817构建的原值，不能用它核对新Release包。
 测试版未代码签名/notarization。不要自动忽略来源不明的系统安全提示。
-GitHub Actions Artifact 下载通常需要登录 GitHub，保留期有限；这是 CI 测试交付，不是正式 Release。
+也可从成功的 GitHub Actions Artifact 下载同一构建的客户端和部署 ZIP；Artifact通常需登录GitHub且有保留期限。
+这是测试 Pre-release，工程自动化通过不能代替人工安装或科研验收。
 
 建议 16GB 内存、至少 20GB 可用磁盘（模型/论文另需空间）。首次构建需要互联网，
 下载容器和依赖通常需 10–30 分钟，实际取决于网络/CPU；助手不提交新推理任务；已有排队任务会由启动的worker继续执行，可能使用用户此前授权的模型费用。
@@ -17,7 +20,7 @@ GitHub Actions Artifact 下载通常需要登录 GitHub，保留期有限；这�
 
 ## Windows 11（优先）
 
-1. 从对应 GitHub Actions Artifact 下载并解压。核对 SHA256（PowerShell：`Get-FileHash 文件路径 -Algorithm SHA256`），与交付记录/manifest 一致。
+1. 从测试版 Release 下载对应Windows安装器与部署 ZIP；或解压同一成功构建的GitHub Actions Artifact。核对 SHA256（PowerShell：`Get-FileHash 文件路径 -Algorithm SHA256`），与对应Release的SHA256SUMS/manifest（或该Artifact原记录）一致。
 2. 按 Docker 官方 [Windows 安装指南](https://docs.docker.com/desktop/setup/install/windows-install/) 安装 Docker Desktop，按官方引导启用 WSL2/虚拟化并完成要求的重启。注意 Docker Desktop 许可证/订阅条款。启动 Docker Desktop，确认 Linux containers 可用。
 3. 双击 `.msi` 或 NSIS `.exe` 安装 Scientific RAGAgent。二者选一个即可。测试构建未签名，确认 GitHub 仓库、构建 SHA 和校验值后按系统/组织策略处理提示。WebView2 Runtime 若缺失，按安装器/Microsoft 官方引导安装。
 4. 把 `RAGSystem-deployment-windows-x86_64.zip` 中的 `RAGSystem` 文件夹解压到长期保留、当前用户可写的位置，例如 `C:\Users\你的用户名\RAGSystem`。不要放在 Program Files 或临时下载缓存中。不要遗漏隐藏的 `.env.example`。
@@ -31,7 +34,7 @@ GitHub Actions Artifact 下载通常需要登录 GitHub，保留期有限；这�
 
 ## macOS（Apple Silicon 与 Intel）
 
-分别使用 `macos-aarch64` 和 `macos-x86_64` Artifact，不能互换或以交叉编译推断兼容。
+分别使用 `macos-aarch64` 和 `macos-x86_64` Release文件（或相应Artifact），不能互换或以交叉编译推断兼容。
 按 [Docker 官方 macOS 指南](https://docs.docker.com/desktop/setup/install/mac-install/) 安装对应 CPU 的 Docker Desktop。
 打开对应 `.dmg`，把应用拖到 Applications。部署 ZIP 解压到长期可写用户目录。
 在 Terminal 进入该目录，运行 `./RAGSystem-Setup`，按同样的配对/启动菜单操作；这不需要开发工具链。
