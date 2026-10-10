@@ -124,6 +124,7 @@ class CitationValidation(BaseModel):
     missing_aspects: list[str] = Field(default_factory=list)
     comparison_entities: list[ComparisonEntityCoverage] = Field(default_factory=list)
     comparison_errors: list[str] = Field(default_factory=list)
+    report_bindings_verified: bool = False
 
 
 class Sufficiency(StrEnum):
@@ -151,6 +152,7 @@ class VerificationResponse(BaseModel):
     question_answered: bool = False
     missing_aspects: list[str] = Field(default_factory=list)
     comparison_entities: list[ComparisonEntityCoverage] = Field(default_factory=list)
+    report_bindings_verified: bool = False
 
 
 class QueryExpansion(BaseModel):

@@ -1188,3 +1188,11 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-13 最终前端：107 MOCK browser PASS（1.5m、0 failed/skipped）、16 transport PASS，npm lint/check/build成功。原表格页码标签断言按p.6修正，原文/来源/版本/辅助页检查保留。最终截图已检查，上方原始PDF入口可见，表格原文数字不变；实际系统阅读器人工操作仍NOT EXECUTED。待精确实现CI门禁。
 
 - TASK-13 验收（2026-10-10 Asia/Shanghai）：dd023de01cf22a2b020df1891b4e781813302665 push CI37950083681 / Desktop37950083661、PR CI37950089001 / Desktop37950089060四个 workflow/十个 job completed/SUCCESS，完整SHA及实际native步骤已核对。831后端/107 MOCK browser/16 transport本地PASS，真实PG/API原PDF与页可用性验证PASS。云schema0012、API/Web/三worker ready，原有开发Run保留、0实际模型调用。工程PASSED，自动进入TASK-14；系统阅读器Win11人工操作NOT EXECUTED，科研/布局识别质量NOT MEASURED。
+
+## TASK-14 结构化科研报告（2026-10-10 Asia/Shanghai）
+
+- 开始2c0e798，TASK-13精确SHA四个workflow/十个job全部SUCCESS。扩展现有AnalysisResult及Reviewer语义校验，不增加自由生成Agent；报告字段只引用Claim，原文字面值必须在该来源引文中，缺失与明确未报告区分。旧图20 PASS，初稿mypy5个局部变量复用类型错误已修复；完整回归及实现CI待执行，状态IN_PROGRESS。
+
+- TASK-14 首次完整：857 PASS/1 FAIL（116.48s），旧RAG记忆隔离测试把随机PDF摘要中的500当人数。固定摘要500+61零使两模式旧断言均确定性FAIL；共享测试oracle只剔除已校验64hex源摘要和来源ID字段的完整UUID，保留原文/问题/Claim/普通元数据与非来源digest，原摘要在生产payload保留。新增11个负向/身份控制；57专项PASS。初步新报告22unit/2PG与旧图共44PASS；新增3报告边界测试；109全量MOCK browser/16transport PASS，截图已检查。初次浏览器JSON模块缺import attribute导致0test启动失败，修复后2专项执行PASS；报告表格连续行格式审查修正，无断言删除。完整后端复验及实现CI待完成，IN_PROGRESS。
+
+- TASK-14 最终本地：869 passed（612 unit/257 real PG，0 skipped/failed）、109 MOCK browser/16 transport、locked sync/Ruff/mypy94/npm ci/lint/check/build/官方rustfmt PASS；新增38后端与2浏览器，旧数值/过滤/Reviewer失败重试/记忆隔离保留。实际科研模型与人工金标仍未执行，等待独立实现精确SHA CI。

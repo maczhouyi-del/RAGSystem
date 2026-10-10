@@ -74,6 +74,15 @@ def redact(value: Any, deleted: SourceIds) -> Any:
     affected = source_ids(direct).intersects(deleted)
     result = {key: redact(child, deleted) for key, child in value.items()}
     if affected:
+        if "source_literal" in result:
+            result["source_literal"] = None
+        # Analyst experiment fields inherit the row's source attribution.
+        fields = result.get("fields")
+        if isinstance(fields, dict):
+            for item in fields.values():
+                if isinstance(item, dict) and "source_literal" in item:
+                    item["source_literal"] = None
+                    item["source_availability"] = "unavailable"
         for key in ("quote", "content", "expected_answer"):
             if key in result:
                 result[key] = ""

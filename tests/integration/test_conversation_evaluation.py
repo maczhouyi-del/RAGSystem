@@ -41,6 +41,7 @@ from ragagent.retrieval.evidence import CITATION, parse_citations
 from ragagent.retrieval.service import HybridRetriever
 from ragagent.settings import Settings
 from tests.integration.test_retrieval import Embedder, FixtureReranker, populate
+from tests.scientific_oracles import scientific_payload_text
 from tests.unit.test_conversation_evaluation import (
     comparison_case,
     comparison_rewrite,
@@ -128,13 +129,7 @@ class LargestSampleFacts(MockProvider):
         assert len(supplied) == 2
         # A validated PDF digest is source identity, not a participant count.
         # Keep every other field observable, including scientific text and metadata.
-        scientific = []
-        for source in supplied:
-            paper = dict(source["paper"])
-            digest = paper.pop("pdf_sha256", None)
-            assert digest is None or re.fullmatch(r"[0-9a-f]{64}", digest)
-            scientific.append({**source, "paper": paper})
-        assert "500" not in json.dumps(scientific)
+        assert "500" not in scientific_payload_text(supplied)
         samples: dict[str, tuple[int, str]] = {}
         for source in supplied:
             match = re.fullmatch(r"(Paper \w+) enrolled (\d+) participants\.", source["quote"])

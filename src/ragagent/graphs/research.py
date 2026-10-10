@@ -3,6 +3,7 @@ from langgraph.graph.state import CompiledStateGraph
 
 from ragagent.domain.research import QueryExpansion, QueryPlan
 from ragagent.graphs.common import constrain_filters
+from ragagent.graphs.reports import binding_errors, synthesize_report
 from ragagent.graphs.state import (
     AnalysisResult,
     MultiAgentState,
@@ -15,7 +16,6 @@ from ragagent.retrieval.evidence import (
     accepted_evidence,
     evidence_payload,
     merge_evidence,
-    render_claims,
     verify_claims,
 )
 from ragagent.retrieval.service import SearchPort
@@ -177,6 +177,12 @@ def build_research(
                 "must include existing evidence IDs and an exact required aspect. "
                 "Keep citation markers out of claim text; use only the evidence_ids field. "
                 "Do not invent facts; add unsupported questions to limitations. "
+                "For observations, group each experiment under its original paper_id. Each "
+                "field references existing claim_ids only; source_literal must be verbatim in "
+                "the cited quote. Keep dataset, participants, conditions, metric, result, unit "
+                "and split separate. Use evidence_insufficient for missing extraction; use "
+                "explicit_not_reported only with a claim and quote explicitly stating omission. "
+                "Never normalize units or rank incompatible experiments without evidence. "
                 "Revise prior claims using reviewer feedback when provided.",
                 {
                     "question": state.research_question,
@@ -198,16 +204,18 @@ def build_research(
         }
 
     def synthesize(state: MultiAgentState) -> ResearchUpdate:
-        # Deterministic Report Synthesis Node: cannot add model-memory conclusions.
-        report = "# Research report\n\n" + "\n\n".join(
-            render_claims(a.factual_claims()) for a in state.analysis_results
-        )
-        # Limitations/contradictions remain structured, not released as unchecked factual prose.
-        return {"draft_report": report, "status": "reviewing"}
+        # Final synthesis only runs after the current Reviewer passes all bindings.
+        return {
+            "draft_report": "报告正在核查，尚未发布。",
+            "structured_report": None,
+            "status": "reviewing",
+        }
 
     async def review(state: MultiAgentState) -> ResearchUpdate:
         assert state.research_plan is not None
         claims = [c for a in state.analysis_results for c in a.factual_claims()]
+        observations = [o for a in state.analysis_results for o in a.observations]
+        report_errors = binding_errors(observations, claims, state.evidence_pool)
         validation = await verify_claims(
             claims,
             state.evidence_pool,
@@ -216,11 +224,17 @@ def build_research(
             state.research_question,
             comparison=state.research_plan.question_type == "comparison",
             comparison_entities=state.research_plan.comparison_entities,
+            report_observations=[o.model_dump() for o in observations],
         )
+        if report_errors:
+            validation.valid = False
+            validation.missing_aspects += report_errors
         contradictions = [x.text for a in state.analysis_results for x in a.contradictions]
         invalid = [v.claim_id for v in validation.verdicts if not v.supported or v.contradiction]
         if validation.valid:
             decision = "PASS"
+        elif report_errors or "report_bindings" in validation.missing_aspects:
+            decision = "NEED_REVISION"
         elif not claims or any(
             a not in {c.aspect for c in claims} for a in validation.missing_aspects
         ):
@@ -234,11 +248,35 @@ def build_research(
         return {"review_result": result, "iteration": state.iteration + 1}
 
     def finish(state: MultiAgentState) -> ResearchUpdate:
-        return {"status": "completed", "current_tasks": []}
+        assert state.review_result is not None and state.review_result.decision == "PASS"
+        analysis = state.analysis_results
+        report = synthesize_report(
+            state.research_question,
+            [c for a in analysis for c in a.factual_claims()],
+            state.evidence_pool,
+            state.review_result.validation,
+            [o for a in analysis for o in a.observations],
+            {
+                "methods": [c for a in analysis for c in a.methods],
+                "datasets": [c for a in analysis for c in a.datasets],
+                "results": [c for a in analysis for c in a.metrics],
+                "conditions": [
+                    c for a in analysis for c in a.claims if c.aspect in ("conditions", "实验条件")
+                ],
+                "findings": [c for a in analysis for c in a.contradictions],
+            },
+        )
+        return {
+            "status": "completed",
+            "draft_report": report.markdown,
+            "structured_report": report,
+            "current_tasks": [],
+        }
 
     def stop(state: MultiAgentState) -> ResearchUpdate:
         return {
             "status": "insufficient_evidence",
+            "structured_report": None,
             "draft_report": "Insufficient evidence or "
             "unresolved claims after the configured research/revision limits.",
             "current_tasks": [],
