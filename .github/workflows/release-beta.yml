@@ -95,8 +95,8 @@ jobs:
           import hashlib, json, os, subprocess
           from pathlib import Path
           base = 'repos/' + os.environ['GH_REPO'] + '/releases'
-          pages = json.loads(subprocess.check_output(['gh', 'api', '--paginate', '--slurp', base + '?per_page=100']))
-          matches = [r for page in pages for r in page if r['tag_name'] == os.environ['RELEASE_TAG']]
+          rows = subprocess.check_output(['gh', 'api', '--paginate', base + '?per_page=100', '--jq', '.[] | @json'], text=True).splitlines()
+          matches = [r for r in map(json.loads, rows) if r['tag_name'] == os.environ['RELEASE_TAG']]
           assert len(matches) == 1, 'Expected exactly one release for the beta tag'
           release_id = matches[0]['id']
           release = json.loads(subprocess.check_output(['gh', 'api', base + '/' + str(release_id)]))
