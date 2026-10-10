@@ -40,7 +40,7 @@
 | TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | PASSED |
 | TASK-17 | RAG 与 Research 对照评测 | 测试版交付后；03 框架及真实资源 | 同语料/问题/范围/配置，不预设 Research 更优 | 真实失败逐例记录；无真实资源 BLOCKED / NOT MEASURED | BLOCKED |
 | TASK-18 | 最终安装方案与完整部署 | 16；01/02 诊断引导；不依赖17 | 先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI | 实际 Windows/macOS/Linux artifact/哈希、完整后端、配置/备份/升级/数据保护；人工平台单列 | PASSED |
-| TASK-19 | 科研用户端到端验收 | 工程：18；科研：17真实资源 | 工程与科研两部分；工程通过可交付测试版，科研未执行不能PASSED | 全新 Win11、20 PDF、数值/比较/记忆/删除/报告/恢复/升级/跨语言 | NOT_STARTED |
+| TASK-19 | 科研用户端到端验收 | 工程：18；科研：17真实资源 | 工程与科研两部分；工程通过可交付测试版，科研未执行不能PASSED | 工程：真实Docker MOCK生命周期与原生包；科研：20真实PDF/人工金标；人工平台单列 | BLOCKED（工程PASSED/科研BLOCKED） |
 
 ## TASK-00 初次执行记录（历史，后续恢复见下节）
 
@@ -259,34 +259,34 @@
 - 限制：0实际模型调用/模型权重下载；真实费用/科学质量NOT MEASURED，Win11人工NOT EXECUTED。
 
 - 云运行：API/Web/三worker ready、schema0012、旧开发失败Run UUID/创建时间核对保留、0模型调用。配置工具已保存网络草稿（api.github.com、productionresultssa9/sa18.blob.core.windows.net），保留package_managers preset；requires_publish=true、尚未应用/发布。需要环境设置审核保存并发布后验证访问，不能绕过代理/TLS或自动发布。
-- 继续步骤：恢复 GitHub API 后，读取PR Desktop38022349417/Linux job114125856277的具体rustup失败日志，诊断后修复或重跑；必须获得同实现SHA四workflow/十job与原生步骤成功，再独立验收提交并自动继续TASK-17资源阻塞记录和TASK-18工程。真实评测资源用户已确认未备妥，无需重复询问。
+- 历史待办（已由后续验收闭环解决，保留原失败记录）：恢复 GitHub API 后，读取PR Desktop38022349417/Linux job114125856277的具体rustup失败日志，诊断后修复或重跑；必须获得同实现SHA四workflow/十job与原生步骤成功，再独立验收提交并自动继续TASK-17资源阻塞记录和TASK-18工程。真实评测资源用户已确认未备妥，无需重复询问。
 
 ### TASK-17：RAG 与 Research 对照评测
 
 - 状态：BLOCKED（真实资源尚未提供；科研质量 NOT MEASURED）；开始 commit / 最终 commit：未产生。
 - 涉及文件 / 修改说明 / 新增测试：无，未执行。
 - 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
-- 修改目标、依赖、验收计划：见上表 TASK-17；前置门禁 16；03 框架及人工金标/模型条件。
+- 修改目标、依赖、验收计划：见上表 TASK-17；测试版交付后执行，依赖03框架及人工金标/模型条件；不阻塞18或19工程。
 - 风险与已知限制：同语料/问题/范围/配置，不预设 Research 更优。
 
 ### TASK-18：最终安装方案与完整部署
 
 - 状态：PASSED；开始 commit：`ec638a4`；最终实现 commit：`817dd43a4c4d8f525f5173d48474357ff6814d9c`。
 - ADR：[0008](../adr/0008-complete-local-installation.md)，选择桌面 + 自动化 Docker 后端，提供原生部署助手；普通用户仍需 Docker，明确不宣称免依赖。
-- 涉及文件：local_deploy/deployment_data/package_deployment/artifact_manifest/build_metadata脚本、Compose/private runtime env、既有Settings/Docling worker native模式、Windows/Linux与macOS双架构原生CI、实际Docker MOCK测试、14项离线部署保护测试、安装/升级/卸载/故障/本地评测文档。
-- 已完成本地验证：979 backend（702 unit/277 real PG，0fail/skip、63.43s）、124 browser（1.7m）、19 transport；Ruff/mypy96/npm ci/lint/check/build PASS；实际Linux原生助手build/help/缺Docker路径PASS，Rustfmt PASS。原生客户端/真实Docker工程测试与四workflow门禁尚待实际CI，不标PASSED。
+- 涉及文件：local_deploy/deployment_data/package_deployment/artifact_manifest/build_metadata脚本、Compose/private runtime env、既有Settings/Docling worker native模式、Windows/Linux与macOS双架构原生CI、实际Docker MOCK测试、16项离线部署保护测试、安装/升级/卸载/故障/本地评测文档。
+- 初期本地验证（历史，最终结果见本节后续工程验收）：979 backend（702 unit/277 real PG，0fail/skip、63.43s）、124 browser（1.7m）、19 transport；Ruff/mypy96/npm ci/lint/check/build PASS；实际Linux原生助手build/help/缺Docker路径PASS，Rustfmt PASS。原生客户端/真实Docker工程测试与四workflow门禁尚待实际CI，不标PASSED。
 - 历史失败：初稿Ruff导入/长字符串、npm默认cache只读、uv工具默认home只读，修正明确路径后通过；无删除测试/降低断言。
-- 自动启动与升级不调用模型。真实安装E2E明确用MOCK模型与Docling Native真实文本PDF；扫描/OCR/layout/实际embedding推理与科研质量不以此冒充通过。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
+- 助手启动与升级不提交新模型任务；已有排队任务可由worker恢复执行。真实安装E2E明确用MOCK模型与Docling Native真实文本PDF；扫描/OCR/layout/实际embedding推理与科研质量不以此冒充通过。
+- 最终实际验证：982后端（705unit/277真实PG）、124browser、19transport；精确SHA四workflow/14job SUCCESS，真实Docker工程全生命周期PASS；见[实际证据](task-18-evidence.json)和[交付清单](task-18-delivery.md)。
 - 修改目标、依赖、验收计划：见上表 TASK-18；前置门禁 16；01/02 诊断引导；不依赖17真实金标或模型预算。
 - 风险与已知限制：先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI。
 
 ### TASK-19：科研用户端到端验收
 
-- 状态：IN_PROGRESS（工程验收）；开始commit：`f0f90e9`；最终工程commit尚未产生。科研部分BLOCKED/NOTMEASURED，整体不能PASSED。
+- 状态：BLOCKED（工程PASSED；科研BLOCKED/NOT MEASURED）；开始commit：`f0f90e9`；最终工程实现commit：`e18ffc138a979daaa64ec70c9605cb0e1f6a5d14`。整体不标PASSED。
 - 涉及文件：独立installers verifier脚本与Actions workflow、进度/证据/交付清单。复用18真实Docker安装和既有PG/Playwright科研操作工程证据，不引入新的科研评测系统。
-- 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
-- 修改目标、依赖、验收计划：见上表 TASK-19；前置门禁 18；03/17 真实评测资源。
+- 实际工程结果：e18四标准workflow/14job及两独立产物验证workflow/2job均completed/SUCCESS，16/16；实际下载四个平台817安装器和部署ZIP、逐项复算哈希且Push/PR报告一致；[验收证据](task-19-evidence.json)、[下载/校验/限制](task-18-delivery.md)。
+- 依赖：工程18已PASSED；科研依赖03/17真实资源，仍BLOCKED，真实论文20篇/人工评审等NOT EXECUTED。
 - 风险与已知限制：停止新功能；A–L 全场景，工程与人工证据分开。
 
 ## 提交与继续规则
@@ -305,7 +305,7 @@
 
 - `f2423e5 → b20f4f7` 仅 PROGRESS、TASK-16 evidence、stage-log 三份文档变化，业务、测试、锁文件、Rust 与 CI 配置完全一致。
 - 等价验证提交完整 SHA `b20f4f784034bbe7f2bac8df27efd231ed9b6e0a`：Push CI [38023034139](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023034139)、PR CI [38023037503](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023037503)、Push Desktop [38023034100](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023034100)、PR Desktop [38023037440](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023037440) 全部 completed/SUCCESS，全部十个适用 job 和原生测试/构建步骤 SUCCESS，已通过 API 逐项核对。
-- 用户本次明确认可此等价关系作为验收证据，TASK-16 工程 PASSED。原实现 PR Linux attempt1 仍 FAILURE；已优先请求仅原 Linux job 重跑，结果待取得，不能称原失败作业成功。历史日志下载仍受限；用户说明原因为 Rust1.90下载连接超时，现有历史步骤证据证明安装失败/后续 skipped，无证据归咎业务代码。
+- 用户本次明确认可此等价关系作为验收证据，TASK-16 工程 PASSED。原实现 PR Linux attempt1 仍 FAILURE；已优先请求仅原 Linux job 重跑，当时结果待取得，后续定向重跑已SUCCESS，原失败作业仍FAILURE。历史日志当时下载受限，后续已取得原attempt1 ZIP日志；用户说明原因为 Rust1.90下载连接超时，现有历史步骤证据证明安装失败/后续 skipped，无证据归咎业务代码。
 - 原 Compose 初次失败及后来 attempt2 成功、所有本地失败记录均保留。没有删除测试或重设计 TASK-00～15。
 
 ## 用户批准的交付门禁调整（2026-10-10）
@@ -323,3 +323,11 @@
 - 最终实现817dd43；Push CI38052578129 / Desktop38052578187、PR CI38052582203 / Desktop38052582202四workflow completed/SUCCESS，全部14适用job、原生真实CPU/版本/SHA检查与Docker安装全流程PASS。最终CI982backend（705unit/277realPG）、124browser、19transport，0skip/fail。
 - 实际安装链路：原生Docling文本PDF导入/索引，MOCK RAG/Research与4导出，DB/worker失败恢复、密钥配置重启/WebCookie、备份、重启迁移/历史、独立空项目恢复、卸载重装5卷保留均PASS。普通用户仍需Docker，模型真实调用/复杂扫描OCR不以MOCK冒充通过。所有历史失败保留。
 - TASK-18 PASSED；下一TASK-19工程独立校验实际产物并交付。科学质量NOTMEASURED、Windows11/macOS人工安装NOTEXECUTED；17资源BLOCKED不影响本工程交付。
+
+### TASK-19 工程验收与暂停（2026-10-10）
+
+- e18工程实现的PushCI38053611080/PRCI38053615204/PushDesktop38053611069/PRDesktop38053615162以及Push/PR Installer verification38053611108/38053615245全部SUCCESS，16/16适用job通过；零隐藏失败。
+- 交付版本0.2.0 unsigned，实际安装源817dd43完整SHA及Windows/MSI/EXE、macOS双DMG、Linuxdeb/AppImage、对应部署ZIP的Artifact链接、版本、真实SHA256均在[交付记录](task-18-delivery.md)。助手仍要求Docker；不是完全免依赖。
+- 复用18真实PG/Redis/Docker和Docling PDF + MOCK RAG/Research生命周期、原生vault/二进制身份/构建、旧UI/后端功能回归；四个平台实际Artifact均经独立下载并逐项复算哈希。真实Windows11/macOS/Linux人工安装仍NOT EXECUTED。
+- 工程PASSED可交付测试版；TASK-17和TASK-19科研BLOCKED/NOT MEASURED/NOT EXECUTED；没有虚构准确率或Research优势。
+- **已按用户停止条件暂停**：下一步等待用户下载安装并用自有论文/API反馈。不自动调用真实模型、产生评测费用、合并main或发布正式Release。

@@ -1,0 +1,97 @@
+{
+  "verification": "PASS",
+  "environment": "Independent GitHub Actions download; no cross-platform installer execution",
+  "source_commit": "817dd43a4c4d8f525f5173d48474357ff6814d9c",
+  "platforms": [
+    {
+      "platform": "linux-x86_64",
+      "version": "0.2.0",
+      "source_commit": "817dd43a4c4d8f525f5173d48474357ff6814d9c",
+      "native": [
+        {
+          "path": "appimage/Scientific RAGAgent_0.2.0_amd64.AppImage",
+          "bytes": 81738232,
+          "sha256": "cee1ae62b7648f7153afe0930e984729aa1fc109c98359ff05af563bcc7ec812",
+          "independently_verified": true
+        },
+        {
+          "path": "deb/Scientific RAGAgent_0.2.0_amd64.deb",
+          "bytes": 3036652,
+          "sha256": "4c279a6f8582f0843674436ac2ab8fee858923014cdbef31524325579b8a6e81",
+          "independently_verified": true
+        }
+      ],
+      "deployment": {
+        "file": "RAGSystem-deployment-linux-x86_64.zip",
+        "sha256": "5f6b4b2424834dced98380ebffb0c25f68e7a9d7558066745e8c0c65654171cb",
+        "bytes": 21167663,
+        "independently_verified": true
+      }
+    },
+    {
+      "platform": "macos-aarch64",
+      "version": "0.2.0",
+      "source_commit": "817dd43a4c4d8f525f5173d48474357ff6814d9c",
+      "native": [
+        {
+          "path": "dmg/Scientific RAGAgent_0.2.0_aarch64.dmg",
+          "bytes": 2688394,
+          "sha256": "802afe00f614c61584f8ded0f64eb48fa254ce953d0d5e8aea9c4c3c376313d6",
+          "independently_verified": true
+        }
+      ],
+      "deployment": {
+        "file": "RAGSystem-deployment-macos-aarch64.zip",
+        "sha256": "a6335b4aa3a1c7ea8abe6fdda8c5382dba3f08fa3762e47c3ff5c8254206d1b6",
+        "bytes": 8671855,
+        "independently_verified": true
+      }
+    },
+    {
+      "platform": "macos-x86_64",
+      "version": "0.2.0",
+      "source_commit": "817dd43a4c4d8f525f5173d48474357ff6814d9c",
+      "native": [
+        {
+          "path": "dmg/Scientific RAGAgent_0.2.0_x64.dmg",
+          "bytes": 2859058,
+          "sha256": "849d18ef472c31532460d7fa05b42a4384031d0159d94b0c6df480466d8522e5",
+          "independently_verified": true
+        }
+      ],
+      "deployment": {
+        "file": "RAGSystem-deployment-macos-x86_64.zip",
+        "sha256": "ffd3b4e6ad1f5d6fc25197d98035a39eae3f3a12e117b509dcce64d5d8e166d1",
+        "bytes": 9197933,
+        "independently_verified": true
+      }
+    },
+    {
+      "platform": "windows-x86_64",
+      "version": "0.2.0",
+      "source_commit": "817dd43a4c4d8f525f5173d48474357ff6814d9c",
+      "native": [
+        {
+          "path": "msi\\Scientific RAGAgent_0.2.0_x64_en-US.msi",
+          "bytes": 3407872,
+          "sha256": "e4b5deb0f83cdf937db065689fd499dcf54636fc9589eb3c00e905faf0a31329",
+          "independently_verified": true
+        },
+        {
+          "path": "nsis\\Scientific RAGAgent_0.2.0_x64-setup.exe",
+          "bytes": 2368154,
+          "sha256": "f0d031b77ba0c46c77e9c5474f6fd719d7595193932005b1f8d6ed7a2783f44d",
+          "independently_verified": true
+        }
+      ],
+      "deployment": {
+        "file": "RAGSystem-deployment-windows-x86_64.zip",
+        "sha256": "24ac55f4a15cdc19b22a50a324efdc1a194198db878dc17a986c650bd83fdb84",
+        "bytes": 9468064,
+        "independently_verified": true
+      }
+    }
+  ],
+  "human_installation": "NOT EXECUTED",
+  "scientific_quality": "NOT MEASURED"
+}

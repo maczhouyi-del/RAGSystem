@@ -5,18 +5,13 @@
   "decision": "ADR-0008 desktop + automatic Docker deployment, explicit Docker requirement",
   "implementation_commit": "817dd43a4c4d8f525f5173d48474357ff6814d9c",
   "checks": {
-    "backend": "979 passed, 63.43s, real PostgreSQL/Redis, no skipped/failures",
-    "deployment_safety": "14 offline unittest passed; does not replace actual Docker",
-    "frontend": "npm frozen ci, lint/check/build; 124 browser passed in1.7m; 19 transport passed",
-    "native": "IN PROGRESS",
-    "installation_compose": "NOT EXECUTED YET",
-    "native_local": "Actual Linux PyInstaller assistant built and executed, missing-Docker error path passed; pinnedRust1.90formatPASS; nativeclientbuild remainsCI pending",
-    "backend_after_web": "981 passed, 119.45s, 0 failed/skipped",
-    "browser_after_web": "124 passed, 1.9m; 19transport",
-    "native_platforms_initial": "9694575 Push/PR Desktop both4/4SUCCESS Windows/Linux/macOSarm64+x64; later corrected SHA required before delivery",
-    "deployment_safety_latest": "16 offline tests passed including Web proxy false-ready negative control",
-    "backend_final_ci": "982 passed (705 unit/277 real PostgreSQL); no skipped/failed",
-    "browser_final_ci": "124 passed, 19 transport"
+    "backend": "982 passed (705 unit/277 real PostgreSQL), zero failed/skipped, actual exact-SHA CI",
+    "deployment_safety": "16 offline unittest PASS; actual Docker lifecycle separate PASS",
+    "frontend": "124 Playwright/19 transport; lint/check/build PASS",
+    "native": "All4 native platform jobs SUCCESS in Push and PR Desktop; actual binary identity/vault tests/installer packaging",
+    "installation_compose": "PASS all actual lifecycle stages, real Docling Native PDF and MOCK inference only",
+    "scientific_quality": "NOT MEASURED",
+    "human_installation": "NOT EXECUTED"
   },
   "retained_failures": [
     "Initial Ruff import/string issues corrected, no test removal",
@@ -42,12 +37,12 @@
   "license_verification": "Actual PyInstaller6.16.0 trusted wheel COPYING.txt read: unlimited permission to embed/distribute compiled bootloader; Apache2.0 runtime hooks. No GPL source copied.",
   "ci_initial": [
     {
-      "conclusion": "",
+      "conclusion": "failure",
       "databaseId": 38050156008,
       "event": "pull_request",
       "headSha": "969457592f2e910b95df5f762815776ef112ac4e",
       "name": "CI",
-      "status": "in_progress",
+      "status": "completed",
       "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38050156008",
       "details": {
         "conclusion": "failure",
@@ -346,15 +341,19 @@
           }
         ],
         "status": "completed"
+      },
+      "initial_poll_observation": {
+        "status": "in_progress",
+        "conclusion": ""
       }
     },
     {
-      "conclusion": "",
+      "conclusion": "success",
       "databaseId": 38050155957,
       "event": "pull_request",
       "headSha": "969457592f2e910b95df5f762815776ef112ac4e",
       "name": "Desktop",
-      "status": "in_progress",
+      "status": "completed",
       "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38050155957",
       "details": {
         "conclusion": "success",
@@ -1018,15 +1017,19 @@
           }
         ],
         "status": "completed"
+      },
+      "initial_poll_observation": {
+        "status": "in_progress",
+        "conclusion": ""
       }
     },
     {
-      "conclusion": "",
+      "conclusion": "failure",
       "databaseId": 38050152373,
       "event": "push",
       "headSha": "969457592f2e910b95df5f762815776ef112ac4e",
       "name": "CI",
-      "status": "in_progress",
+      "status": "completed",
       "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38050152373",
       "details": {
         "conclusion": "failure",
@@ -1325,15 +1328,19 @@
           }
         ],
         "status": "completed"
+      },
+      "initial_poll_observation": {
+        "status": "in_progress",
+        "conclusion": ""
       }
     },
     {
-      "conclusion": "",
+      "conclusion": "success",
       "databaseId": 38050152473,
       "event": "push",
       "headSha": "969457592f2e910b95df5f762815776ef112ac4e",
       "name": "Desktop",
-      "status": "in_progress",
+      "status": "completed",
       "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38050152473",
       "details": {
         "conclusion": "success",
@@ -1997,17 +2004,21 @@
           }
         ],
         "status": "completed"
+      },
+      "initial_poll_observation": {
+        "status": "in_progress",
+        "conclusion": ""
       }
     }
   ],
   "ci_c26": [
     {
-      "conclusion": "",
+      "conclusion": "failure",
       "databaseId": 38050979157,
       "event": "pull_request",
       "headSha": "c26fd3ad9c50f073602aa7412db2eefc20d6e2f1",
       "name": "CI",
-      "status": "in_progress",
+      "status": "completed",
       "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38050979157",
       "details": {
         "conclusion": "failure",
@@ -2306,6 +2317,10 @@
           }
         ],
         "status": "completed"
+      },
+      "initial_poll_observation": {
+        "status": "in_progress",
+        "conclusion": ""
       }
     },
     {
@@ -2960,6 +2975,10 @@
           }
         ],
         "status": "in_progress"
+      },
+      "initial_poll_observation": {
+        "status": "in_progress",
+        "conclusion": ""
       }
     },
     {
@@ -3608,15 +3627,19 @@
           }
         ],
         "status": "in_progress"
+      },
+      "initial_poll_observation": {
+        "status": "in_progress",
+        "conclusion": ""
       }
     },
     {
-      "conclusion": "",
+      "conclusion": "failure",
       "databaseId": 38050974466,
       "event": "push",
       "headSha": "c26fd3ad9c50f073602aa7412db2eefc20d6e2f1",
       "name": "CI",
-      "status": "in_progress",
+      "status": "completed",
       "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38050974466",
       "details": {
         "conclusion": "failure",
@@ -3915,6 +3938,10 @@
           }
         ],
         "status": "completed"
+      },
+      "initial_poll_observation": {
+        "status": "in_progress",
+        "conclusion": ""
       }
     }
   ],
@@ -5867,6 +5894,20 @@
     "applicable_jobs": "14/14 SUCCESS",
     "native": "Actual Windowsx64 MSI+NSIS/CredentialManager; Linuxx64 deb+AppImage/GUI+API; macOS arm64+x64 DMG/Keychain; actual both native binaries CPU/version and immutable desktop SHA verified",
     "docker_engineering": "PASS: fresh full stack/migration, private config+Web cookie, real nativeDocling PDF/index, MOCK RAG/Research+all4exports, worker/DBfailure+recovery, quiescedbackup, restart+migration/history, independent emptyproject restore, uninstall/reinstall all5volumes retained",
-    "artifact_independent_download": "Next TASK-19工程; cloud blob directdownload still denied, use independent Actions verifier. Does not claim actual Windows11/macOS manual installation."
+    "artifact_independent_download": "PASSED in TASK-19: Push38053611108 and PR38053615245 independently downloaded all4 actual accepted artifacts and rehashed installer/ZIP/members. Manual OS installation remains NOT EXECUTED."
+  },
+  "historical_checks": {
+    "backend": "979 passed, 63.43s, real PostgreSQL/Redis, no skipped/failures",
+    "deployment_safety": "14 offline unittest passed; does not replace actual Docker",
+    "frontend": "npm frozen ci, lint/check/build; 124 browser passed in1.7m; 19 transport passed",
+    "native": "IN PROGRESS",
+    "installation_compose": "NOT EXECUTED YET",
+    "native_local": "Actual Linux PyInstaller assistant built and executed, missing-Docker error path passed; pinnedRust1.90formatPASS; nativeclientbuild remainsCI pending",
+    "backend_after_web": "981 passed, 119.45s, 0 failed/skipped",
+    "browser_after_web": "124 passed, 1.9m; 19transport",
+    "native_platforms_initial": "9694575 Push/PR Desktop both4/4SUCCESS Windows/Linux/macOSarm64+x64; later corrected SHA required before delivery",
+    "deployment_safety_latest": "16 offline tests passed including Web proxy false-ready negative control",
+    "backend_final_ci": "982 passed (705 unit/277 real PostgreSQL); no skipped/failed",
+    "browser_final_ci": "124 passed, 19 transport"
   }
 }
