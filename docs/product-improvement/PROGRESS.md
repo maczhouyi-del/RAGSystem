@@ -331,3 +331,9 @@
 - 复用18真实PG/Redis/Docker和Docling PDF + MOCK RAG/Research生命周期、原生vault/二进制身份/构建、旧UI/后端功能回归；四个平台实际Artifact均经独立下载并逐项复算哈希。真实Windows11/macOS/Linux人工安装仍NOT EXECUTED。
 - 工程PASSED可交付测试版；TASK-17和TASK-19科研BLOCKED/NOT MEASURED/NOT EXECUTED；没有虚构准确率或Research优势。
 - **已按用户停止条件暂停**：下一步等待用户下载安装并用自有论文/API反馈。不自动调用真实模型、产生评测费用、合并main或发布正式Release。
+
+### TASK-19 交付检查的测试同步纠偏
+
+- b324bd7 的PR CI38054135126/frontend原attempt1保留FAILURE（123browser PASS/1FAIL）；backend/compose与PushCI均PASS。未称原作业成功。
+- 已确认PDF批量上传fixture同时释放两个请求后错误要求网络到达严格a,b,c,d，实际a,b,d,c；UI本身先占两槽、异步读取后发送，不能把并行网络顺序当队列顺序。只修测试响应控制：初始a/b精确成员与UI行顺序；释放a后只允许c进入/剩1等待2上传，再释放b允许d；保留全部文件/并发≤2/索引状态断言。
+- 20次重复专项实际PASS（30.0s）；完整124browser/19transport与最新CI由PR最终检查记录。不修改交付817的业务/运行依赖/安装包，不删除测试或掩盖失败。

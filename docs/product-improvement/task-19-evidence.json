@@ -1784,5 +1784,18 @@
   },
   "stop_condition": "After test build delivery stop; no paid/real science evaluation automatically.",
   "delivery_state": "BETA DELIVERED / PAUSED FOR LOCAL USER FEEDBACK",
-  "overall_reason": "Engineering PASSED; overall TASK-19 BLOCKED because scientific resources and acceptance remain unexecuted."
+  "overall_reason": "Engineering PASSED; overall TASK-19 BLOCKED because scientific resources and acceptance remain unexecuted.",
+  "retained_post_acceptance_failure": {
+    "source": "b324bd79689a4f94adbdf995dfd930fb8050ecae",
+    "run": 38054135126,
+    "job": "frontend",
+    "attempt": 1,
+    "conclusion": "FAILURE",
+    "result": "123 browser PASS,1 FAIL; backend/compose PASS",
+    "cause": "Parallel upload fixture released both held responses simultaneously then asserted network-arrival order a,b,c,d; actual a,b,d,c. Application admits2slots, asynchronous File header reads/network can reorder concurrently admitted requests. No Docker engineering failure.",
+    "log_sha256": "fd4ea89c11f7f3e009b64d32a4f7bd5cede08399e5c0732b23bb13d277bc1cf7",
+    "correction": "Test-only per-file gates; assert exact initial a/b membership and visible a/b/c/d row order, release a then assert c alone admitted/1pending2active, release b then assert d, retain all-files/concurrency/indexing assertions. No production artifact change/test deletion/retry inflation.",
+    "local_regression": "20 repeated controlled browser cases PASS (30.0s); full124 suite and transport rerun captured in PR final evidence",
+    "source_of_delivered_installers_unchanged": "817dd43a4c4d8f525f5173d48474357ff6814d9c"
+  }
 }

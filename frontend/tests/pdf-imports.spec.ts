@@ -51,6 +51,7 @@ async function setup(page: Page) {
     loseRetry: false,
     retries: 0,
     hold: null as Promise<void> | null,
+    holdsByName: new Map<string, Promise<void>>(),
   };
   await page.route("**/api/papers/*", (route) => {
     const id = new URL(route.request().url()).pathname.split("/")[3];
@@ -94,6 +95,8 @@ async function setup(page: Page) {
     state.maxActive = Math.max(state.maxActive, state.active);
     try {
       if (state.hold) await state.hold;
+      const namedHold = state.holdsByName.get(name);
+      if (namedHold) await namedHold;
       if (name === state.failName)
         return route.fulfill({
           status: 503,
@@ -212,10 +215,12 @@ test("multiple PDFs use two upload slots, preserve pending files and show upload
   page,
 }) => {
   const { state, complete } = await setup(page);
-  let release!: () => void;
-  state.hold = new Promise<void>((resolve) => {
-    release = resolve;
-  });
+  const releases = new Map<string, () => void>();
+  for (const name of ["a.pdf", "b.pdf", "c.pdf", "d.pdf"])
+    state.holdsByName.set(
+      name,
+      new Promise<void>((resolve) => releases.set(name, resolve)),
+    );
   await submit(page, [
     file("a.pdf"),
     file("b.pdf"),
@@ -225,16 +230,35 @@ test("multiple PDFs use two upload slots, preserve pending files and show upload
   await expect.poll(() => state.uploads.length).toBe(2);
   await expect(progress(page)).toContainText("等待上传 2 项 · 上传中 2 项");
   expect(state.maxActive).toBe(2);
-  state.hold = null;
-  release();
-  await expect(progress(page)).toContainText("解析/索引中 4 项");
-  await expect(progress(page)).toContainText("已索引 0 项");
-  expect(state.uploads.map((item) => item.name)).toEqual([
+  // Two independent requests may arrive in either order. Assert exact admission
+  // membership, then release one slot at a time to test pending FIFO explicitly.
+  expect(state.uploads.map((item) => item.name).sort()).toEqual([
     "a.pdf",
     "b.pdf",
-    "c.pdf",
-    "d.pdf",
   ]);
+  await expect(
+    page
+      .getByRole("table", { name: "逐篇 PDF 导入", exact: true })
+      .locator("tbody tr td:first-child"),
+  ).toHaveText(["a.pdf", "b.pdf", "c.pdf", "d.pdf"]);
+  releases.get("a.pdf")!();
+  await expect.poll(() => state.uploads.length).toBe(3);
+  expect(state.uploads[2].name).toBe("c.pdf");
+  await expect(progress(page)).toContainText("等待上传 1 项 · 上传中 2 项");
+  releases.get("b.pdf")!();
+  await expect.poll(() => state.uploads.length).toBe(4);
+  expect(state.uploads[3].name).toBe("d.pdf");
+  releases.get("c.pdf")!();
+  releases.get("d.pdf")!();
+  await expect(progress(page)).toContainText("解析/索引中 4 项");
+  await expect(progress(page)).toContainText("已索引 0 项");
+  expect([
+    ...state.uploads
+      .slice(0, 2)
+      .map((item) => item.name)
+      .sort(),
+    ...state.uploads.slice(2).map((item) => item.name),
+  ]).toEqual(["a.pdf", "b.pdf", "c.pdf", "d.pdf"]);
   expect(state.maxActive).toBeLessThanOrEqual(2);
   complete();
   await progress(page).getByRole("button", { name: "刷新导入状态" }).click();
