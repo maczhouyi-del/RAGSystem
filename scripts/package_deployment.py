@@ -89,6 +89,17 @@ def main() -> None:
         f"{digest}  {args.output.name}\n"
     )
 
+    print(
+        json.dumps(
+            {
+                "file": args.output.name,
+                "platform": args.platform,
+                "source_commit": identity["source_commit"],
+                "bytes": args.output.stat().st_size,
+                "sha256": digest,
+            }
+        )
+    )
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
             summary.write(f"\nDeployment `{args.platform}` build `{identity['source_commit']}`\n\n")

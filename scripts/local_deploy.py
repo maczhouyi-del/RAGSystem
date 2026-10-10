@@ -289,6 +289,16 @@ class Deployment:
                     owned.add(int(publisher["PublishedPort"]))
         for port in (8000, 8080):
             with socket.socket() as handle:
+                handle.settimeout(1)
+                listening = handle.connect_ex(("127.0.0.1", port)) == 0
+                if listening and port not in owned:
+                    raise DeployError("port_conflict")
+            # Unix reuse avoids a false collision on stopped Docker proxy TIME_WAIT.
+            # Windows SO_REUSEADDR can hijack an active listener: never use it.
+            if os.name == "nt":
+                continue  # Docker itself rejects reserved/non-listening unavailable ports.
+            with socket.socket() as handle:
+                handle.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 try:
                     handle.bind(("127.0.0.1", port))
                 except OSError:

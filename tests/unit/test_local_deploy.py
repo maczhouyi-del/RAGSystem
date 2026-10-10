@@ -99,6 +99,7 @@ class InstallationSafety(unittest.TestCase):
     def test_occupied_port_rejected_without_killing_process(self):
         with socket.socket() as listener:
             listener.bind(("127.0.0.1", 0))
+            listener.listen()
             occupied = listener.getsockname()[1]
             original = socket.socket
 
@@ -112,6 +113,15 @@ class InstallationSafety(unittest.TestCase):
 
                 def bind(self, address):
                     self.socket.bind(("127.0.0.1", occupied))
+
+                def connect_ex(self, address):
+                    return self.socket.connect_ex(("127.0.0.1", occupied))
+
+                def settimeout(self, value):
+                    self.socket.settimeout(value)
+
+                def setsockopt(self, *args):
+                    self.socket.setsockopt(*args)
 
             with (
                 patch.object(self.deployment, "dc", return_value=b"[]"),

@@ -23,7 +23,8 @@
     "9694575 Push CI38050152373 and PR CI38050156008 compose failed at new MOCK installation engineering step. Original workflows retained. Logs redirect denied; annotations only show exit1.",
     "Isolated negative control of original mock worker deterministically fails ModuleNotFoundError tests; corrected script inserts owned repository root and actual --help succeeds. This proves a fixture startup defect, not exclusive historical failure attribution without logs.",
     "Local direct global Python worker invocation failed because project not installed in that interpreter; actual .venv/uv command succeeds.",
-    "c26fd3a Push CI38050974466 and PR CI38050979157 Compose failed Web session HTTP502 after API container recreation. Actual full logs now downloaded; Nginx static upstream DNS and API-only readiness caused real deployment defect. Fix dynamic Docker DNS and require Web-proxied readiness; original failed workflows retained."
+    "c26fd3a Push CI38050974466 and PR CI38050979157 Compose failed Web session HTTP502 after API container recreation. Actual full logs now downloaded; Nginx static upstream DNS and API-only readiness caused real deployment defect. Fix dynamic Docker DNS and require Web-proxied readiness; original failed workflows retained.",
+    "b889570 Push CI38051995603 and PR CI38051998729 fail stop/restart port_conflict after real native Docling PDF, MOCK RAG+Research, four exports, worker/DB recovery and quiesced backup passed. Actual full logs show stopped Docker proxy TCP state misclassified by plain bind probe. Fix: connect-only active-listener detection, Unix SO_REUSEADDR for TIME_WAIT; never Windows SO_REUSEADDR. No unknown process killed."
   ],
   "scientific_quality": "NOT MEASURED",
   "human_installation": {

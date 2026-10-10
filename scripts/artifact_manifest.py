@@ -46,6 +46,7 @@ def main() -> None:
         ],
     }
     args.output.write_text(json.dumps(manifest, indent=2) + "\n")
+    print(json.dumps(manifest, indent=2))  # Nonsecret actual file checksums for delivery evidence.
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
             summary.write(
