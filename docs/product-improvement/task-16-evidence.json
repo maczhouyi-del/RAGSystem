@@ -2079,11 +2079,342 @@
       ],
       "all_applicable_jobs": "10/10 SUCCESS; all required native steps executed successfully",
       "original_linux_retry": {
-        "run_id": 38022349417,
-        "job_id": 114125856277,
-        "request": "gh run rerun --job 114125856277",
-        "status_at_request": "queued",
-        "result": "NOT YET KNOWN; original attempt remains FAILURE"
+        "original_run_id": 38022349417,
+        "original_failed_job_id": 114125856277,
+        "original_attempt": 1,
+        "original_conclusion": "failure",
+        "retry_attempt": 2,
+        "retry_specific_job_requested": true,
+        "retry_result": {
+          "conclusion": "success",
+          "headSha": "f2423e56bf750164808b07983f035a112a9a476b",
+          "jobs": [
+            {
+              "completedAt": "2026-10-10T11:35:51Z",
+              "conclusion": "success",
+              "databaseId": 114203551683,
+              "name": "linux-desktop",
+              "startedAt": "2026-10-10T11:32:50Z",
+              "status": "completed",
+              "steps": [
+                {
+                  "conclusion": "success",
+                  "name": "Set up job",
+                  "number": 1,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Initialize containers",
+                  "number": 2,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run actions/checkout@v4",
+                  "number": 3,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run actions/setup-node@v4",
+                  "number": 4,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run astral-sh/setup-uv@v6",
+                  "number": 5,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Install Linux desktop dependencies",
+                  "number": 6,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy",
+                  "number": 7,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run actions/cache@v4",
+                  "number": 8,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm ci",
+                  "number": 9,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm run test:transport",
+                  "number": 10,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run cd src-tauri && cargo fmt --check",
+                  "number": 11,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm run desktop:check",
+                  "number": 12,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm run desktop:test",
+                  "number": 13,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run cd src-tauri && cargo clippy --locked -- -D warnings",
+                  "number": 14,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm run desktop:build",
+                  "number": 15,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Configure ephemeral backend authentication",
+                  "number": 16,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Start the actual local backend",
+                  "number": 17,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Verify native loopback connectivity",
+                  "number": 18,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Start GUI and verify rendered frontend",
+                  "number": 19,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Stop isolated test processes",
+                  "number": 20,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Post Run actions/cache@v4",
+                  "number": 36,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Post Run astral-sh/setup-uv@v6",
+                  "number": 37,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Post Run actions/setup-node@v4",
+                  "number": 38,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Post Run actions/checkout@v4",
+                  "number": 39,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Stop containers",
+                  "number": 40,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Complete job",
+                  "number": 41,
+                  "status": "completed"
+                }
+              ],
+              "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38022349417/job/114203551683"
+            },
+            {
+              "completedAt": "2026-10-10T04:02:18Z",
+              "conclusion": "success",
+              "databaseId": 114203552782,
+              "name": "windows-desktop",
+              "startedAt": "2026-10-10T03:57:11Z",
+              "status": "completed",
+              "steps": [
+                {
+                  "conclusion": "success",
+                  "name": "Set up job",
+                  "number": 1,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run actions/checkout@v4",
+                  "number": 2,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run actions/setup-node@v4",
+                  "number": 3,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run actions/setup-python@v5",
+                  "number": 4,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Execute Windows diagnostics and independent offline failures",
+                  "number": 5,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy",
+                  "number": 6,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run actions/cache@v4",
+                  "number": 7,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Record checkout and build identity",
+                  "number": 8,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm ci",
+                  "number": 9,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm run lint",
+                  "number": 10,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm run check",
+                  "number": 11,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm run test:transport",
+                  "number": 12,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run cd src-tauri; cargo fmt --check",
+                  "number": 13,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run npm run desktop:check",
+                  "number": 14,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Test Rust including actual Windows Credential Manager",
+                  "number": 15,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run cd src-tauri; cargo clippy --locked -- -D warnings",
+                  "number": 16,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Build actual MSI and NSIS installers",
+                  "number": 17,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Hash and describe actual artifacts",
+                  "number": 18,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Run actions/upload-artifact@v4",
+                  "number": 19,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Post Run actions/cache@v4",
+                  "number": 35,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Post Run actions/setup-python@v5",
+                  "number": 36,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Post Run actions/setup-node@v4",
+                  "number": 37,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Post Run actions/checkout@v4",
+                  "number": 38,
+                  "status": "completed"
+                },
+                {
+                  "conclusion": "success",
+                  "name": "Complete job",
+                  "number": 39,
+                  "status": "completed"
+                }
+              ],
+              "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38022349417/job/114203552782"
+            }
+          ],
+          "status": "completed"
+        },
+        "truth": "New Linux job114203551683 SUCCESS; original failed job/attempt1 remains FAILURE. Windows prior successful result is retained in attempt2."
       },
       "historical_log_download": "API restored; log download still unavailable via artifact redirect. Toolchain timeout reported by user; original web step evidence proves rustup failed, native checks skipped."
     }

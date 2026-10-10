@@ -309,3 +309,5 @@
 - TASK-19 工程：安装、启动、配置、PDF导入、MOCK问答/Research、导出、失败恢复、数据持久化、升级/卸载保护。通过后可以交付测试版，仍需列出人工安装 NOT EXECUTED。
 - TASK-19 科研：事实/数值/单位正确性、证据支持、检索质量、RAG/Research公平对照和人工评审，依赖真实资源与 TASK-17，当前 NOT MEASURED / NOT EXECUTED。TASK-19 整体不能因工程通过而标记PASSED。
 - 交付之后停止，不自动使用真实论文/API费用开展科研评测；复用TASK-03工具给用户本地执行说明。
+
+- TASK-16 原 Linux job 定向重跑结果补录：PR Desktop38022349417 attempt2 completed/SUCCESS，新 Linux job114203551683的 Rust安装/fmt/check/test/clippy/GUI smoke全部SUCCESS。attempt1 job114125856277仍为FAILURE，未覆盖或声称原失败attempt成功。

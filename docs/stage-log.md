@@ -1226,3 +1226,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - 2026-10-10 TASK-16 闭环：f2423e5 与 b20f4f7 仅三份文档不同。按用户批准的等价验证规则，b20f4f7 Push/PR CI 与 Desktop 四工作流、10/10 job 和原生步骤全部 SUCCESS，TASK-16 PASSED。原 PR Linux attempt1 FAILURE 保留，已请求仅原 job 重跑，结果未取得；日志下载受限，不虚构失败归因或重跑结果。
 
 - 2026-10-10 TASK-18 ADR 与顺序调整：用户批准16→18→19工程→测试版→17→19科研。ADR0008选择桌面 + Docker自动部署与原生助手，保留所有既有任务/测试/架构；17真实资源BLOCKED不再阻塞18，19科研NOT MEASURED，交付后暂停。
+
+- TASK-16 指定原Linux job重跑：38022349417 attempt2 SUCCESS，新Linux job114203551683所有原生步骤SUCCESS；attempt1失败保持历史原状。
