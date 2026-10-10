@@ -315,3 +315,5 @@
 - 交付之后停止，不自动使用真实论文/API费用开展科研评测；复用TASK-03工具给用户本地执行说明。
 
 - TASK-16 原 Linux job 定向重跑结果补录：PR Desktop38022349417 attempt2 completed/SUCCESS，新 Linux job114203551683的 Rust安装/fmt/check/test/clippy/GUI smoke全部SUCCESS。attempt1 job114125856277仍为FAILURE，未覆盖或声称原失败attempt成功。
+
+- TASK-16原日志最终核实：REST attempt1真实ZIP已取得，Linux114125856277 rustup下载static.rust-lang.org/channel-rust-1.90.0.toml TCP连接超时(os error110)；setup-uv的codeload100秒超时是另一个warning。原失败与后续attempt2成功分别保留，确认不能归咎业务代码。

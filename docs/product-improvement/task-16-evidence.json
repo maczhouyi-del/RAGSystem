@@ -2417,6 +2417,15 @@
         "truth": "New Linux job114203551683 SUCCESS; original failed job/attempt1 remains FAILURE. Windows prior successful result is retained in attempt2."
       },
       "historical_log_download": "API restored; log download still unavailable via artifact redirect. Toolchain timeout reported by user; original web step evidence proves rustup failed, native checks skipped."
+    },
+    "original_failure_verified_logs": {
+      "run_id": 38022349417,
+      "attempt": 1,
+      "source": "REST /actions/runs/38022349417/attempts/1/logs actual ZIP; Linux job114125856277",
+      "failure": "rustup download https://static.rust-lang.org/dist/channel-rust-1.90.0.toml tcp connect error: Connection timed out (os error110)",
+      "separate_warning": "setup-uv codeload download HttpClient timeout100s; not the fatal Rust step",
+      "sha256": "36bd6918780f85a9ad419cec3878bd1c8ceb2004b3af400e1bdd47f82046a3d8",
+      "truth": "Original attempt FAILURE remains; later target retry attempt2 succeeded. No application code defect inferred."
     }
   },
   "checks": {
