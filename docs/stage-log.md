@@ -1230,3 +1230,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - TASK-16 指定原Linux job重跑：38022349417 attempt2 SUCCESS，新Linux job114203551683所有原生步骤SUCCESS；attempt1失败保持历史原状。
 
 - TASK-18 实现待CI验收：native stdlib部署助手处理Docker/Compose/端口/配对/启动全服务、隐藏输入runtime API密钥、私有权限、备份/升级/空环境恢复和卸载保留五类卷；部署ZIP严格白名单不含user.env/secret/测试MOCK。macOS原生双架构DMG/Keychain和Linuxdeb/AppImage、WindowsMSI/NSIS/助手CI。Docling原有native文本解析可配置，旧layout默认不变；用户指南明确Docker依赖/未签名/人工NOTEXECUTED。979backend、124browser、19transport及本地实际助手通过；真实DockerMOCK和原生全门禁待CI。科研NOTMEASURED。
+
+- TASK-18复核补修：首轮9694575的Push/PR Compose新MOCK步骤失败，保留原CI/annotations，日志redirect仍403，不能无日志断言唯一原因。原test worker以隔离Python执行确定性ModuleNotFoundError tests，显式添加自有repo root后实际--help通过；CI增加此启动检查和固定stage摘要。发现桌面hash无法给普通Web用户提供凭据，新增独立Web SHA256配对，原HttpOnly/SameSite会话和桌面OS凭据保留；备份仅白名单非敏感配置，自定义credential不导出，Windows写入前限制ACL。核查真实PyInstaller6.16.0 COPY许可证bootloader exception；原生Win/Linux/ARMmac通过，Intelmac待结束，不能替代完整部署验收。

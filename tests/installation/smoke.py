@@ -5,6 +5,7 @@ Run only in CI's owned empty Compose project. Never against a user's corpus.
 """
 
 import hashlib
+import http.cookiejar
 import json
 import os
 import sys
@@ -56,13 +57,38 @@ def wait(run):
     raise AssertionError("actual_worker_timeout")
 
 
+def stage(name):
+    print("Installation stage:", name, flush=True)
+    if os.environ.get("GITHUB_STEP_SUMMARY"):
+        with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+            summary.write("\nInstallation engineering / MOCK stage: " + name + "\n")
+
+
 def main():
+    stage("infrastructure_and_runtime_configuration")
     deployment = Deployment(ROOT, overlay=ROOT / "tests/installation/compose.mock.yaml")
     deployment.ready()
     # Fixed engineering-only sentinel, never a real key or paid provider call.
     sentinel = "ENGINEERING-MOCK-NOT-A-REAL-API-KEY"
     update_env(ROOT / ".runtime-secrets.env", "OPENAI_API_KEY", sentinel)
+    web = "installation-web-" + "w" * 48
+    deployment.pair_web(web)
     deployment.start(build=False)
+    browser = urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),
+        urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()),
+    )
+    with browser.open(
+        urllib.request.Request(
+            "http://127.0.0.1:8080/api/auth/session",
+            data=b"",
+            headers={"Authorization": "Bearer " + web},
+        ),
+        timeout=10,
+    ) as response:
+        assert "HttpOnly" in response.headers["Set-Cookie"]
+    with browser.open("http://127.0.0.1:8080/api/auth/status", timeout=10) as response:
+        assert json.load(response)["authenticated"]
     providers = request("/api/providers")
     assert all(agent["key_configured"] for agent in providers["agents"].values())
     assert sentinel not in json.dumps(request("/api/diagnostics"))
@@ -83,6 +109,7 @@ def main():
             + original
             + b"\r\n--rag-installation-fixture--\r\n"
         )
+        stage("real_native_docling_pdf_import_and_index")
         uploaded = request("/api/papers/upload", payload, multipart=True)
         wait(uploaded)
         pid = uploaded["paper_id"]
@@ -91,6 +118,7 @@ def main():
         assert request("/api/papers/" + pid + "/pdf") == original
         runs = []
         for mode in ("rag", "research"):
+            stage("mock_" + mode + "_and_exports")
             field = "query" if mode == "rag" else "research_question"
             result = wait(
                 request(
@@ -108,6 +136,7 @@ def main():
                 assert request("/api/runs/" + result["id"] + "/exports/" + name)
         # Real worker failure, health failure, and recovery, without deleting anything.
         for service in ("worker-ingestion", "db"):
+            stage("failure_and_recovery_" + service)
             deployment.dc("stop", service)
             try:
                 deployment.ready(timeout=0)
@@ -117,12 +146,14 @@ def main():
                 raise AssertionError("stopped_dependency_reported_ready")
             deployment.dc("start", service)
             deployment.ready()
+        stage("quiesced_backup")
         backup = deployment.backup(Path(temporary) / "backups")
         assert (
             hashlib.sha256(request("/api/papers/" + pid + "/pdf")).digest()
             == hashlib.sha256(original).digest()
         )
         # In-place migration and container recreation must preserve indexed data/config/history.
+        stage("restart_and_migration_preserve_data")
         deployment.stop()
         deployment.start(build=False)
         assert request("/api/providers")["agents"] == providers["agents"]
@@ -151,6 +182,7 @@ def main():
             overlay=ROOT / "tests/installation/compose.mock.yaml",
             project="scientific-ragagent-restore-test",
         )
+        stage("restore_into_independent_empty_project")
         restored.restore(backup, confirm_empty=True)
         restored.start(build=False)
         assert request("/api/papers/" + pid + "/pdf") == original
@@ -169,6 +201,7 @@ def main():
         deployment.start(build=False)
         assert request("/api/papers/" + pid + "/pdf") == original
         assert (backup / "backup-manifest.json").exists()
+    stage("all_automatic_engineering_checks_passed")
     print(
         "PASS: real native-PDF upload/index, MOCK RAG/Research and four ex"
         "ports, all-worker/DB failure recovery, backup, restart/migration/"

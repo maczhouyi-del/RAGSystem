@@ -3,7 +3,7 @@
 程序文件、部署目录和用户数据是三部分。桌面程序安装在 OS 应用目录；部署目录包含锁定源文件、Compose、助手与两个私有 runtime 环境文件。
 核心数据在 Docker named volumes：`scientific-ragagent_postgres`（元数据/向量/会话/Run/迁移）、`_papers`（PDF）、`_config`（角色配置）、`_redis`（队列）、`_models`（模型缓存）。
 Docker Desktop 内部虚拟磁盘由 Docker 管理；Linux 可通过 Docker volume inspect 查询，**不要直接编辑数据库文件**。
-客户端 bearer 在 OS 密钥库，Web bearer 只在页面内存。
+客户端 bearer 在 OS 密钥库，Web凭据只用于隐藏输入/授权，服务端保存其hash；浏览器持有HttpOnly会话cookie，后端重启后需重新授权。
 
 ## 备份
 

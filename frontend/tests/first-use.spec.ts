@@ -181,7 +181,7 @@ test("blank user follows authorization, model check, upload, index and first que
     guide.getByRole("button", { name: "打开首次问答" }),
   ).toBeDisabled();
   await guide.getByRole("button", { name: "前往本机授权" }).click();
-  await page.getByLabel("开发凭据").fill(token);
+  await page.getByLabel("Web 本机凭据").fill(token);
   await page.getByRole("button", { name: "连接并检查授权" }).click();
   await expect(guide.getByText("本机授权已通过")).toBeVisible();
   await expect(

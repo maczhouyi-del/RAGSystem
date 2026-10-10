@@ -53,19 +53,19 @@ export function AuthPanel({ onConnected }: { onConnected: () => void }) {
       {isDesktop() ? (
         <>
           <p>
-            将下方配对哈希填入后端 .env 的
-            LOCAL_AUTH_TOKEN_HASH，重启后端后重新连接。凭据由系统凭据库保存。
+            在部署助手选择配对并启动，粘贴下方配对哈希。后端重启后重新连接。
+            凭据由系统凭据库保存。
           </p>
           {hash && <pre aria-label="配对哈希">{hash}</pre>}
         </>
       ) : (
         <>
           <p>
-            Web 开发模式使用后端进程环境中的 LOCAL_AUTH_TOKEN。授权在 HttpOnly
-            会话中保存，后端重启后需重新授权。
+            Web 模式先在部署助手选择 Web 配对，再输入你选定的本机 Web 凭据。
+            授权在 HttpOnly 会话中保存，后端重启后需重新授权。
           </p>
           <label>
-            开发凭据
+            Web 本机凭据
             <input
               type="password"
               autoComplete="off"

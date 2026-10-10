@@ -30,7 +30,7 @@ test("unauthorized Web restores chats after ephemeral authorization without brow
   await expect(
     page.getByRole("heading", { name: "本机连接授权" }),
   ).toBeVisible();
-  await page.getByLabel("开发凭据").fill(synthetic);
+  await page.getByLabel("Web 本机凭据").fill(synthetic);
   await page.getByRole("button", { name: "连接并检查授权" }).click();
   await expect(page.getByLabel("研究问题")).toBeVisible();
   expect(
@@ -39,5 +39,5 @@ test("unauthorized Web restores chats after ephemeral authorization without brow
     ),
   ).not.toContain(synthetic);
   await page.getByRole("button", { name: "连接授权", exact: true }).click();
-  await expect(page.getByLabel("开发凭据")).toHaveValue("");
+  await expect(page.getByLabel("Web 本机凭据")).toHaveValue("");
 });

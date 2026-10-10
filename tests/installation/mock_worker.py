@@ -3,11 +3,15 @@
 Not included in deployment artifacts. No runtime fallback to mocked inference.
 """
 
-from ragagent import worker
-from ragagent.domain.research import AnswerDraft
-from ragagent.graphs.state import AnalysisResult
-from tests.integration.test_conversation_worker import ScientificScript
-from tests.integration.test_retrieval import Embedder, FixtureReranker
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from ragagent import worker  # noqa: E402
+from ragagent.domain.research import AnswerDraft  # noqa: E402
+from ragagent.graphs.state import AnalysisResult  # noqa: E402
+from tests.integration.test_conversation_worker import ScientificScript  # noqa: E402
+from tests.integration.test_retrieval import Embedder, FixtureReranker  # noqa: E402
 
 
 class InstallationScript(ScientificScript):

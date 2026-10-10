@@ -15,7 +15,10 @@
   "retained_failures": [
     "Initial Ruff import/string issues corrected, no test removal",
     "Local npm cache unwritable, fixed via existing workspace cache",
-    "uv tool default home read-only, set workspace tool directory"
+    "uv tool default home read-only, set workspace tool directory",
+    "9694575 Push CI38050152373 and PR CI38050156008 compose failed at new MOCK installation engineering step. Original workflows retained. Logs redirect denied; annotations only show exit1.",
+    "Isolated negative control of original mock worker deterministically fails ModuleNotFoundError tests; corrected script inserts owned repository root and actual --help succeeds. This proves a fixture startup defect, not exclusive historical failure attribution without logs.",
+    "Local direct global Python worker invocation failed because project not installed in that interpreter; actual .venv/uv command succeeds."
   ],
   "scientific_quality": "NOT MEASURED",
   "human_installation": {
@@ -24,5 +27,7 @@
     "macOS_x64": "NOT EXECUTED",
     "Linux": "NOT EXECUTED"
   },
-  "files": "Native stdlib deployment assistant/container helper, whitelist ZIP packaging/manifests, Win/macOS ARM+Intel/Linux CI+artifacts, Compose private runtime env, native PDF setting using existing Docling adapter, actual Docker MOCK engineering tests, user guides, progress/evidence/stage log"
+  "files": "Native stdlib deployment assistant/container helper, whitelist ZIP packaging/manifests, Win/macOS ARM+Intel/Linux CI+artifacts, Compose private runtime env, native PDF setting using existing Docling adapter, actual Docker MOCK engineering tests, user guides, progress/evidence/stage log",
+  "corrections": "Explicit owned mock-worker import root + import smoke before start; safe stage summaries; independent Web hash pairing/HttpOnly session; strict nonsecret backup allowlist including custom-credential negative control; Windows ACL before writing secret bytes.",
+  "license_verification": "Actual PyInstaller6.16.0 trusted wheel COPYING.txt read: unlimited permission to embed/distribute compiled bootloader; Apache2.0 runtime hooks. No GPL source copied."
 }

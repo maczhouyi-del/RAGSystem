@@ -28,6 +28,47 @@ PROJECT = "scientific-ragagent"
 WRITERS = ["api", "worker-interactive", "worker-ingestion", "worker-evaluation", "frontend"]
 VOLUMES = ["postgres", "redis", "papers", "models", "config"]
 KEY_NAMES = {"OPENAI_API_KEY", "ANTHROPIC_API_KEY", "DEEPSEEK_API_KEY", "EMBEDDING_API_KEY"}
+# Only known nonsecret runtime settings may enter backups/restores; custom envs can be keys.
+BACKUP_SETTINGS = {
+    "WEB_AUTH_TOKEN_HASH",
+    "LOCAL_AUTH_TOKEN_HASH",
+    "PDF_PARSER_MODE",
+    "SUPERVISOR_MODEL",
+    "RETRIEVER_MODEL",
+    "ANALYSIS_MODEL",
+    "REVIEWER_MODEL",
+    "EMBEDDING_BACKEND",
+    "EMBEDDING_MODEL",
+    "EMBEDDING_DIMENSION",
+    "EMBEDDING_REVISION",
+    "EMBEDDING_API_KEY_ENV",
+    "RERANKER_BACKEND",
+    "RERANKER_MODEL",
+    "RERANKER_REVISION",
+    "CHUNK_TARGET_TOKENS",
+    "CHUNK_OVERLAP_TOKENS",
+    "CANDIDATE_TOP_N",
+    "EVIDENCE_TOP_K",
+    "RRF_K",
+    "MINIMUM_RERANK_SCORE",
+    "MAX_RETRIEVAL_RETRIES",
+    "MAX_REVISIONS",
+    "MAX_ITERATIONS",
+    "RAG_EVIDENCE_BUDGET",
+    "RESEARCH_EVIDENCE_BUDGET",
+    "EVALUATION_TIMEOUT_SECONDS",
+    "INTERACTIVE_QUEUE",
+    "INGESTION_QUEUE",
+    "EVALUATION_QUEUE",
+    "CONVERSATION_RECENT_MESSAGE_LIMIT",
+    "CONVERSATION_CONTEXT_TOKEN_BUDGET",
+    "CONVERSATION_SUMMARY_MAX_BYTES",
+    "CONVERSATION_MESSAGE_MAX_BYTES",
+    "CONVERSATION_RECENT_TOKENS",
+    "CONVERSATION_SUMMARY_TOKENS",
+    "CONVERSATION_MEMORY_TOKENS",
+    "CONVERSATION_MEMORY_TOP_K",
+}
 ADVICE = {
     "docker_missing": "Install Docker Desktop (Windows/macOS) or Engine + Compose v2 (Linux).",
     "docker_not_running": "Start Docker; Windows must use Linux containers. Then retry.",
@@ -104,11 +145,16 @@ def private_write(path: Path, content: str) -> None:
     temporary = path.with_name(path.name + ".new-" + secrets.token_hex(8))
     try:
         fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        try:
+            # Enforce the Windows ACL before writing a single secret byte.
+            secure_file(temporary)
+        except Exception:
+            os.close(fd)
+            raise
         with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
             handle.write(content)
             handle.flush()
             os.fsync(handle.fileno())
-        secure_file(temporary)
         os.replace(temporary, path)
     finally:
         temporary.unlink(missing_ok=True)
@@ -219,6 +265,16 @@ class Deployment:
         self.initialize()
         update_env(self.root / ".env", "LOCAL_AUTH_TOKEN_HASH", verifier)
 
+    def pair_web(self, token: str) -> None:
+        if not re.fullmatch(r"[A-Za-z0-9_-]{43,128}", token) or token.startswith("sk-"):
+            raise DeployError("web_credential_invalid")
+        self.initialize()
+        update_env(
+            self.root / ".env",
+            "WEB_AUTH_TOKEN_HASH",
+            hashlib.sha256(token.encode("ascii")).hexdigest(),
+        )
+
     def ports(self) -> None:
         owned: set[int] = set()
         listing = self.dc("ps", "--format", "json").decode().strip()
@@ -281,7 +337,11 @@ class Deployment:
         self.dependencies()
         self.initialize()
         text = (self.root / ".env").read_text()
-        match = re.search(r"^LOCAL_AUTH_TOKEN_HASH=['\"]?([a-f0-9]{64})['\"]?\s*$", text, re.M)
+        match = re.search(
+            r"^(?:LOCAL_AUTH_TOKEN_HASH|WEB_AUTH_TOKEN_HASH)=['\"]?([a-f0-9]{64})['\"]?\s*$",
+            text,
+            re.M,
+        )
         if not match:
             raise DeployError("pairing_required")
         self.ports()
@@ -373,16 +433,7 @@ class Deployment:
             settings = {}
             for line in (self.root / ".env").read_text().splitlines():
                 name, separator, value = line.partition("=")
-                if (
-                    separator
-                    and re.fullmatch(r"[A-Z][A-Z0-9_]+", name)
-                    and (
-                        name == "LOCAL_AUTH_TOKEN_HASH"
-                        or not any(
-                            word in name for word in ("KEY", "TOKEN", "PASSWORD", "DATABASE_URL")
-                        )
-                    )
-                ):
+                if separator and name in BACKUP_SETTINGS:
                     settings[name] = value
             private_write(folder / "settings.json", json.dumps(settings, indent=2) + "\n")
             hashes = {}
@@ -472,9 +523,7 @@ class Deployment:
         )
         settings = json.loads((folder / "settings.json").read_text())
         for name, value in settings.items():
-            if name == "LOCAL_AUTH_TOKEN_HASH" or not any(
-                word in name for word in ("KEY", "TOKEN", "PASSWORD", "DATABASE_URL")
-            ):
+            if name in BACKUP_SETTINGS:
                 update_env(self.root / ".env", name, str(value).strip("'\""))
         print("Restored into new volumes. Pair this desktop, reconfigure private keys, then Start.")
 
@@ -522,6 +571,14 @@ def wizard(deployment: Deployment) -> None:
                     "Saved privately. Start to recreate services; select provider/mode"
                     "l in Settings. No inference called."
                 )
+            elif choice == "9":
+                deployment.pair_web(
+                    getpass.getpass(
+                        "Web credential: password-manager random 43–128 URL-safe characters "
+                        "(hidden; NOT an API key): "
+                    )
+                )
+                deployment.start()
             elif choice in {"6", "7"}:
                 backup = deployment.backup(
                     Path(input("Backup parent folder (outside deployment directory): ").strip())

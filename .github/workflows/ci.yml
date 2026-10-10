@@ -85,6 +85,7 @@ jobs:
         run: |
           docker compose stop worker-interactive worker-ingestion worker-evaluation
           docker compose -f compose.yaml -f tests/installation/compose.mock.yaml build worker-interactive
+          docker compose -f compose.yaml -f tests/installation/compose.mock.yaml run --rm --no-deps -T --entrypoint python worker-interactive tests/installation/mock_worker.py --help
           docker compose -f compose.yaml -f tests/installation/compose.mock.yaml up -d --wait --wait-timeout 180
           python tests/installation/smoke.py
       - if: always()

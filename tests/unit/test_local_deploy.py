@@ -66,6 +66,17 @@ class InstallationSafety(unittest.TestCase):
         self.assertIn(password, (self.root / ".env").read_text())
         self.assertIn("LOCAL_AUTH_TOKEN_HASH='" + "a" * 64, (self.root / ".env").read_text())
 
+    def test_web_pair_stores_only_hash_and_preserves_desktop_pair(self):
+        self.deployment.pair("a" * 64)
+        web = "web-fixture-" + "w" * 52
+        self.deployment.pair_web(web)
+        saved = (self.root / ".env").read_text()
+        self.assertNotIn(web, saved)
+        self.assertIn("WEB_AUTH_TOKEN_HASH=", saved)
+        self.assertIn("LOCAL_AUTH_TOKEN_HASH='" + "a" * 64, saved)
+        with self.assertRaisesRegex(DeployError, "web_credential_invalid"):
+            self.deployment.pair_web("short")
+
     def test_env_injection_and_symlink_are_rejected(self):
         path = self.root / "runtime.env"
         with self.assertRaisesRegex(DeployError, "configuration_invalid"):
@@ -144,6 +155,7 @@ class InstallationSafety(unittest.TestCase):
     def test_backup_excludes_secrets_and_preserves_nonsecret_model_settings(self):
         self.deployment.initialize()
         update_env(self.root / ".env", "OPENAI_API_KEY", "legacy-key-do-not-export")
+        update_env(self.root / ".env", "UNRELATED_CREDENTIAL", "custom-secret-do-not-export")
         update_env(self.root / ".env", "SUPERVISOR_MODEL", "mock-model")
         private_write(
             self.root / ".runtime-secrets.env", "DEEPSEEK_API_KEY='secret-not-exported'\n"
@@ -160,6 +172,7 @@ class InstallationSafety(unittest.TestCase):
         self.assertEqual(settings["SUPERVISOR_MODEL"], "'mock-model'")
         payload = "".join(path.read_text() for path in backup.iterdir())
         self.assertNotIn("legacy-key-do-not-export", payload)
+        self.assertNotIn("custom-secret-do-not-export", payload)
         self.assertNotIn("secret-not-exported", payload)
         self.assertNotIn("DATABASE_URL", settings)
         self.assertTrue((backup / "backup-manifest.json").exists())
