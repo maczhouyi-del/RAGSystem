@@ -17,7 +17,7 @@
 ## 串行计划与依赖
 
 下表列出全部任务，编号前后依赖表示用户要求的执行门禁，不表示必须把无关功能耦合进代码。
-依赖若需调整，先记录原因；本轮未调整原顺序。
+用户于 2026-10-10 批准调整：16 → 18 → 19 工程 → 测试版交付 → 17 → 19 科研。安装交付不以真实论文、金标或模型预算为前置，交付后暂停等待本地反馈。
 
 | TASK | 修改目标 | 前置门禁/关键依赖 | 范围与风险边界 | 计划验证 | 状态 |
 | --- | --- | --- | --- | --- | --- |
@@ -38,9 +38,9 @@
 | TASK-14 | 结构化研究报告生成 | 13；03 提供评测基础 | 扩展确定性 synthesis；保留 Reviewer、单位/实验条件边界 | 多论文/矛盾/不充分证据/重试；人工案例与 mock 分开 | PASSED |
 | TASK-15 | 报告与比较结果导出 | 14；05 元数据；13 来源 | Markdown/CSV/BibTeX/引用清单，安全文件名与下载 | 旧会话/数字/条件/Evidence ID/缺字段/中文/特殊字符 | PASSED |
 | TASK-16 | 模型费用、延迟与任务状态 | 15 | 复用 Run/Event/Usage；未知不为零；不主动付费刷新 | 成功/失败/取消/缺 usage/持久化/SSE/重试 | PASSED |
-| TASK-17 | RAG 与 Research 对照评测 | 16；03 框架及人工金标/模型条件 | 同语料/问题/范围/配置，不预设 Research 更优 | 真实失败逐例记录；无真实资源 BLOCKED / NOT MEASURED | NOT_STARTED |
-| TASK-18 | 最终安装方案与完整部署 | 17；01/02 诊断引导 | 先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI | 实际 Windows artifact/哈希、版本/auth/升级备份卸载；人工平台单列 | NOT_STARTED |
-| TASK-19 | 科研用户端到端验收 | 18；03/17 真实评测资源 | 停止新功能；A–L 全场景，工程与人工证据分开 | 全新 Win11、20 PDF、数值/比较/记忆/删除/报告/恢复/升级/跨语言 | NOT_STARTED |
+| TASK-17 | RAG 与 Research 对照评测 | 测试版交付后；03 框架及真实资源 | 同语料/问题/范围/配置，不预设 Research 更优 | 真实失败逐例记录；无真实资源 BLOCKED / NOT MEASURED | BLOCKED |
+| TASK-18 | 最终安装方案与完整部署 | 16；01/02 诊断引导；不依赖17 | 先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI | 实际 Windows/macOS/Linux artifact/哈希、完整后端、配置/备份/升级/数据保护；人工平台单列 | IN_PROGRESS |
+| TASK-19 | 科研用户端到端验收 | 工程：18；科研：17真实资源 | 工程与科研两部分；工程通过可交付测试版，科研未执行不能PASSED | 全新 Win11、20 PDF、数值/比较/记忆/删除/报告/恢复/升级/跨语言 | NOT_STARTED |
 
 ## TASK-00 初次执行记录（历史，后续恢复见下节）
 
@@ -263,7 +263,7 @@
 
 ### TASK-17：RAG 与 Research 对照评测
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
+- 状态：BLOCKED（真实资源尚未提供；科研质量 NOT MEASURED）；开始 commit / 最终 commit：未产生。
 - 涉及文件 / 修改说明 / 新增测试：无，未执行。
 - 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
 - 修改目标、依赖、验收计划：见上表 TASK-17；前置门禁 16；03 框架及人工金标/模型条件。
@@ -271,10 +271,10 @@
 
 ### TASK-18：最终安装方案与完整部署
 
-- 状态：NOT_STARTED；开始 commit / 最终 commit：未产生。
-- 涉及文件 / 修改说明 / 新增测试：无，未执行。
+- 状态：IN_PROGRESS；开始 commit：`c2b0140`；最终实现 commit 尚未产生。
+- ADR：[0008](../adr/0008-complete-local-installation.md)，选择桌面 + 自动化 Docker 后端，提供原生部署助手；普通用户仍需 Docker，明确不宣称免依赖。
 - 验证命令 / 实际结果 / CI 运行链接与结论：未执行 / NOT EXECUTED / UNKNOWN。
-- 修改目标、依赖、验收计划：见上表 TASK-18；前置门禁 17；01/02 诊断引导。
+- 修改目标、依赖、验收计划：见上表 TASK-18；前置门禁 16；01/02 诊断引导；不依赖17真实金标或模型预算。
 - 风险与已知限制：先 ADR 比较 Docker 自动部署和完整打包；复用 MSI/NSIS CI。
 
 ### TASK-19：科研用户端到端验收
@@ -303,3 +303,9 @@
 - 等价验证提交完整 SHA `b20f4f784034bbe7f2bac8df27efd231ed9b6e0a`：Push CI [38023034139](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023034139)、PR CI [38023037503](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023037503)、Push Desktop [38023034100](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023034100)、PR Desktop [38023037440](https://github.com/maczhouyi-del/RAGSystem/actions/runs/38023037440) 全部 completed/SUCCESS，全部十个适用 job 和原生测试/构建步骤 SUCCESS，已通过 API 逐项核对。
 - 用户本次明确认可此等价关系作为验收证据，TASK-16 工程 PASSED。原实现 PR Linux attempt1 仍 FAILURE；已优先请求仅原 Linux job 重跑，结果待取得，不能称原失败作业成功。历史日志下载仍受限；用户说明原因为 Rust1.90下载连接超时，现有历史步骤证据证明安装失败/后续 skipped，无证据归咎业务代码。
 - 原 Compose 初次失败及后来 attempt2 成功、所有本地失败记录均保留。没有删除测试或重设计 TASK-00～15。
+
+## 用户批准的交付门禁调整（2026-10-10）
+
+- TASK-19 工程：安装、启动、配置、PDF导入、MOCK问答/Research、导出、失败恢复、数据持久化、升级/卸载保护。通过后可以交付测试版，仍需列出人工安装 NOT EXECUTED。
+- TASK-19 科研：事实/数值/单位正确性、证据支持、检索质量、RAG/Research公平对照和人工评审，依赖真实资源与 TASK-17，当前 NOT MEASURED / NOT EXECUTED。TASK-19 整体不能因工程通过而标记PASSED。
+- 交付之后停止，不自动使用真实论文/API费用开展科研评测；复用TASK-03工具给用户本地执行说明。

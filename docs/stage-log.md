@@ -1224,3 +1224,5 @@ Windows 11 manual installation NOT EXECUTED. No production or dependency changes
 - api.github.com随后被云HTTPS proxy CONNECT403禁止；GitHub网页可读，已按完整SHA/步骤采集四workflow/十jobHTML证据，精确Rust失败日志尚未获取，无法发起余下重跑。artifact下载重定向sa9/sa18.blob.core.windows.net亦Forbidden，无当前制品独立下载/复核结论。网络草稿已确认saved、requires_publish=true，新增上述API/两个存储域名并保留既有preset；保存不等于应用/发布。需用户在环境设置审核保存并发布，代理/TLS/身份边界未绕过。云schema0012/API/Web/三worker ready、原开发Run保留、0模型调用。此次记录为BLOCKED，不是验收通过。
 
 - 2026-10-10 TASK-16 闭环：f2423e5 与 b20f4f7 仅三份文档不同。按用户批准的等价验证规则，b20f4f7 Push/PR CI 与 Desktop 四工作流、10/10 job 和原生步骤全部 SUCCESS，TASK-16 PASSED。原 PR Linux attempt1 FAILURE 保留，已请求仅原 job 重跑，结果未取得；日志下载受限，不虚构失败归因或重跑结果。
+
+- 2026-10-10 TASK-18 ADR 与顺序调整：用户批准16→18→19工程→测试版→17→19科研。ADR0008选择桌面 + Docker自动部署与原生助手，保留所有既有任务/测试/架构；17真实资源BLOCKED不再阻塞18，19科研NOT MEASURED，交付后暂停。
