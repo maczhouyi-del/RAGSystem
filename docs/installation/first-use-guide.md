@@ -5,6 +5,8 @@
 应用版本暂为 0.2.0；必须按 Artifact 的构建 SHA 区分新旧包，并同时下载同一运行的客户端与部署 ZIP。
 真实 Windows 11 人工安装未执行，检查表见 [Windows 11 人工验收](windows-11-checklist.md)。
 
+已验收工程构建、四平台下载入口及实际文件 SHA256 见 [交付与验证记录](first-use-validation.md)。
+
 ## 准备安装
 
 Windows 11 x64 推荐 16 GB 内存、20 GB 以上空闲磁盘，论文与模型另需空间。
