@@ -1,5 +1,10 @@
 # 本地测试版安装与使用
 
+**安装体验改造测试构建**：Windows 五步图形助手、默认角色模型映射和主动测试确认见
+[图形引导首次使用指南](first-use-guide.md)、[Windows 11 人工验收表](windows-11-checklist.md)
+及[当前流程审计](first-use-audit.md)。这些功能来自本次 PR 的成功 CI Artifacts；
+已发布 `v0.2.0-beta.1` 仍使用下文控制台流程。不要混用不同构建的客户端与部署 ZIP。
+
 这套交付由**桌面安装包 + 对应平台的部署 ZIP**组成。桌面安装包本身只有客户端。
 必须安装 Docker Desktop（Windows/macOS），或 Docker Engine + Compose v2（Linux），
 并由部署助手启动 PostgreSQL/pgvector、Redis、API、三个 worker 和 Web。

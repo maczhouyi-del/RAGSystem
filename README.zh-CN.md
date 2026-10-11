@@ -16,6 +16,10 @@ Tauri 桌面入口。它保留了现有的基于证据的知识库和 Supervisor
 
 ## 下载与安装测试版
 
+本次安装体验改造提供 Windows 图形部署助手及首次模型配置引导，请使用对应 PR 的成功 CI Artifacts，
+参照[五步首次使用教程](docs/installation/first-use-guide.md)与[Windows 11 人工验收表](docs/installation/windows-11-checklist.md)。
+已发布 `v0.2.0-beta.1` 仍使用下文控制台流程；真实 Windows 11 人工安装仍为 NOT EXECUTED。
+
 从 GitHub Releases 下载 **[v0.2.0-beta.1 测试版](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.1)**，应用内部版本为 **0.2.0**。
 需要同时下载**桌面安装包和同平台部署 ZIP**。桌面安装包是客户端；原生部署助手通过 Docker
 启动 PostgreSQL/pgvector、Redis、API、三个 worker 和 Web。

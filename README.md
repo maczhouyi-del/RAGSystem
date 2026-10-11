@@ -16,6 +16,11 @@ Historical CI and installer evidence links still refer to runs in that repositor
 
 ## Install the beta
 
+The installation UX update adds a Windows graphical setup assistant and guided model configuration.
+Use its successful PR CI artifacts and [first-use walkthrough](docs/installation/first-use-guide.md).
+The published `v0.2.0-beta.1` still uses the console flow below. See the
+[Windows 11 manual checklist](docs/installation/windows-11-checklist.md); human installation remains NOT EXECUTED.
+
 Download **[v0.2.0-beta.1](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.1)** from GitHub Releases. The native application version is **0.2.0**.
 Choose a desktop installer **and the deployment ZIP for the same platform**. The installer is the client;
 the native setup assistant starts PostgreSQL/pgvector, Redis, API, three workers and Web through Docker.
