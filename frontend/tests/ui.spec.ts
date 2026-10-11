@@ -413,9 +413,14 @@ test("provider tests require an explicitly saved mapping", async ({ page }) => {
     supervisor.getByRole("button", { name: /连接测试/ }),
   ).toBeEnabled();
   await supervisor.getByRole("button", { name: /连接测试/ }).click();
-  await expect(page.locator("section").getByRole("status")).toContainText(
-    "MOCK-new-model",
-  );
+  expect(tests).toBe(0);
+  await page
+    .getByRole("dialog", { name: "模型测试确认" })
+    .getByRole("button", { name: "确认并开始推理测试" })
+    .click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "MOCK-new-model" }),
+  ).toBeVisible();
   expect(tests).toBe(1);
 });
 

@@ -6,6 +6,7 @@ from ragagent.errors import ApplicationError, error_payload
 from ragagent.providers.chat import LiteLLMProvider, usage_record
 from ragagent.providers.config import ProviderConfig, load_config
 from ragagent.providers.environment import runtime_value
+from ragagent.providers.onboarding import check_connection
 from ragagent.settings import get_settings
 
 router = APIRouter(prefix="/api/providers", tags=["providers"])
@@ -38,6 +39,11 @@ def update_config(config: ProviderConfig) -> dict[str, str]:
 @router.post("/test")
 async def test(request: ProviderTest) -> JSONResponse:
     model = getattr(load_config(get_settings().agent_config).agents, request.agent)
+    if request.check == "connection":
+        try:
+            return JSONResponse(content=await check_connection(model))
+        except ApplicationError as exc:
+            return JSONResponse(status_code=503, content=error_payload(exc.code))
     provider = LiteLLMProvider(model, timeout=15)
     try:
         result = await provider.complete(
@@ -46,6 +52,8 @@ async def test(request: ProviderTest) -> JSONResponse:
         return JSONResponse(
             content={
                 "ok": result.ok,
+                "connectivity": "success",
+                "inference": "passed" if result.ok else "failed",
                 "agent": request.agent,
                 "model": model.model,
                 "usage": {"chat": usage_record(provider.usage)},

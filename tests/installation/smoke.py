@@ -15,7 +15,7 @@ import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from scripts.local_deploy import DeployError, Deployment, update_env  # noqa: E402
+from scripts.local_deploy import DeployError, Deployment  # noqa: E402
 from scripts.pdf_fixture import write_provenance_pdf  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -70,7 +70,7 @@ def main():
     deployment.ready()
     # Fixed engineering-only sentinel, never a real key or paid provider call.
     sentinel = "ENGINEERING-MOCK-NOT-A-REAL-API-KEY"
-    update_env(ROOT / ".runtime-secrets.env", "OPENAI_API_KEY", sentinel)
+    deployment.save_key("OPENAI_API_KEY", sentinel)
     web = "installation-web-" + "w" * 48
     deployment.pair_web(web)
     deployment.start(build=False)
@@ -89,7 +89,32 @@ def main():
         assert "HttpOnly" in response.headers["Set-Cookie"]
     with browser.open("http://127.0.0.1:8080/api/auth/status", timeout=10) as response:
         assert json.load(response)["authenticated"]
+    # Same explicit four-role shortcut payload as the UI, through real auth/API
+    # persistence. Inference remains the existing MOCK worker, never a paid SDK.
+    stage("first_use_default_role_mapping_and_private_key_presence")
+    model = {
+        "provider": "openai",
+        "model": "UX-MOCK-SAME-CHAT-MODEL",
+        "api_base": None,
+        "api_key_env": "OPENAI_API_KEY",
+    }
+    assert (
+        request(
+            "/api/providers",
+            {
+                "agents": {
+                    role: model for role in ("supervisor", "retriever", "analyst", "reviewer")
+                }
+            },
+            method="PUT",
+        )["status"]
+        == "saved"
+    )
     providers = request("/api/providers")
+    assert all(
+        agent["model"] == "UX-MOCK-SAME-CHAT-MODEL" for agent in providers["agents"].values()
+    )
+    assert deployment.configuration_status()["keys"]["OPENAI_API_KEY"]
     assert all(agent["key_configured"] for agent in providers["agents"].values())
     assert sentinel not in json.dumps(request("/api/diagnostics"))
     assert sentinel not in json.dumps(providers)

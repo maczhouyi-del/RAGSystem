@@ -172,3 +172,56 @@ async def test_duplicate_origin_headers_are_rejected(
     )
     assert response.status_code == 403
     assert response.json()["error_code"] == "untrusted_origin"
+
+
+async def test_explicit_connection_check_uses_current_saved_mapping_without_inference(
+    provider_client, monkeypatch
+):
+    client, _ = provider_client
+    calls = []
+
+    async def directory(model):
+        calls.append(model.model)
+        return {
+            "ok": True,
+            "model": model.model,
+            "connectivity": "success",
+            "inference": "not_tested",
+            "model_advertised": False,
+        }
+
+    def never_infer(*args, **kwargs):
+        raise AssertionError("Connection check must not construct inference provider")
+
+    monkeypatch.setattr("ragagent.api.providers.check_connection", directory)
+    monkeypatch.setattr("ragagent.api.providers.LiteLLMProvider", never_infer)
+    response = await client.post(
+        "/api/providers/test", json={"agent": "supervisor", "check": "connection"}
+    )
+    assert response.status_code == 200 and response.json()["inference"] == "not_tested"
+    assert calls == ["fixture-model"]
+    assert FIXTURE_SECRET not in response.text
+
+
+async def test_connection_check_retains_local_authentication(provider_client, monkeypatch):
+    client, _ = provider_client
+
+    async def never_connect(model):
+        raise AssertionError("No external request allowed before local authorization")
+
+    monkeypatch.setattr("ragagent.api.providers.check_connection", never_connect)
+    client.headers.pop("authorization")
+    response = await client.post(
+        "/api/providers/test", json={"agent": "supervisor", "check": "connection"}
+    )
+    assert response.status_code == 401
+    assert FIXTURE_SECRET not in response.text
+
+
+async def test_invalid_check_kind_is_rejected_without_echoing_input(provider_client):
+    client, _ = provider_client
+    response = await client.post(
+        "/api/providers/test", json={"agent": "supervisor", "check": FIXTURE_SECRET}
+    )
+    assert response.status_code == 422
+    assert FIXTURE_SECRET not in response.text

@@ -3,6 +3,7 @@ import { isDesktop, localCredentialStatus, request } from "./transport";
 
 export function AuthPanel({ onConnected }: { onConnected: () => void }) {
   const [hash, setHash] = useState<string | null>(null);
+  const [copyStatus, setCopyStatus] = useState("");
   const [token, setToken] = useState("");
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
@@ -53,10 +54,33 @@ export function AuthPanel({ onConnected }: { onConnected: () => void }) {
       {isDesktop() ? (
         <>
           <p>
-            在部署助手选择配对并启动，粘贴下方配对哈希。后端重启后重新连接。
+            打开图形部署助手的本机授权步骤，粘贴下方配对哈希，再按向导启动。已有配对可直接连接，无需重复初始化。
             凭据由系统凭据库保存。
           </p>
-          {hash && <pre aria-label="配对哈希">{hash}</pre>}
+          {hash && (
+            <>
+              <pre aria-label="配对哈希">{hash}</pre>
+              <button
+                onClick={() => {
+                  void (async () => {
+                    try {
+                      await navigator.clipboard.writeText(hash);
+                      setCopyStatus(
+                        "配对哈希已复制。粘贴到图形助手的本机授权步骤。",
+                      );
+                    } catch {
+                      setCopyStatus(
+                        "系统不允许复制，请选中上方哈希手动复制；不会改动现有凭据。",
+                      );
+                    }
+                  })();
+                }}
+              >
+                复制配对哈希
+              </button>
+              {copyStatus && <p role="status">{copyStatus}</p>}
+            </>
+          )}
         </>
       ) : (
         <>

@@ -78,7 +78,8 @@ class HealthResult(BaseModel):
     ok: bool
 
 
-class ProviderTest(BaseModel):
+class ProviderTest(SensitiveInput):
+    check: Literal["connection", "inference"] = "inference"
     agent: str = Field(pattern="^(supervisor|retriever|analyst|reviewer)$")
 
 

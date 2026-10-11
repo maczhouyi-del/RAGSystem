@@ -2,11 +2,18 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Mapping, Model, api } from "./api";
 import { Diagnostics } from "./Diagnostics";
+import { ModelSetup, ModelTestConfirmation } from "./ModelSetup";
 export function Settings() {
   const [mapping, setMapping] = useState<Mapping | null>(null),
     [savedMapping, setSavedMapping] = useState<Mapping | null>(null),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false);
+  const [confirmTest, setConfirmTest] = useState<string | null>(null);
+  async function refresh() {
+    const loaded = await api("/api/providers", Mapping);
+    setMapping(loaded);
+    setSavedMapping(loaded);
+  }
   const dirty = JSON.stringify(mapping) !== JSON.stringify(savedMapping);
   useEffect(() => {
     void api("/api/providers", Mapping)
@@ -43,6 +50,7 @@ export function Settings() {
   }
   async function test(agent: string) {
     if (dirty || busy) return;
+    setConfirmTest(null);
     setBusy(true);
     setMessage("正在测试…");
     try {
@@ -61,6 +69,15 @@ export function Settings() {
   return (
     <section>
       <h2>Provider Settings</h2>
+      {savedMapping && (
+        <ModelSetup
+          mapping={savedMapping}
+          disabled={busy || dirty}
+          onSaved={refresh}
+          onBusyChange={setBusy}
+        />
+      )}
+      <h3>高级逐角色设置</h3>
       <Diagnostics />
       <p>
         配置 Agent → provider / model。API keys
@@ -121,7 +138,7 @@ export function Settings() {
               环境密钥：
               {model.key_configured ? "已配置 / 本地无需密钥" : "未配置"}
             </p>
-            <button disabled={dirty} onClick={() => void test(role)}>
+            <button disabled={dirty} onClick={() => setConfirmTest(role)}>
               连接测试（可能产生少量费用）
             </button>
           </fieldset>
@@ -133,6 +150,14 @@ export function Settings() {
         保存配置
       </button>
       <p role="status">{message}</p>
+      {confirmTest && (
+        <ModelTestConfirmation
+          agent={confirmTest}
+          check="inference"
+          onCancel={() => setConfirmTest(null)}
+          onConfirm={() => void test(confirmTest)}
+        />
+      )}
     </section>
   );
 }

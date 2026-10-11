@@ -660,7 +660,8 @@ def wizard(deployment: Deployment) -> None:
     while True:
         choice = input(
             "1 检查 Check  2 配对并启动 Pair/Start  3 启动 Start  4 停止 Stop  5 API密钥 Se"
-            "cret  6 备份 Backup  7 升级 Upgrade  8 卸载容器(保留数据) Uninstall  0 Exit\n>"
+            "cret  6 备份 Backup  7 升级 Upgrade  8 卸载容器(保留数据) Uninstall  "
+            "9 Web配对  0 Exit\n>"
             " "
         ).strip()
         if choice == "0":

@@ -191,6 +191,13 @@ def launch(deployment: Any, *, smoke: bool = False) -> bool:
                 else ("未发现本目录的安装配置。请使用已核对校验值的部署 ZIP，并保留此目录。")
             )
             action("检查安装条件 / 重新检查", check)
+            if presence["paired"]:
+
+                def existing_start() -> None:
+                    state["step"] = 3
+                    render()
+
+                action("使用已有配置启动 / 恢复", existing_start)
         elif step == 1:
             note(
                 "打开桌面程序 → 连接授权 → 复制配对哈希，粘贴到这里。只需复"
@@ -255,7 +262,11 @@ def launch(deployment: Any, *, smoke: bool = False) -> bool:
             )
             action(
                 "停止系统（保留所有数据）",
-                lambda: run(deployment.stop, "系统已停止，所有用户数据保留。重新启动请回到步骤4。"),
+                lambda: run(
+                    deployment.stop,
+                    "系统已停止，所有用户数据保留。重新启动请回到步骤4。",
+                    marker="stopped",
+                ),
             )
         if step > 0:
             ttk.Button(footer, text="上一步", command=lambda: move(-1)).pack(side="left")
@@ -278,6 +289,8 @@ def launch(deployment: Any, *, smoke: bool = False) -> bool:
                     message, marker, presence = data
                     if marker:
                         state[marker] = True
+                    if marker == "stopped":
+                        state["started"] = False
                     render()
                     set_busy(False)
                     status.set(message)
@@ -301,19 +314,63 @@ def launch(deployment: Any, *, smoke: bool = False) -> bool:
 
     root.protocol("WM_DELETE_WINDOW", close)
     render()
+    smoke_finished = False
+    poll()
     if smoke:
         assert state["step"] == 0 and not state["busy"]
-        # Exercise creation of all five pages, including masked key controls;
-        # do not press actions or alter a real deployment.
+        # Actual native Tk widgets with explicit MOCK error/retry jobs. No
+        # Docker, inference or file writes; this is not human OS acceptance.
+        before = deployment.configuration_status()
         for step in range(len(STEPS)):
             state["step"] = step
             render()
             root.update_idletasks()
-        root.after(300, root.destroy)
-    else:
-        poll()
+            if step == 2:
+                entries = [w for w in content.winfo_children() if isinstance(w, ttk.Entry)]
+                assert len(entries) == 1 and entries[0].cget("show")
+        state["step"] = 0
+        render()
+
+        def mock_failure() -> None:
+            from local_deploy import DeployError
+
+            raise DeployError("docker_missing")
+
+        def verify_retry() -> None:
+            nonlocal smoke_finished
+            if state["busy"]:
+                root.after(50, verify_retry)
+                return
+            smoke_finished = (
+                status.get() == "MOCK UI retry passed"
+                and deployment.configuration_status() == before
+            )
+            root.destroy()
+
+        def verify_error() -> None:
+            if state["busy"]:
+                root.after(50, verify_error)
+                return
+            assert "docker_missing" in status.get()
+            assert deployment.configuration_status() == before
+            run(lambda: None, "MOCK UI retry passed")
+            root.after(50, verify_retry)
+
+        run(mock_failure, "Unexpected success")
+        assert state["busy"]
+        assert all(
+            str(w.cget("state")) == "disabled"
+            for w in content.winfo_children()
+            if isinstance(w, ttk.Button)
+        )
+        root.after(50, verify_error)
+        root.after(10000, root.destroy)
     root.mainloop()
     if smoke:
-        print("PASS: native GUI five pages rendered; no Docker/model calls or data writes.")
+        assert smoke_finished, "Native GUI MOCK safety smoke did not complete"
+        print(
+            "PASS: native GUI five pages rendered; MOCK error/retry and masked key "
+            "checked; no Docker/model calls or data writes."
+        )
 
     return True

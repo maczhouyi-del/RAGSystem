@@ -28,7 +28,7 @@
 
 ## 阶段与验收
 
-1. 本审计/方案独立提交。
+1. 本审计/方案独立提交。用户后续要求不新建分支，已将全部工作迁回现有`codex/research-product-improvement`并删除本次临时分支。
 2. P0部署：Windows图形助手、中文诊断/恢复、只读已有配置识别、安全重试；离线保护测试和实际原生GUI冒烟。
 3. P0模型/P1使用：快捷映射、四种状态、主动测试确认、统一步骤/下一步、复制配对哈希；后端和Playwright故障/授权/不主动收费验证。
 4. 工程回归：Ruff/mypy/全部后端（真实PG）、前端check/build/Playwright/transport、Rust原生构建和Windows/macOS/Linux实际CI、原有Docker MOCK安装生命周期及新增配置持久化验证。失败保留，不用Mock冒充真实模型。

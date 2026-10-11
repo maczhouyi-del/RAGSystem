@@ -764,3 +764,20 @@ footer {
 .entity-check input[type="checkbox"] {
   width: auto;
 }
+
+.model-states {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+.model-states > div {
+  padding: 12px;
+  border: 1px solid var(--border, #ddd);
+  border-radius: 8px;
+}
+.model-states dt {
+  font-weight: 600;
+}
+.model-states dd {
+  margin: 6px 0 0;
+}
