@@ -402,7 +402,7 @@ test("provider tests require an explicitly saved mapping", async ({ page }) => {
   });
   await supervisor.getByLabel("model", { exact: true }).fill("MOCK-new-model");
   await expect(
-    supervisor.getByRole("button", { name: /连接测试/ }),
+    supervisor.getByRole("button", { name: /推理测试/ }),
   ).toBeDisabled();
   await expect(
     page.getByText("配置尚未保存。请先保存，再测试已保存的 Provider / Model。"),
@@ -410,9 +410,9 @@ test("provider tests require an explicitly saved mapping", async ({ page }) => {
   expect(tests).toBe(0);
   await page.getByRole("button", { name: "保存配置" }).click();
   await expect(
-    supervisor.getByRole("button", { name: /连接测试/ }),
+    supervisor.getByRole("button", { name: /推理测试/ }),
   ).toBeEnabled();
-  await supervisor.getByRole("button", { name: /连接测试/ }).click();
+  await supervisor.getByRole("button", { name: /推理测试/ }).click();
   expect(tests).toBe(0);
   await page
     .getByRole("dialog", { name: "模型测试确认" })

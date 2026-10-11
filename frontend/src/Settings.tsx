@@ -59,7 +59,9 @@ export function Settings() {
         z.object({ ok: z.boolean(), model: z.string() }),
         { agent },
       );
-      setMessage(`${agent}: ${r.ok ? "连接正常" : "测试未通过"} (${r.model})`);
+      setMessage(
+        `${agent}: ${r.ok ? "固定测试推理通过" : "推理测试未通过"} (${r.model})`,
+      );
     } catch (e) {
       setMessage(String(e));
     } finally {
@@ -139,7 +141,7 @@ export function Settings() {
               {model.key_configured ? "已配置 / 本地无需密钥" : "未配置"}
             </p>
             <button disabled={dirty} onClick={() => setConfirmTest(role)}>
-              连接测试（可能产生少量费用）
+              推理测试（可能产生少量费用）
             </button>
           </fieldset>
         ))}

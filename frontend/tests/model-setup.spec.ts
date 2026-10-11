@@ -114,6 +114,9 @@ test("directory success is distinct from inference; each test needs confirmation
     .getByRole("button", { name: "检查模型连接", exact: true })
     .click();
   expect(fixture.tests).toEqual([]);
+  await expect(
+    page.getByRole("dialog", { name: "模型测试确认" }),
+  ).toContainText("可能产生费用");
   await page
     .getByRole("dialog", { name: "模型测试确认" })
     .getByRole("button", { name: "取消测试" })

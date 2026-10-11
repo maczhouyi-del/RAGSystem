@@ -192,7 +192,7 @@ test("blank user follows authorization, model check, upload, index and first que
     page.getByRole("heading", { name: "Provider Settings" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "连接测试（可能产生少量费用）" }),
+    page.getByRole("button", { name: "推理测试（可能产生少量费用）" }),
   ).toHaveCount(4);
   // Simulates runtime credential configuration, never claims the UI saved keys.
   fixture.modelsConfigured = true;
