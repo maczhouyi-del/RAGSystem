@@ -366,5 +366,8 @@
 - 实际本地：1010 后端 PASS（含277真实PG、0失败/跳过），Ruff/mypy PASS；npm ci/lint/check/build PASS、
   131 Playwright/19 transport PASS。初次目录错误浏览器未启动及可访问名称失败保留并修正，未删除断言。
 - CI：新 PR 的 Push/PR CI 与 Desktop 待实际结果，状态 IN_PROGRESS；不能复用旧 beta 成功声称新 GUI 已验收。
+- 原生日志纠偏：780974b Windows job 汇总 SUCCESS，但 packaged GUI 断言实际 FAILED，PowerShell 后续命令掩盖退出码。
+  原日志/作业保留；修复 ComboBox/Entry 继承导致的输入控件计数，并为多命令 Windows 步骤逐条传播退出码。
+  GUI 工程验收仍 IN_PROGRESS，必须取得修正后的实际原生测试结果。
 - 原 TASK-00～19 历史验收及失败保留。已发布 beta1 无新 GUI；新功能按同构建SHA的 PR Artifact 测试。
   Windows11 人工/真实用户模型与下载 NOT EXECUTED，科研 NOT MEASURED；不自动调用付费模型或重启科研评测。

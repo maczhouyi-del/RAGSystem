@@ -2,6 +2,7 @@
 
 import os
 import platform
+import re
 import subprocess
 import sys
 
@@ -24,6 +25,22 @@ if platform.system() == "Windows":
     result = subprocess.run(
         [binary, "--gui-smoke"], capture_output=True, text=True, encoding="utf-8", timeout=60
     )
+    if result.returncode != 0:
+        # Do not echo child output. Surface only fixed exception classes/codes
+        # so native failures cannot be mistaken for a successful build.
+        classes = sorted(
+            set(
+                re.findall(
+                    r"(?m)^(AssertionError|TclError|ImportError|ModuleNotFoundError)\b",
+                    result.stderr,
+                )
+            )
+        )
+        codes = [code for code in ("gui_unavailable", "deployment_failed") if code in result.stdout]
+        print(
+            f"ERROR: packaged_gui_smoke_failed exit={result.returncode} "
+            f"types={classes} codes={codes}"
+        )
     assert result.returncode == 0 and "native GUI five pages rendered" in result.stdout
     print(
         "PASS: actual Windows packaged GUI startup (automated runner,"

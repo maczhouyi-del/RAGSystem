@@ -331,7 +331,11 @@ def launch(deployment: Any, *, smoke: bool = False) -> bool:
             render()
             root.update_idletasks()
             if step == 2:
-                entries = [w for w in content.winfo_children() if isinstance(w, ttk.Entry)]
+                entries = [
+                    w
+                    for w in content.winfo_children()
+                    if isinstance(w, ttk.Entry) and not isinstance(w, ttk.Combobox)
+                ]
                 assert len(entries) == 1 and entries[0].cget("show")
         state["step"] = 0
         render()
