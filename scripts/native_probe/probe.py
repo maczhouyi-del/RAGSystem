@@ -38,17 +38,29 @@ class ProbeError(Exception):
     """Fixed safe codes, never provider/DB/config values."""
 
 
-def call(args: list[str], *, env: dict[str, str] | None = None, timeout: int = 120) -> bytes:
+def call(
+    args: list[str],
+    *,
+    env: dict[str, str] | None = None,
+    timeout: int = 90,
+    capture: bool = False,
+) -> bytes:
     try:
         result = subprocess.run(
-            args, cwd=REPO, env=env, capture_output=True, timeout=timeout, check=False
+            args,
+            cwd=REPO,
+            env=env,
+            stdout=subprocess.PIPE if capture else subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout,
+            check=False,
         )
     except (OSError, subprocess.TimeoutExpired):
         raise ProbeError("native_process_unavailable") from None
     if result.returncode:
         # Executable basename and numeric OS exit only, never args/environment.
         raise ProbeError(f"native_command_failed_{Path(args[0]).stem}_{result.returncode}")
-    return result.stdout
+    return result.stdout or b""
 
 
 def port() -> int:
@@ -68,7 +80,7 @@ def prepare(root: Path, pg_source: Path, runtime_root: Path) -> None:
         raise ProbeError("isolated_new_windows_workspace_required")
     root.mkdir(parents=True)
     runtime_root.mkdir(parents=True)
-    original_version = call([str(pg_source / "bin" / "pg_config.exe"), "--version"])
+    original_version = call([str(pg_source / "bin" / "pg_config.exe"), "--version"], capture=True)
     print("Original PostgreSQL installation executable starts:", original_version.decode().strip())
     # Build only into a copy, never modify the runner's installed PG/service/data.
     for name in ("bin", "lib", "share", "include"):
@@ -76,11 +88,11 @@ def prepare(root: Path, pg_source: Path, runtime_root: Path) -> None:
         shutil.copytree(pg_source / name, runtime_root / "postgres" / name)
     unicode_runtime: dict[str, str] = {"status": "PASS"}
     try:
-        call([str(root / "postgres" / "bin" / "pg_config.exe"), "--version"])
+        call([str(root / "postgres" / "bin" / "pg_config.exe"), "--version"], capture=True)
     except ProbeError as error:
         unicode_runtime = {"status": "FAIL", "safe_error_code": str(error)}
     pg = runtime_root / "postgres" / "bin"
-    version = call([str(pg / "pg_config.exe"), "--version"]).decode().strip()
+    version = call([str(pg / "pg_config.exe"), "--version"], capture=True).decode().strip()
     if not version.startswith("PostgreSQL 17."):
         raise ProbeError("postgres_major_mismatch")
     archive = root / "garnet.zip"
@@ -126,6 +138,7 @@ def database(root: Path) -> dict[str, object]:
     selected = port()
     env = os.environ.copy()
     env.update(PGPASSWORD=password, PGHOST="127.0.0.1", PGPORT=str(selected), PGUSER="probe")
+    env["PGOPTIONS"] = "-c statement_timeout=30000 -c lock_timeout=10000"
     print("NativeStage: database_initialize")
     call(
         [
@@ -169,7 +182,12 @@ def database(root: Path) -> dict[str, object]:
         )
         print("NativeStage: database_existing_migrations")
         call([sys.executable, "-m", "alembic", "upgrade", "head"], env=env)
-        with psycopg.connect(uri, autocommit=True) as db:
+        with psycopg.connect(
+            uri,
+            autocommit=True,
+            connect_timeout=10,
+            options="-c statement_timeout=30000 -c lock_timeout=10000",
+        ) as db:
             extension = db.execute(
                 "SELECT extversion FROM pg_extension WHERE extname='vector'"
             ).fetchone()
@@ -190,7 +208,18 @@ def database(root: Path) -> dict[str, object]:
                 "SELECT to_tsvector('english','native paper') @@ plainto_tsquery('english','paper')"
             ).fetchone() == (True,)
             assert db.execute("SELECT similarity('native','native')").fetchone() == (1.0,)
-            with psycopg.connect(uri) as first, psycopg.connect(uri) as second:
+            with (
+                psycopg.connect(
+                    uri,
+                    connect_timeout=10,
+                    options="-c statement_timeout=30000 -c lock_timeout=10000",
+                ) as first,
+                psycopg.connect(
+                    uri,
+                    connect_timeout=10,
+                    options="-c statement_timeout=30000 -c lock_timeout=10000",
+                ) as second,
+            ):
                 first.execute("SELECT id FROM native_fixture WHERE id=1 FOR UPDATE")
                 assert (
                     second.execute(
@@ -210,9 +239,15 @@ def database(root: Path) -> dict[str, object]:
         call(start)
         running = True
         for name in ("ragagent_probe", "ragagent_restored"):
-            with psycopg.connect(uri.rsplit("/", 1)[0] + "/" + name) as db:
+            with psycopg.connect(
+                uri.rsplit("/", 1)[0] + "/" + name,
+                connect_timeout=10,
+                options="-c statement_timeout=30000 -c lock_timeout=10000",
+            ) as db:
                 assert db.execute("SELECT count(*) FROM native_fixture").fetchone() == (2,)
-        with psycopg.connect(uri) as db:
+        with psycopg.connect(
+            uri, connect_timeout=10, options="-c statement_timeout=30000 -c lock_timeout=10000"
+        ) as db:
             version = db.execute("SELECT current_setting('server_version')").fetchone()[0]
         hashes = {
             p.name: hashlib.sha256(p.read_bytes()).hexdigest()
@@ -426,6 +461,7 @@ def queue(root: Path) -> dict[str, object]:
 
 
 def main() -> int:
+    sys.stdout.reconfigure(encoding="utf-8", line_buffering=True)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workspace", type=Path)
     parser.add_argument("--pg-source", type=Path)
