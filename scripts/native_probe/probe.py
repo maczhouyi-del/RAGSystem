@@ -313,16 +313,13 @@ def queue(root: Path) -> dict[str, object]:
                 "LuaTransactionMode": True,
                 "EnableAOF": True,
                 "Recover": True,
-                "AofCommitFrequencyMs": 0,
+                "CommitFrequencyMs": 0,
                 "WaitForCommit": True,
                 "LogDir": str(root / "queue-data"),
                 "CheckpointDir": str(root / "queue-checkpoints"),
                 "LogMemorySize": "64m",
                 "PageSize": "1m",
                 "IndexMemorySize": "1m",
-                "ObjectLogMemorySize": "32m",
-                "ObjectLogPageSize": "1m",
-                "ObjectLogIndexMemorySize": "1m",
                 "AofMemorySize": "32m",
                 "AofPageSize": "2m",
                 "AofSegmentSize": "32m",
@@ -335,7 +332,15 @@ def queue(root: Path) -> dict[str, object]:
 
         def start():
             proc = subprocess.Popen(
-                [str(server), "--config-import-path", str(config)], stdout=logs, stderr=logs
+                [
+                    str(server),
+                    "--config-import-path",
+                    str(config),
+                    "--config-import-format",
+                    "GarnetConf",
+                ],
+                stdout=logs,
+                stderr=logs,
             )
             deadline = time.monotonic() + 60
             while time.monotonic() < deadline:
@@ -353,6 +358,26 @@ def queue(root: Path) -> dict[str, object]:
             # Native diagnostic symbols only, never log lines/config values.
             raw = (root / "garnet.private.log").read_text(errors="replace")
             types = sorted(set(re.findall(r"\b[A-Za-z]+Exception\b", raw)))
+            startup_messages = []
+            redacted = raw.replace(password, "[REDACTED]")
+            for line in redacted.splitlines():
+                if any(
+                    token in line.lower() for token in ("password", "token", "secret", "apikey")
+                ):
+                    continue
+                if any(
+                    token in line.lower()
+                    for token in (
+                        "unable to initialize",
+                        "configuration validation",
+                        "invalid",
+                        "validation failed",
+                        "could not",
+                        "is not valid",
+                        "does not exist",
+                    )
+                ):
+                    startup_messages.append(line[:400])
             symbols = [
                 name
                 for name in ("lua54", "KeraLua", "hostfxr", "coreclr", "libmsquic")
@@ -365,6 +390,7 @@ def queue(root: Path) -> dict[str, object]:
                         "exit_code": proc.returncode,
                         "exception_types": types,
                         "dependency_symbols": symbols,
+                        "sanitized_startup_errors": startup_messages[-8:],
                     }
                 ),
             )
