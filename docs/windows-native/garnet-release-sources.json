@@ -1,0 +1,47 @@
+{
+  "runtime": "Garnet2.2.1",
+  "source_commit": "b0255a31de95b1e903ee187feb59ceb04819a639",
+  "source_license": "MIT; exact release LICENSE read",
+  "archive_url": "https://github.com/microsoft/garnet/releases/download/v2.2.1/win-x64-based-readytorun.zip",
+  "archive_bytes": 50818670,
+  "archive_sha256": "93f0026d305585cd249a91dda6fd44c46bcaa56304115b039f74f23fe630c64a",
+  "binary_dependency_license_closure": "NOT EXECUTED; source license does not certify every ZIP dependency",
+  "actual_release_sources_read": [
+    {
+      "path": "LICENSE",
+      "source_commit": "b0255a31de95b1e903ee187feb59ceb04819a639",
+      "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+      "url": "https://github.com/microsoft/garnet/blob/b0255a31de95b1e903ee187feb59ceb04819a639/LICENSE"
+    },
+    {
+      "path": "main/GarnetServer/Program.cs",
+      "source_commit": "b0255a31de95b1e903ee187feb59ceb04819a639",
+      "sha256": "7c00e097fef5845d9cab695cfcb246b0270d60e0f7c3b6f701c9b69f07f53408",
+      "url": "https://github.com/microsoft/garnet/blob/b0255a31de95b1e903ee187feb59ceb04819a639/main/GarnetServer/Program.cs"
+    },
+    {
+      "path": "libs/host/GarnetServer.cs",
+      "source_commit": "b0255a31de95b1e903ee187feb59ceb04819a639",
+      "sha256": "f4912d828e376e4ad7d5c0deaf030fc4a4c20aea852b674c001711572ff83225",
+      "url": "https://github.com/microsoft/garnet/blob/b0255a31de95b1e903ee187feb59ceb04819a639/libs/host/GarnetServer.cs"
+    },
+    {
+      "path": "libs/host/ServerSettingsManager.cs",
+      "source_commit": "b0255a31de95b1e903ee187feb59ceb04819a639",
+      "sha256": "092748f8356ef003efb30c8c90cd2d3c2b405fe4eae8505d5191ac02d21747a8",
+      "url": "https://github.com/microsoft/garnet/blob/b0255a31de95b1e903ee187feb59ceb04819a639/libs/host/ServerSettingsManager.cs"
+    },
+    {
+      "path": "libs/host/Configuration/Options.cs",
+      "source_commit": "b0255a31de95b1e903ee187feb59ceb04819a639",
+      "sha256": "da17e24bd6f30d9c461579a268f573e28087dfc164dac93a862f452b57073276",
+      "url": "https://github.com/microsoft/garnet/blob/b0255a31de95b1e903ee187feb59ceb04819a639/libs/host/Configuration/Options.cs"
+    },
+    {
+      "path": "libs/host/defaults.conf",
+      "source_commit": "b0255a31de95b1e903ee187feb59ceb04819a639",
+      "sha256": "f300d75e398d1d51e501a48620fcb13bcd11a0cad150ee662f4de66a1978dc4f",
+      "url": "https://github.com/microsoft/garnet/blob/b0255a31de95b1e903ee187feb59ceb04819a639/libs/host/defaults.conf"
+    }
+  ]
+}

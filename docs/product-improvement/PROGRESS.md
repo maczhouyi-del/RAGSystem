@@ -391,3 +391,27 @@
 - 中英文README完整安装流程位于Release对应源码，离线installation-guides.zip也包含；[实际证据](../installation/beta2-release-evidence.json)。
 - beta1/main/历史失败保留，不自动合并main；人工OS/真实模型 NOT EXECUTED，科研 NOT MEASURED，0付费模型调用。
 - 后续验收记录提交只有文档，不把它的SHA当成已发布bd896e2二进制来源。
+
+## Windows 免 Docker/WSL 原生安装（2026-10-13，新任务）
+
+- 用户此次明确要求独立分支、不修改/合并main，使用 `codex/windows-native-runtime`，
+  [Draft PR#4](https://github.com/maczhouyi-del/RAGSystem/pull/4) 堆叠在原research分支。
+- 第一阶段审计与真实原型完成；**NO-GO / 整体BLOCKED**。按用户“核心门禁未通过则停止高风险实施”要求，
+  第二阶段原生Runtime/后端冻结/单EXE安装器、第三阶段原生向导暂停，未标记为实现或验收成功。
+- 已读取当前架构及五个参考项目实际源码、固定commit/filehash/许可；Paperlib GPL与WeChat未确认许可不复制。
+- 实现 `11e933bef82f1f71408447465c7dcd6a4d846157` 原生Push38282856636/PR38282864644
+  两个实际失败门禁/安全报告：ASCII PG17.11+compiledpgvector0.8.2真实迁移/向量/FTS/trigram/锁/备份恢复/异常重启PASS；
+  中文程序pg_config/中文数据initdb FAIL(exit1)。Garnet2.2.1真实认证/Lua/BLMOVE/WATCH/RQ入队/排队取消/AOF重启保留PASS；
+  **原版RQ2.12 Worker实际执行FAIL(OS_FORK_UNAVAILABLE)**。
+- SpawnWorker含带密码连接kwargs的子进程argv/Unix进程组依赖，因安全原因NOT EXECUTED；不使用SimpleWorker、Mock队列或替换数据库。
+  三worker完整并发/重试/超时/运行中取消/恢复NOT EXECUTED。开发runner不是干净Windows11，人工安装/真实模型NOT EXECUTED，科研NOT MEASURED。
+- 交付：[审计](../windows-native/audit.md)、[结果/验收矩阵/停止原因/后续设计](../windows-native/results.md)、
+  [可复现流程/运行资源来源](../windows-native/reproduce.md)、[固定第三方源码与许可](../windows-native/reference-sources.json)、
+  [原Push/PR报告及来源](../windows-native/evidence/)。README明确当前beta2仍需Docker，不虚称免依赖。
+- 原TASK00～19、旧部署/Release与用户数据保留，0付费模型调用，未删卷/论文/配置、未扩大IPC、未改生产业务/数据库/队列。
+  既有路径回归结果独立记录，不把Docker/MOCK成功转成原生科研系统成功。
+
+- 精确原型11e933b既有Push/PR CI/Desktop四workflow、14/14job全部SUCCESS；完整日志已核对，
+  1010backend/131MOCKbrowser/19transport、四平台Rust/真实凭据/安装包/助手和旧Docker真实PG/Redis/Docling+MOCK功能全PASS。
+  [逐job/step与日志哈希](../windows-native/evidence/legacy-regression.json)。两个原生NO-GO失败门禁保持失败，不声称整体CI全绿。
+  此后提交为文档/证据；新原生安装器未实现/未发布，旧beta2和main不变。

@@ -1,0 +1,68 @@
+{
+  "platform": "Windows",
+  "cpu": "AMD64",
+  "source": "4f3e2bc98c9e88a1b32b412ed470c7012b339106",
+  "fixture": "SYNTHETIC ONLY / NOT A BENCHMARK",
+  "pgvector_source": "cab9da72c04353f143bb06b42ab70a403daac64a",
+  "garnet_archive_sha256": "93f0026d305585cd249a91dda6fd44c46bcaa56304115b039f74f23fe630c64a",
+  "native_windows11_clean_install": "NOT EXECUTED",
+  "models_scientific_quality": "NOT MEASURED",
+  "paid_model_calls": 0,
+  "production_code_changed": false,
+  "unicode_runtime_executable": {
+    "status": "FAIL",
+    "safe_error_code": "native_command_failed_pg_config_1"
+  },
+  "unicode_database_path": {
+    "status": "FAIL",
+    "safe_error_code": "native_command_failed_initdb_1"
+  },
+  "database": {
+    "status": "PASS",
+    "postgres_version": "17.11",
+    "pgvector": "0.8.2",
+    "migration": "existing head",
+    "checks": [
+      "vector",
+      "FTS",
+      "pg_trgm",
+      "SKIP_LOCKED",
+      "dump_restore",
+      "immediate_stop_recovery"
+    ],
+    "binary_sha256": {
+      "postgres.exe": "f1b4e561ff3c6be6fc7db26b916ba756508aa0e02c4b4047e5b2da9ca8c77396",
+      "initdb.exe": "17a208d1f8c5671e8eaf74fc80e3300326cbe15862dbefbc7490c882ba395fe0",
+      "vector.dll": "dc3572c355a94acce0d21da948d10ab92aa07b8f251b6d15790b9f3b84c8dbbc"
+    }
+  },
+  "queue": {
+    "status": "NO_GO",
+    "runtime": "Garnet2.2.1/net8.0 native binary",
+    "rq": "2.12.0",
+    "primitive_checks": [
+      "authenticated_loopback",
+      "Lua",
+      "BLMOVE",
+      "WATCH_MULTI_EXEC",
+      "real_RQ_enqueue",
+      "queue_isolation",
+      "queued_cancel",
+      "AOF_restart"
+    ],
+    "native_worker_execution": false,
+    "reason_code": "OS_FORK_UNAVAILABLE",
+    "windows_capabilities": {
+      "fork": false,
+      "setpgrp": false,
+      "wait4": false
+    },
+    "unix_alarm_available": false,
+    "spawn_source_sha256": "fd84f6694f99cb73173d1d7361c7962b0bbe1727b825f8009c1ad134fff87843",
+    "spawn_contains_connection_kwargs_in_cli": true,
+    "spawn_contains_setpgrp": true,
+    "spawn_with_password": "NOT EXECUTED: unsafe commandline credential path",
+    "three_workers_retry_timeout_stop_recovery": "NOT EXECUTED: workhorse prerequisite failed"
+  },
+  "decision": "NO_GO_PRODUCTION"
+}

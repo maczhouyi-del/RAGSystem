@@ -4,7 +4,9 @@
 新分支 `codex/windows-native-runtime` 从该基线开始，原 PR#3/Release/Docker用户数据保留；不修改或合并main。
 本次用户明确要求独立分支，覆盖之前安装体验任务“不需要创建新分支”的范围。
 
-状态：**可行性验证 IN_PROGRESS**。静态审查不是GO，下面的问题必须取得原生Windows证据后才处理。
+状态：**第一阶段完成 / NO-GO，生产实施 BLOCKED**。已完成真实Windows原型；[结果与停止决定](results.md)、[复现步骤](reproduce.md)。
+ASCII PG/扩展及Garnet基础/RQ入队通过，原版Worker因os.fork缺失不能执行任务，PG中文程序/数据路径失败。
+三Worker完整可靠性、冻结后端与干净Windows11安装未验证；不实施或发布未经验证的原生产品。
 当前beta2仍需要Docker，不是免Docker产品；本阶段不发布或虚构新的RAGSystem-Setup安装器。
 
 ## 当前依赖与数据边界
