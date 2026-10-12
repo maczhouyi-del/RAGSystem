@@ -14,52 +14,145 @@ Tauri 桌面入口。它保留了现有的基于证据的知识库和 Supervisor
 迁移基于原仓库 `fix/engineering-hardening` 分支的 `df75bdd` 提交。
 历史 CI 和安装包验证证据仍链接到原仓库中的实际运行记录。
 
-## 下载与安装测试版
+## 下载、安装与首次使用
 
-本次安装体验改造提供 Windows 图形部署助手及首次模型配置引导，请使用对应 PR 的成功 CI Artifacts，
-参照[五步首次使用教程](docs/installation/first-use-guide.md)与[Windows 11 人工验收表](docs/installation/windows-11-checklist.md)。
-已发布 `v0.2.0-beta.1` 仍使用下文控制台流程；真实 Windows 11 人工安装仍为 NOT EXECUTED。
+从 **[v0.2.0-beta.2 测试版 Release](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2)** 下载。
+应用内部版本 **0.2.0**；此版包含 Windows 图形部署助手和首次模型配置向导。
+旧 `v0.2.0-beta.1` 保留原控制台助手。请使用同一 Release 的客户端和部署 ZIP。
 
-从 GitHub Releases 下载 **[v0.2.0-beta.1 测试版](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.1)**，应用内部版本为 **0.2.0**。
-需要同时下载**桌面安装包和同平台部署 ZIP**。桌面安装包是客户端；原生部署助手通过 Docker
-启动 PostgreSQL/pgvector、Redis、API、三个 worker 和 Web。
-**仍需安装 Docker；普通用户不需要在电脑上安装 Python、Node.js、Rust 或 Git。**
+**必须同时安装桌面客户端和部署后台。** 桌面安装包不包含整个后台；部署助手通过 Docker 启动
+PostgreSQL/pgvector、Redis、API、三个 worker 与 Web。普通用户无需安装 Python、Node.js、Rust 或 Git，
+无需编辑 `.env`、执行 Docker Compose 命令或修改 Agent YAML；**Docker 和首次下载所需互联网仍是前置条件**。
 
-| 平台 | 桌面安装包 | 配套部署包 |
+### 1. 下载正确的文件
+
+| 电脑平台 | 桌面安装包（同类二选一） | 必须配套的部署包 |
 | --- | --- | --- |
-| Windows 11 x64（优先） | MSI 或 EXE，二选一 | `RAGSystem-deployment-windows-x86_64.zip` |
-| macOS Apple Silicon | aarch64 DMG | `RAGSystem-deployment-macos-aarch64.zip` |
-| macOS Intel | x64 DMG | `RAGSystem-deployment-macos-x86_64.zip` |
-| Linux x64（Ubuntu 24.04） | deb 或 AppImage | `RAGSystem-deployment-linux-x86_64.zip` |
+| Windows 11 x64（优先） | `.msi` 或安装 `.exe` | `RAGSystem-deployment-windows-x86_64.zip` |
+| macOS Apple Silicon | aarch64 `.dmg` | `RAGSystem-deployment-macos-aarch64.zip` |
+| macOS Intel | x64 `.dmg` | `RAGSystem-deployment-macos-x86_64.zip` |
+| Linux x64（Ubuntu 24.04） | `.deb` 或 `.AppImage` | `RAGSystem-deployment-linux-x86_64.zip` |
 
-1. 下载对应文件，按照 Release 的 `SHA256SUMS.txt` 核对 SHA256。
-   `release-manifest.json` 记录实际构建 SHA、平台、版本和校验值。
-2. Windows/macOS 安装并启动 Docker Desktop；Linux 安装 Docker Engine 与 Compose ≥2.24。
-   Windows 按 Docker 官方引导开启 WSL2/虚拟化并使用 Linux containers。
-3. 安装桌面客户端，把部署 ZIP 解压到长期保留、当前用户可写的目录。
-4. 打开桌面的“本机授权”，复制非敏感配对哈希。运行 `RAGSystem-Setup.exe`（Windows）或
-   `./RAGSystem-Setup`（macOS/Linux），选择 **2 配对并启动**，粘贴哈希；等待完整后端初始化成功。
-5. 在助手中通过隐藏输入保存 API 密钥并重启服务，在 Settings 配置 provider/model 角色。
-   导入 PDF，等待 indexed 后进入 RAG 或 Research，按需导出报告。真实模型调用可能收费；
-   本地 embedding/reranker 的权重会在首次使用时下载。
+打开 Release 的 **Assets**，下载表中两个文件，以及 `SHA256SUMS.txt`、`release-manifest.json`。
+公开 Release 安装文件不依赖 GitHub Actions Artifact 的登录与保留期限。
+manifest 记录真实构建 SHA、版本、平台、大小和 SHA256；安装器文件名空格替换为下划线，内容不变。
+核对下载校验值；Windows PowerShell 可用 `Get-FileHash 文件路径 -Algorithm SHA256`。
+`installation-guides.zip` 提供本 README、详细指南、验收说明及第三方许可证的离线副本。
 
-[Windows/macOS/Linux 完整安装与首次使用教程](docs/installation/README.md) ·
-[数据、备份、升级、还原和卸载](docs/installation/data-and-upgrades.md) ·
-[常见问题](docs/installation/troubleshooting.md) ·
-[安装后本地真实科研评测](docs/installation/local-evaluation.md)
+建议 **16 GB 内存、至少 20 GB 空闲磁盘**，模型和论文另需空间。助手最低检查部署盘 5 GiB；
+Docker 虚拟磁盘也需要足够空间。首次后台构建通常约 10–30 分钟，实际取决于网络与电脑。
+测试版未代码签名/未 macOS notarize：核对来源和校验值，按系统/组织策略处理提示，不关闭系统安全保护。
 
-建议 **16 GB 内存、至少 20 GB 可用磁盘**，模型与论文另需空间。首次后端构建需要互联网。
-Web 保留 `http://127.0.0.1:8080` 入口，通过助手 **9 Web 配对**设置独立凭据。
-关闭桌面窗口不会自动停止后端；用助手停止。卸载容器保留全部五个数据卷，不要通过删除卷修复安装。
-API 密钥只保存到私有运行时文件，桌面凭据保存在系统密钥库；不得写入报告或备份。
+### 2. Windows 11 安装
 
-这是**未签名、未 macOS notarize 的 Pre-release**。各平台原生构建与自动化工程结果可在 CI 核查；
-**真实 Windows 11/macOS/Linux 人工安装仍为 NOT EXECUTED**。
-安装端到端验证使用 **MOCK 模型**、真实 PostgreSQL/Redis 和真实 Docling Native PDF 解析。
-**真实科研质量仍为 NOT MEASURED**；TASK-17 与 TASK-19 科研部分等待用户论文、人工金标与获准模型/预算。
-不得据 MOCK 分数认定 Research 优于 RAG。Windows/Linux ARM64、其他 Linux 发行版 NOT EXECUTED。
-实际结果见 Release 说明及[工程验收证据](docs/product-improvement/task-19-evidence.json)；
-[此前 CI Artifact 交付记录](docs/product-improvement/task-18-delivery.md)保留原构建 SHA 与校验值，不能与新 Release 混用。
+1. 按 [Docker 官方 Windows 指南](https://docs.docker.com/desktop/setup/install/windows-install/)
+   安装 Docker Desktop，完成必要的管理员操作、WSL2/虚拟化配置和重启。注意 Docker 许可证/订阅条款。
+   打开 Docker Desktop，等待运行就绪，使用 **Linux containers**；已有可用 Hyper-V/Linux Docker 无需改用 WSL。
+2. 双击 MSI 或安装 EXE 安装 **Scientific RAGAgent**。WebView2 缺失时按安装器/Microsoft 官方引导安装。
+3. 解压部署 ZIP，完整保留其中 `RAGSystem` 文件夹，放到长期、个人可写的位置，
+   例如 `C:\Users\你的用户名\RAGSystem`。不要放 Program Files、共享盘或临时缓存；不要遗漏隐藏文件。
+4. 打开桌面客户端，再双击部署目录的 **`RAGSystem-Setup.exe`**。此版本默认进入五步图形向导。
+
+### 3. 按图形助手完成五步初始化
+
+1. **检查安装条件**：点击检查，按窗口提示处理 Docker 缺失/停止、WSL 未就绪、容器模式、
+   Compose 版本、空间或端口问题，再点击同一按钮重新检查。助手不自动安装 Docker或强杀占用端口的程序。
+2. **连接本机授权**：在桌面打开 **Connection authorization / 本机授权**，点击复制配对哈希，
+   粘贴到助手并保存。复制不可用时手动复制显示的哈希。它不是 API Key；实际桌面凭据存 Windows Credential Manager。
+   旧配对可保留，更换需确认。
+3. **安全保存密钥**：选择 OpenAI、DeepSeek 或 Anthropic，在遮蔽输入框输入自己的 API Key 并保存。
+   保存后输入框清空，只显示是否存在。已有密钥可保留，替换需确认；本地模型/稍后配置可跳过。
+   其他 OpenAI 兼容服务在助手选 OpenAI，使用 `OPENAI_API_KEY`。
+4. **启动系统**：确认启动可能继续已有排队任务及其费用，点击 **启动 / 恢复系统**。
+   助手自动启动数据库/Redis、执行迁移、启动 API、三个 worker 与 Web，等待就绪。
+   首次构建耗时较长，保留窗口等待；失败按安全错误码修复后重试，不重置数据。
+5. **开始使用**：回桌面点击 **连接并检查授权**，跟随首次使用引导的步骤进度和“下一步”。
+   基础服务就绪不等于模型能推理。新安装启动不会自动提交模型测试；已有排队任务可能继续消费此前授权的费用。
+
+以后先打开 Docker，再开助手；已有配置可选 **使用已有配置启动 / 恢复**，不强制重复配对或输入密钥。
+
+### 4. 首次模型配置
+
+1. 在 **Settings → 首次模型配置** 选择服务商、账户实际可用的聊天模型及必要的 API 地址。
+   预填名称只是参考，不保证账户权限。API Key 不在此网页/桌面表单中输入。
+2. 点击 **为四个角色保存此配置**，确认后为 Supervisor、Retriever、Analyst、Reviewer 生成同一默认模型。
+   下方高级设置仍可逐角色修改。保存不改 embedding/reranker 或旧向量索引，不自动覆盖已有角色配置。
+3. 如果刚在助手保存密钥，先启动/恢复使容器读入，再点击 **刷新配置与密钥状态**。刷新不发起模型测试。
+4. 自行选择 **检查模型连接** 或 **测试模型推理**，阅读费用/发送内容说明，明确确认后才请求服务商。
+   目录检查不生成答案；推理检查发送固定指令，不发送论文或会话。失败不自动收费重试；重开页面不自动测试。
+
+| 界面状态 | 实际含义 |
+| --- | --- |
+| 配置已保存 | 服务端保存了模型与角色映射；不证明账户可用 |
+| 密钥存在 | 私有运行时变量存在；不证明密钥有效（本地模型可无需密钥） |
+| 连接检查成功 | 模型目录可访问；不证明模型能推理 |
+| 模型可实际推理 | 本次固定指令通过；不证明论文答案或科研质量达标 |
+
+部分兼容服务没有目录接口，可主动确认单独推理测试。密钥无效时在原生助手更换并启动生效；
+模型无权限时更换模型名称/服务商。四角色不同模型时，在高级设置分别主动测试。
+本地 Ollama 需另行安装、加载模型；Docker Desktop 可用 `http://host.docker.internal:11434` 访问宿主，
+容器 `localhost` 指向容器自己。Linux 宿主路由需单独配置；不开放模型服务或数据库到公网。
+
+### 5. 第一篇 PDF、RAG、Research 与导出
+
+1. 按“下一步”打开 **Knowledge Base**，导入自己有权使用的 PDF。
+2. 查看解析/索引进度，等待 **indexed**。默认本地 embedding/reranker 首次会下载权重；
+   网络/空间失败时按下表修复后重试，不清理数据库/模型卷、不混用不同维度的旧索引。
+3. 进入 **RAG** 提问，或选择 **Research**；真实模型调用可能收费。检查引用、原文位置和证据，不直接信任结论。
+4. 从结果导出报告。重开程序并连接同一本地系统，可以继续查看论文与历史会话。
+
+### 6. macOS、Linux 与 Web
+
+macOS 按 CPU 选择同 Release 的 DMG 和部署 ZIP，按 [Docker 官方 macOS 指南](https://docs.docker.com/desktop/setup/install/mac-install/)
+安装并启动 Docker Desktop。Linux x64 安装 deb 或 AppImage，并安装 Docker Engine + Compose ≥2.24（及桌面 WebView/Secret Service 环境）。
+按系统/组织策略处理未签名/未 notarize 提示；Linux AppImage 可能需要发行版的 FUSE 兼容支持。
+
+两平台解压部署 ZIP 到个人可写长期目录，在该目录运行 `./RAGSystem-Setup`（随包原生程序，不需要 Python）。
+macOS/Linux 保留控制台菜单：**2 配对并启动**，粘贴桌面哈希；**5 隐藏输入密钥**，再 **3 启动**使其生效。
+随后使用同一桌面模型向导与 PDF/问答流程。Windows 图形助手的人工体验未据此推断为 macOS/Linux 图形支持。
+
+Web 入口为 `http://127.0.0.1:8080`；通过控制台助手 **9 Web 配对**设置独立凭据，再在 Web 本机授权中输入。
+Windows 如需菜单，在部署目录终端运行 `.\RAGSystem-Setup.exe --console`。Web 仍需身份认证，不使用模型 API Key 作配对凭据。
+
+### 7. 常见失败与恢复
+
+| 现象 | 下一步 |
+| --- | --- |
+| Docker 缺失/停止 | 安装或打开 Docker，等待就绪，重新检查 |
+| WSL 未就绪/Windows containers | 按 Docker 官方说明配置虚拟化/WSL及重启，切换 Linux containers |
+| 8000/8080 端口冲突 | 关闭自己确认可停止的冲突应用，重新检查；助手不杀进程或自动连接陌生 API |
+| 空间不足/下载失败 | 检查部署盘和 Docker 虚拟盘、获准网络/代理；不删除卷、不关闭 TLS 验证 |
+| API/数据库/worker 不可用 | 查看 Diagnostics/助手安全错误码，修复 Docker 服务后启动/恢复；保留原数据 |
+| 密钥被拒绝/模型不可用 | 原生助手替换密钥并启动，或在 Settings 修改模型；刷新后主动确认测试 |
+| 本地模型或 PDF 索引失败 | 检查模型来源、缓存权限、空间及 PDF 损坏/加密；扫描件可能需 OCR/版面模型 |
+
+问题报告只提供版本、构建 SHA、安全错误码及脱敏现象；不上传 API Key、私有 env、完整 Docker/provider 日志或论文正文。
+详细说明见[故障排查](docs/installation/troubleshooting.md)。
+
+### 8. 关闭、数据位置、备份、升级与卸载
+
+关闭桌面不会停止后台；图形助手点击 **停止系统**，或控制台菜单 **4 停止**，数据保留。
+论文/向量/会话/配置/队列/模型缓存在 Docker 的五类 named volumes；桌面凭据在系统密钥库，
+`.env`、`.runtime-secrets.env` 在原部署目录，API Key 只保存在私有 runtime，不能放前端存储/报告/备份。
+
+- **备份**：等待所有导入/问答/Research 完成，控制台菜单 **6 备份**，保留完整 manifest。
+  备份含数据库/PDF/非敏感配置，不含密钥、队列及模型权重；保护备份中的科研资料。
+- **升级**：先备份，新 ZIP 先解压到临时目录并核对，更新原部署目录的程序文件，
+  保留 `.env`、`.runtime-secrets.env`、项目名和五个数据卷；菜单 **7 升级**备份成功后才构建/迁移。
+  失败保留数据，不自动降级数据库；数据库主版本升级需单独设计。
+- **卸载**：卸载客户端只移除客户端；菜单 **8 卸载容器**需明确 `KEEP DATA`，保留所有卷与私有文件。
+  从同一项目重装启动可以恢复数据；不使用 Docker Delete volumes/Clean/Purge 修复问题。
+- **异机恢复**：仅在独立空环境恢复自己的完整备份，重新配对/输入密钥；不覆盖原环境。
+  操作步骤见[数据、备份、升级和卸载](docs/installation/data-and-upgrades.md)。
+
+### 验证范围与下一步
+
+Windows/macOS 双架构/Linux 原生构建与自动化工程验证记录见[安装验收](docs/installation/first-use-evidence.json)。
+工程使用 **MOCK 模型**、真实 PostgreSQL/Redis/Docling Native PDF；不替代真实模型和科学效果评测。
+**Windows 11/macOS/Linux 人工安装、真实用户模型与权重下载：NOT EXECUTED。科研质量：NOT MEASURED。**
+Windows/Linux ARM64、其他 Linux 发行版也未验证；不预设 Research 优于 RAG。
+请按 [Windows11 人工检查表](docs/installation/windows-11-checklist.md)本地验收，再用
+[已有本地科研评测工具](docs/installation/local-evaluation.md)评审自己的论文与模型。
 
 ## 开发者源码部署
 

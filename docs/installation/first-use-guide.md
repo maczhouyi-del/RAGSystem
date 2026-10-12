@@ -1,8 +1,9 @@
 # 首次安装与配置：图形引导测试构建
 
-本指南对应 `codex/research-product-improvement` 的安装体验改造及其成功的 CI Artifacts。
+本指南对应 [v0.2.0-beta.2 测试版 Release](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2)。
+完整下载、安装与首次配置步骤也直接写在发布源码的中英文 README，Release 的 installation-guides.zip 含其离线副本。
 **已发布 v0.2.0-beta.1 仍是原控制台助手，没有本指南的新 Windows 图形向导。**
-应用版本暂为 0.2.0；必须按 Artifact 的构建 SHA 区分新旧包，并同时下载同一运行的客户端与部署 ZIP。
+应用版本暂为 0.2.0；必须按 Release manifest 的构建 SHA 区分新旧包，并同时下载同一 Release 的客户端与部署 ZIP。
 真实 Windows 11 人工安装未执行，检查表见 [Windows 11 人工验收](windows-11-checklist.md)。
 
 已验收工程构建、四平台下载入口及实际文件 SHA256 见 [交付与验证记录](first-use-validation.md)。
@@ -13,10 +14,9 @@ Windows 11 x64 推荐 16 GB 内存、20 GB 以上空闲磁盘，论文与模型�
 需要互联网、Docker Desktop 及其官方系统前置条件；这不是免依赖、离线安装包。
 普通用户无需安装 Python、Node.js、Rust，也无需编辑 `.env`、Compose 或 Agent YAML。
 
-1. 在 PR 的成功 Desktop 工作流页底部下载 Windows Artifact，解压外层 Artifact。
-   其中含 MSI/EXE、`installer-manifest.json`、`build-metadata.json`、部署 ZIP 及其 `.sha256`。
-   检查平台、版本、构建 SHA 一致。可用 Windows PowerShell `Get-FileHash 文件路径 -Algorithm SHA256`
-   对照 manifest/校验文件。Artifact 需 GitHub 登录且有保留期限；失败运行的产物不是验收交付。
+1. 从上述 Release 的 Assets 下载 Windows MSI/EXE（选一个）及部署 ZIP，另下载 `SHA256SUMS.txt`、`release-manifest.json`。
+   核对平台、版本、构建 SHA 及校验值；Windows PowerShell 可用 `Get-FileHash 文件路径 -Algorithm SHA256`。
+   公开 Release 文件不依赖 Actions Artifact 的登录与保留期限。CI Artifacts 仍是工程证据/开发者兼容路径。
 2. 按 [Docker 官方 Windows 安装指南](https://docs.docker.com/desktop/setup/install/windows-install/)
    安装 Docker Desktop，完成需要的管理员操作、虚拟化/WSL2 配置和重启。遵守 Docker 许可证条款。
    启动 Docker Desktop，等待运行就绪，使用 Linux containers。已有可用 Hyper-V/Linux 容器无需改用 WSL。

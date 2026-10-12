@@ -374,3 +374,10 @@
   旧 GUI 失败不被改写；修正后实际原生结果成功，才关闭本次验收。
 - 原 TASK-00～19 历史验收及失败保留。已发布 beta1 无新 GUI；新功能按同构建SHA的 PR Artifact 测试。
   Windows11 人工/真实用户模型与下载 NOT EXECUTED，科研 NOT MEASURED；不自动调用付费模型或重启科研评测。
+
+## 用户追加：Release交付与README完整安装教程（2026-10-12）
+
+- 用户明确要求以Release发布安装包，安装指南写入README；准备新Pre-release v0.2.0-beta.2，保留beta1。
+- 复用现有分支/PR#3，README中英文完整步骤、平台/费用/密钥/恢复/数据保护和人工未验证范围同步。
+- 发布复用现有workflow，限定可信仓库main或现有research分支；必须精确SHA成功CI/Desktop及独立下载/成员hash/上传digest验收。
+- 不改核心/测试/用户数据，不自动合并main。新提交CI和发布结果待实际执行，状态 IN_PROGRESS。

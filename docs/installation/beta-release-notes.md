@@ -1,51 +1,54 @@
-# Scientific RAGAgent 0.2.0 Beta 1
+# Scientific RAGAgent 0.2.0 Beta 2
 
-测试版 / Pre-release。应用内部版本0.2.0；这是工程测试交付，真实科研质量 **NOT MEASURED**。
+测试版 / Pre-release，应用内部版本 **0.2.0**。新版提供 Windows 五步图形部署助手、首次模型配置与连续步骤引导。
+旧 beta1 保留，不覆盖旧文件或 tag。真实科研质量 **NOT MEASURED**。
 
-## 下载与安装
+## 安装入口
 
-Windows11 x64：下载 MSI 或 EXE（二选一）以及 `RAGSystem-deployment-windows-x86_64.zip`。
-macOS：按CPU选择aarch64（Apple Silicon）或x64（Intel）DMG与对应部署ZIP。
-Linux x64（Ubuntu24.04）：选择deb或AppImage与Linux部署ZIP。
+完整安装指南直接写在本次发布源码的 README：
+[简体中文 README](https://github.com/maczhouyi-del/RAGSystem/blob/RELEASE_SOURCE_SHA/README.zh-CN.md#下载安装与首次使用) ·
+[English README](https://github.com/maczhouyi-del/RAGSystem/blob/RELEASE_SOURCE_SHA/README.md#download-install-and-first-use)。
+Release 附件 `installation-guides.zip` 也包含中英文 README、详细恢复/升级说明、实际证据和第三方许可证。
 
-**桌面安装包是客户端，必须配合对应部署ZIP，并安装Docker。** Windows/macOS使用Docker Desktop；Linux使用Docker Engine + Compose ≥2.24。
-不需要主机Python、Node.js、Rust或Git；首次后端构建需要互联网。建议16GB内存、20GB以上可用磁盘，模型/论文另需空间。
+在 Assets 下载同平台的**桌面安装包 + 部署 ZIP**：Windows11 x64 选 MSI/EXE之一，
+macOS 按 Apple Silicon/Intel 选 DMG，Linux x64 选 deb/AppImage。另下载 `SHA256SUMS.txt` 和 `release-manifest.json` 核对。
+公开安装包无需 Actions Artifact 登录。文件名空格替换为下划线，字节不变。
 
-核对 `SHA256SUMS.txt`；`release-manifest.json`列出实际构建SHA、平台、版本、各安装器与部署ZIP的校验值。
-Release文件名把空格改为下划线，文件字节不变；各ZIP中的原始manifest仍可独立核验。
-`installation-guides.zip`包含中英文README及完整安装、数据管理、故障排查和本地评测说明。
+**Docker 仍必需**：Windows/macOS 需 Docker Desktop，Linux 需 Docker Engine + Compose ≥2.24。
+建议16GB内存、20GB以上空闲空间及模型/论文额外空间，首次构建需互联网。
+无需主机Python、Node.js、Rust、Git，无需手改env/Compose/Agent YAML。
 
-[完整安装/首次配置指南](https://github.com/maczhouyi-del/RAGSystem/blob/main/docs/installation/README.md) ·
-[备份/升级/还原/卸载](https://github.com/maczhouyi-del/RAGSystem/blob/main/docs/installation/data-and-upgrades.md) ·
-[故障排查](https://github.com/maczhouyi-del/RAGSystem/blob/main/docs/installation/troubleshooting.md)
+Windows：安装客户端、解压部署ZIP到个人长期可写目录，双击RAGSystem-Setup.exe，
+跟随检查→复制桌面配对哈希→原生遮蔽输入密钥→确认启动/恢复→回桌面模型配置五步。
+Settings确认一次服务商/聊天模型即可生成四角色默认映射，高级逐角色配置保留。
+配置保存、密钥存在、目录连接与固定指令推理四种状态分开；连接/推理都必须主动确认，可能产生费用。
+随后导入第一篇PDF，等indexed，选择RAG/Research提问并检查引用、按需导出。
+macOS/Linux保留原生控制台助手，Web保持独立配对路径；备份/升级/保留数据卸载可用 --console。
 
-安装客户端，部署ZIP解压到长期保留的用户可写目录；打开桌面“本机授权”复制配对哈希；
-运行RAGSystem-Setup，选择2配对并启动，等待数据库迁移、API、Redis、三个worker和Web检查成功。
-通过助手隐藏输入保存API密钥，在Settings配置各角色模型，导入PDF并等待indexed后进行RAG/Research问答或导出报告。
-使用自己的模型API可能收费，真实评测由用户自行发起；本轮发布不自动调用真实模型。
+## 工程证据与发布核验
 
-## 工程证据
+本次发布针对所选可信仓库分支的同一完整SHA，要求Push CI三个job及Desktop四个原生job实际成功。
+发布作业再次从GitHubActions下载四平台真实安装产物，独立重算六安装器、四部署ZIP及所有成员的SHA256，
+核对版本、平台、源码SHA，检查没有用户env/密钥/测试文件；上传后核查全部GitHub服务端digest和大小，才公开Pre-release。
+PR CI/Desktop结果和发布结果分别记录，不能用工程MOCK推断科研性能。
 
-发布流程要求同一 main SHA 的Push CI（backend/frontend/Compose）与四个平台原生Desktop job全部SUCCESS。
-随后独立下载实际安装产物，核对全部安装器/部署ZIP/ZIP成员的SHA256、平台、版本和构建SHA，
-上传后还核对GitHub服务端digest与文件大小，成功后才将草稿转为公开Pre-release。
-构建workflow与源SHA追加在本说明末尾，服务器/用户机器不同环境不混用结果。
+已完成的改造实现验证：1010后端（含真实PostgreSQL/Redis）、131Playwright MOCK、19transport；
+Windows/macOS双架构各19 Rust、Linux18 Rust，fmt/check/clippy、原生凭据库、实际安装器与助手CPU/版本检查。
+Windows打包Tk五页、遮蔽输入、忙碌/错误/重试冒烟通过；完整Docker覆盖真实Native PDF解析/索引、
+四角色配置/私有密钥存在、MOCK RAG/Research/四导出、DB/worker恢复、备份、重启持久化、迁移和卸载重装保留五卷。
+原780/69构建的Windows GUI断言失败曾被PowerShell后续命令掩盖为绿灯，原日志保留；修正控件计数与逐命令退出码后才通过。
+[原安装体验验收及失败证据](https://github.com/maczhouyi-del/RAGSystem/blob/RELEASE_SOURCE_SHA/docs/installation/first-use-evidence.json)。
+本次实际发布源码及Desktop运行追加在本说明末尾；release-manifest和SHA256SUMS是本次包的校验依据。
 
-现有工程回归覆盖982backend（含277真实PostgreSQL）、124Playwright、19transport、Rust fmt/check/test/clippy与原生凭据库。
-完整Docker工程覆盖全新部署、真实Docling Native PDF解析/index、MOCK RAG/Research与四类导出、
-DB/worker失败恢复、重启持久化、停写备份、空项目还原和卸载/重装保留全部五个数据卷。
-历史失败及修正保留于[工程证据](https://github.com/maczhouyi-del/RAGSystem/blob/main/docs/product-improvement/task-19-evidence.json)，不声称失败attempt本身通过。
+## 限制与数据安全
 
-## 已知限制与数据保护
+- 未签名/未macOS notarize，遵守系统/组织安全策略，不关闭全局保护。
+- Windows11/macOS/Linux人工安装、真实用户模型/密钥/权重下载 **NOT EXECUTED**；自动化runner不替代人工安装。
+- Windows/Linux ARM64、其他Linux发行版、用户Ollama/扫描PDF的OCR/复杂版面未因此验证。
+- TASK-17及TASK-19科研质量 **BLOCKED / NOT MEASURED**，不声称Research一定优于RAG。
+- API Key只经原生私有runtime/ACL，不进入前端存储/日志/报告/备份；配对凭据在OS密钥库。
+- 关闭桌面后台仍运行；助手停止保留数据。卸载程序/容器保留论文/索引/历史/角色/密钥和五卷。
+- 升级先备份，保留私有env和项目名，不静默删卷/重置；仅支持既有PostgreSQL17内迁移。
+- 启动worker可能继续既有排队任务及用户此前授权的模型费用；本次发布不主动发起收费模型调用。
 
-- 未代码签名、未macOS notarize。按系统/组织策略处理安全提示，不关闭全局安全保护。
-- Windows11、macOS双架构、Linux用户人工安装均 **NOT EXECUTED**；原生CI成功不等于人工安装通过。
-- Windows/Linux ARM64、其他Linux发行版以及macOS上的Docker后端人工验证 **NOT EXECUTED**。
-- 安装工程使用 **MOCK模型**、真实Docling Native文本PDF；真实聊天/embedding/reranker、OCR/复杂版面和科研质量没有因此得到验证。
-- TASK-17与TASK-19科研部分 **BLOCKED / NOT MEASURED / NOT EXECUTED**。不宣称Research优于RAG。
-- API密钥只保存到私密运行时文件，配对凭据使用OS密钥库；不要加入日志、报告或备份。
-- 关闭桌面不会自动停后端；用助手停止。卸载只移除程序/容器，保留数据库、论文、索引、历史、配置与模型卷。
-- 升级先备份，不覆盖私有runtime文件；只支持PostgreSQL17内升级，不自动迁移数据库主版本。
-- 启动worker可能继续用户已有排队任务并产生此前授权的模型费用。
-
-发布后等待用户本地测试反馈，不自动进行真实科研评测。
+按README在本地安装后反馈体验；真实科研评测由用户使用自己的论文与获准模型/预算自行开展。
