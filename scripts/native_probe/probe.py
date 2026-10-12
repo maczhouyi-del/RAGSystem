@@ -13,6 +13,7 @@ import inspect
 import json
 import os
 import platform
+import re
 import secrets
 import shutil
 import signal
@@ -348,6 +349,25 @@ def queue(root: Path) -> dict[str, object]:
                 time.sleep(0.25)
             proc.terminate()
             proc.wait(timeout=15)
+            logs.flush()
+            # Native diagnostic symbols only, never log lines/config values.
+            raw = (root / "garnet.private.log").read_text(errors="replace")
+            types = sorted(set(re.findall(r"\b[A-Za-z]+Exception\b", raw)))
+            symbols = [
+                name
+                for name in ("lua54", "KeraLua", "hostfxr", "coreclr", "libmsquic")
+                if name in raw
+            ]
+            print(
+                "NativeStartupDiagnostics:",
+                json.dumps(
+                    {
+                        "exit_code": proc.returncode,
+                        "exception_types": types,
+                        "dependency_symbols": symbols,
+                    }
+                ),
+            )
             raise ProbeError("garnet_start_failed")
 
         try:
