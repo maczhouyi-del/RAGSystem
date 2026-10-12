@@ -34,16 +34,18 @@ jobs:
         run: |
           $probeRoot = Join-Path $env:RUNNER_TEMP "RAG Native 中文 Path $env:GITHUB_RUN_ID"
           "NATIVE_PROBE_ROOT=$probeRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $runtimeRoot = Join-Path $env:RUNNER_TEMP "rag-native-programs-$env:GITHUB_RUN_ID"
+          "NATIVE_RUNTIME_ROOT=$runtimeRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: Install locked development dependencies (not a consumer installer)
         run: uv sync --locked
       - name: Prepare copied PostgreSQL17 and checksum-verified official Garnet binary
         run: |
-          uv run python scripts/native_probe/probe.py --prepare --workspace "$env:NATIVE_PROBE_ROOT" --pg-source 'C:\Program Files\PostgreSQL\17'
+          uv run python scripts/native_probe/probe.py --prepare --workspace "$env:NATIVE_PROBE_ROOT" --runtime-root "$env:NATIVE_RUNTIME_ROOT" --pg-source 'C:\Program Files\PostgreSQL\17'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build pgvector0.8.2 against the private PostgreSQL copy
         working-directory: native-probe-source/pgvector
         run: |
-          $env:PGROOT = Join-Path $env:NATIVE_PROBE_ROOT 'postgres'
+          $env:PGROOT = Join-Path $env:NATIVE_RUNTIME_ROOT 'postgres'
           nmake /F Makefile.win
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           nmake /F Makefile.win install

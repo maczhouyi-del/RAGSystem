@@ -63,16 +63,23 @@ def private(path: Path, text: str) -> None:
     private_write(path, text)
 
 
-def prepare(root: Path, pg_source: Path) -> None:
-    if platform.system() != "Windows" or root.exists():
+def prepare(root: Path, pg_source: Path, runtime_root: Path) -> None:
+    if platform.system() != "Windows" or root.exists() or runtime_root.exists():
         raise ProbeError("isolated_new_windows_workspace_required")
     root.mkdir(parents=True)
+    runtime_root.mkdir(parents=True)
     original_version = call([str(pg_source / "bin" / "pg_config.exe"), "--version"])
     print("Original PostgreSQL installation executable starts:", original_version.decode().strip())
     # Build only into a copy, never modify the runner's installed PG/service/data.
     for name in ("bin", "lib", "share", "include"):
         shutil.copytree(pg_source / name, root / "postgres" / name)
-    pg = root / "postgres" / "bin"
+        shutil.copytree(pg_source / name, runtime_root / "postgres" / name)
+    unicode_runtime: dict[str, str] = {"status": "PASS"}
+    try:
+        call([str(root / "postgres" / "bin" / "pg_config.exe"), "--version"])
+    except ProbeError as error:
+        unicode_runtime = {"status": "FAIL", "safe_error_code": str(error)}
+    pg = runtime_root / "postgres" / "bin"
     version = call([str(pg / "pg_config.exe"), "--version"]).decode().strip()
     if not version.startswith("PostgreSQL 17."):
         raise ProbeError("postgres_major_mismatch")
@@ -87,19 +94,31 @@ def prepare(root: Path, pg_source: Path) -> None:
             relative = Path(member.replace("\\", "/"))
             if relative.is_absolute() or ".." in relative.parts:
                 raise ProbeError("runtime_archive_path_invalid")
-        z.extractall(root / "garnet")
-    if not (root / "garnet" / "net8.0" / "GarnetServer.exe").is_file():
+        z.extractall(runtime_root / "garnet")
+    if not (runtime_root / "garnet" / "net8.0" / "GarnetServer.exe").is_file():
         raise ProbeError("runtime_binary_missing")
     (root / "prepared.json").write_text(
-        json.dumps({"postgres": version, "garnet": "2.2.1", "garnet_sha256": GARNET_SHA})
+        json.dumps(
+            {
+                "postgres": version,
+                "garnet": "2.2.1",
+                "garnet_sha256": GARNET_SHA,
+                "runtime_root": str(runtime_root),
+                "unicode_runtime": unicode_runtime,
+            }
+        )
     )
     print("Prepared private copied PostgreSQL17 and checksum-verified Garnet2.2.1.")
+
+
+def resources(root: Path) -> Path:
+    return Path(json.loads((root / "prepared.json").read_text())["runtime_root"])
 
 
 def database(root: Path) -> dict[str, object]:
     import psycopg
 
-    pg = root / "postgres" / "bin"
+    pg = resources(root) / "postgres" / "bin"
     data = root / "pgdata"
     password = secrets.token_urlsafe(32)
     pwfile = root / "pg-password.private"
@@ -123,6 +142,8 @@ def database(root: Path) -> dict[str, object]:
             "--locale=C",
         ]
     )
+    if not data.is_dir():
+        raise ProbeError("postgres_unicode_data_path_not_created")
     start = [
         str(pg / "pg_ctl.exe"),
         "-D",
@@ -198,7 +219,7 @@ def database(root: Path) -> dict[str, object]:
             for p in [
                 pg / "postgres.exe",
                 pg / "initdb.exe",
-                root / "postgres" / "lib" / "vector.dll",
+                resources(root) / "postgres" / "lib" / "vector.dll",
             ]
         }
         return {
@@ -243,7 +264,7 @@ def queue(root: Path) -> dict[str, object]:
     selected = port()
     password = secrets.token_urlsafe(32)
     config = root / "garnet.private.json"
-    server = root / "garnet" / "net8.0" / "GarnetServer.exe"
+    server = resources(root) / "garnet" / "net8.0" / "GarnetServer.exe"
     private(
         config,
         json.dumps(
@@ -392,6 +413,8 @@ def queue(root: Path) -> dict[str, object]:
                 "spawn_with_password": "NOT EXECUTED: unsafe commandline credential path",
                 "three_workers_retry_timeout_stop_recovery": (
                     "NOT EXECUTED: workhorse prerequisite failed"
+                    if not executed
+                    else "NOT EXECUTED: one synthetic function is insufficient"
                 ),
             }
         finally:
@@ -406,6 +429,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workspace", type=Path)
     parser.add_argument("--pg-source", type=Path)
+    parser.add_argument("--runtime-root", type=Path)
     parser.add_argument("--prepare", action="store_true")
     parser.add_argument("--rq-worker", action="store_true")
     parser.add_argument("--output", type=Path)
@@ -415,9 +439,9 @@ def main() -> int:
     if args.workspace is None:
         parser.error("--workspace required")
     if args.prepare:
-        if args.pg_source is None:
-            parser.error("--pg-source required")
-        prepare(args.workspace, args.pg_source)
+        if args.pg_source is None or args.runtime_root is None:
+            parser.error("--pg-source and --runtime-root required")
+        prepare(args.workspace, args.pg_source, args.runtime_root)
         return 0
     if args.output is None:
         parser.error("--output required")
@@ -435,13 +459,39 @@ def main() -> int:
         "paid_model_calls": 0,
         "production_code_changed": False,
     }
-    for name, probe in (("database", database), ("queue", queue)):
+    prepared = json.loads((args.workspace / "prepared.json").read_text())
+    report["unicode_runtime_executable"] = prepared["unicode_runtime"]
+    try:
+        report["database"] = database(args.workspace)
+        report["unicode_database_path"] = {"status": "PASS"}
+    except Exception as error:
+        code = str(error) if isinstance(error, ProbeError) else type(error).__name__
+        report["unicode_database_path"] = {"status": "FAIL", "safe_error_code": code}
+        # Independent ASCII data fixture measures DB compatibility only. It
+        # does not silently turn the failed Unicode scenario into a pass.
+        fallback = resources(args.workspace).parent / (
+            "rag-native-ascii-data-" + os.environ.get("GITHUB_RUN_ID", secrets.token_hex(8))
+        )
+        fallback.mkdir()
+        (fallback / "prepared.json").write_text(json.dumps(prepared))
+        try:
+            report["database"] = database(fallback)
+        except Exception as error:
+            code = str(error) if isinstance(error, ProbeError) else type(error).__name__
+            report["database"] = {"status": "FAIL", "safe_error_code": code}
+    for name, probe in (("queue", queue),):
         try:
             report[name] = probe(args.workspace)
         except Exception as error:
             code = str(error) if isinstance(error, ProbeError) else type(error).__name__
             report[name] = {"status": "FAIL", "safe_error_code": code}
-    go = all(report[name]["status"] == "PASS" for name in ("database", "queue"))
+    go = (
+        all(
+            report[name]["status"] == "PASS"
+            for name in ("database", "queue", "unicode_database_path")
+        )
+        and report["queue"].get("three_workers_retry_timeout_stop_recovery") == "PASS"
+    )
     report["decision"] = "GO_PROTOTYPE_ONLY" if go else "NO_GO_PRODUCTION"
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
