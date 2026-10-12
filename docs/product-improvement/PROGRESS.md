@@ -381,3 +381,13 @@
 - 复用现有分支/PR#3，README中英文完整步骤、平台/费用/密钥/恢复/数据保护和人工未验证范围同步。
 - 发布复用现有workflow，限定可信仓库main或现有research分支；必须精确SHA成功CI/Desktop及独立下载/成员hash/上传digest验收。
 - 不改核心/测试/用户数据，不自动合并main。新提交CI和发布结果待实际执行，状态 IN_PROGRESS。
+
+### beta2发布验收闭环
+
+- 状态 PASSED（工程发布）；源码/二进制源 `bd896e26c6789afa1b181fbe04740500d504360a`，应用0.2.0。
+- 精确实现四workflow/14job SUCCESS；发布workflow38258916327及独立安装/成员/服务端digest验收SUCCESS。
+- [v0.2.0-beta.2](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2)已公开，17附件；
+  实际云重新下载全部附件，server digest/size、16条SHA256SUMS、四平台manifest、所有ZIP成员与README/许可证全部PASS。
+- 中英文README完整安装流程位于Release对应源码，离线installation-guides.zip也包含；[实际证据](../installation/beta2-release-evidence.json)。
+- beta1/main/历史失败保留，不自动合并main；人工OS/真实模型 NOT EXECUTED，科研 NOT MEASURED，0付费模型调用。
+- 后续验收记录提交只有文档，不把它的SHA当成已发布bd896e2二进制来源。
