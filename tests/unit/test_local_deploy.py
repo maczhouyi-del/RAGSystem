@@ -3,6 +3,7 @@
 import io
 import json
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -231,6 +232,91 @@ class InstallationSafety(unittest.TestCase):
             )
             with self.assertRaisesRegex(DeployError, "not_ready"):
                 self.deployment.ready(timeout=0)
+
+
+class FirstUseSafety(unittest.TestCase):
+    setUp = InstallationSafety.setUp
+    tearDown = InstallationSafety.tearDown
+
+    def test_presence_snapshot_never_contains_key_or_hash(self):
+        self.deployment.pair("a" * 64)
+        self.deployment.save_key("OPENAI_API_KEY", "UX-MOCK-SECRET-NOT-A-REAL-KEY")
+        result = self.deployment.configuration_status()
+        self.assertTrue(result["existing"])
+        self.assertTrue(result["paired"])
+        self.assertTrue(result["keys"]["OPENAI_API_KEY"])
+        self.assertFalse(result["keys"]["ANTHROPIC_API_KEY"])
+        self.assertNotIn("UX-MOCK-SECRET", json.dumps(result))
+        self.assertNotIn("a" * 64, json.dumps(result))
+
+    def test_invalid_or_empty_key_preserves_previous_secret(self):
+        self.deployment.save_key("OPENAI_API_KEY", "UX-MOCK-OLD-KEY")
+        previous = (self.root / ".runtime-secrets.env").read_bytes()
+        for name, key in [
+            ("OPENAI_API_KEY", ""),
+            ("CUSTOM", "x"),
+            ("OPENAI_API_KEY", "new\nBAD=1"),
+        ]:
+            with self.assertRaisesRegex(DeployError, "configuration_invalid"):
+                self.deployment.save_key(name, key)
+            self.assertEqual((self.root / ".runtime-secrets.env").read_bytes(), previous)
+
+    def test_docker_timeout_has_no_raw_exception_or_key(self):
+        with patch(
+            "scripts.local_deploy.subprocess.run",
+            side_effect=subprocess.TimeoutExpired("UX-MOCK-SECRET", 15),
+        ):
+            with self.assertRaisesRegex(DeployError, "docker_not_running"):
+                self.deployment.call(["docker", "info"], code="docker_not_running", timeout=15)
+
+    def test_windows_wsl_not_ready_has_recovery_code(self):
+        with (
+            patch("scripts.local_deploy.platform.system", return_value="Windows"),
+            patch("scripts.local_deploy.shutil.which", return_value="docker"),
+            patch.object(
+                self.deployment,
+                "call",
+                side_effect=[DeployError("docker_not_running"), DeployError("wsl_not_ready")],
+            ),
+        ):
+            with self.assertRaisesRegex(DeployError, "wsl_not_ready"):
+                self.deployment.dependencies()
+
+    def test_windows_working_linux_docker_does_not_require_wsl(self):
+        with (
+            patch("scripts.local_deploy.platform.system", return_value="Windows"),
+            patch("scripts.local_deploy.shutil.which", return_value="docker"),
+            patch.object(self.deployment, "call", side_effect=[b"linux", b"2.24.1"]) as call,
+            patch(
+                "scripts.local_deploy.shutil.disk_usage",
+                return_value=shutil.disk_usage(self.root)._replace(free=30 * 1024**3),
+            ),
+        ):
+            self.deployment.dependencies()
+            self.assertFalse(any("wsl" in c.args[0] for c in call.call_args_list))
+
+    def test_windows_container_mode_is_not_misreported_as_wsl_failure(self):
+        with (
+            patch("scripts.local_deploy.platform.system", return_value="Windows"),
+            patch("scripts.local_deploy.shutil.which", return_value="docker"),
+            patch.object(self.deployment, "call", return_value=b"windows") as call,
+        ):
+            with self.assertRaisesRegex(DeployError, "docker_linux_containers_required"):
+                self.deployment.dependencies()
+            self.assertEqual(call.call_count, 1)
+
+    def test_low_disk_space_blocks_start_before_configuration(self):
+        with (
+            patch("scripts.local_deploy.shutil.which", return_value="docker"),
+            patch.object(self.deployment, "call", side_effect=[b"linux", b"2.24.1"]),
+            patch(
+                "scripts.local_deploy.shutil.disk_usage",
+                return_value=shutil.disk_usage(self.root)._replace(free=1024),
+            ),
+        ):
+            with self.assertRaisesRegex(DeployError, "disk_space_low"):
+                self.deployment.start()
+            self.assertFalse((self.root / ".env").exists())
 
 
 if __name__ == "__main__":

@@ -21,7 +21,9 @@ jobs:
         working-directory: .
         run: |
           python tests/unit/test_environment_diagnostics.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python scripts/test_diagnostic_launchers.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - run: rustup toolchain install 1.90.0 --profile minimal --component rustfmt,clippy
       - uses: actions/cache@v4
         with:
@@ -50,16 +52,24 @@ jobs:
         working-directory: .
         run: |
           python scripts/build_metadata.py --output frontend/src-tauri/target/release/build-metadata.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python scripts/artifact_manifest.py --bundle frontend/src-tauri/target/release/bundle --metadata frontend/src-tauri/target/release/build-metadata.json --output frontend/src-tauri/target/release/installer-manifest.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Build and exercise native deployment assistant
         working-directory: .
         run: |
           python tests/unit/test_local_deploy.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m pip install --disable-pip-version-check pyinstaller==6.16.0
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -m PyInstaller --onefile --console --name RAGSystem-Setup --distpath deployment-dist --workpath deployment-dist/work scripts/local_deploy.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python scripts/test_setup_binary.py deployment-dist/RAGSystem-Setup.exe
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python scripts/test_native_identity.py --desktop frontend/src-tauri/target/release/scientific-ragagent-desktop.exe --assistant deployment-dist/RAGSystem-Setup.exe --platform windows --architecture x86_64
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python scripts/package_deployment.py --assistant deployment-dist/RAGSystem-Setup.exe --platform windows-x86_64 --output deployment-dist/RAGSystem-deployment-windows-x86_64.zip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         with:
           name: scientific-ragagent-windows-unsigned-${{ github.sha }}

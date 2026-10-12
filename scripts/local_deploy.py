@@ -21,6 +21,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -101,6 +102,62 @@ ADVICE = {
         " securely before continuing."
     ),
 }
+ADVICE.update(
+    {
+        "docker_linux_containers_required": (
+            "请在 Docker Desktop 切换到 Linux containers，然后重新检查。"
+        ),
+        "docker_missing": (
+            "未找到 Docker。安装 Docker Desktop，完成安装并重启电脑后，重新打开助手检查。"
+        ),
+        "docker_not_running": (
+            "Docker 尚未就绪。打开 Docker Desktop，等待"
+            "显示运行中，并切换到 Linux containers，然后重试"
+            "。"
+        ),
+        "wsl_not_ready": (
+            "Windows 的 WSL2 尚未就绪。打开 Docker De"
+            "sktop 的故障排查，按提示启用 WSL2/虚拟化并重启电脑；"
+            "然后重新检查。可用的 Hyper-V 部署无需改用 WSL。"
+        ),
+        "compose_too_old": (
+            "Docker Compose 版本过旧或不可用。更新 Docke"
+            "r Desktop（Linux 更新 Compose 至 2.2"
+            "4+），然后重试。"
+        ),
+        "disk_space_low": (
+            "部署目录所在磁盘可用空间不足 5 GiB。请选择空间充足的目录；"
+            "建议至少 20 GiB，论文和模型还需额外空间。不要删除论文或 "
+            "Docker 数据卷来腾空间。"
+        ),
+        "port_conflict": (
+            "本机 8000 或 8080 端口被其他程序占用。先关闭你确认可"
+            "以停止的其他应用，再重新检查；助手不会强行结束进程。"
+        ),
+        "pairing_required": (
+            "打开桌面程序的连接授权，复制配对哈希并粘贴到助手。这里不能填写 API Key。"
+        ),
+        "not_ready": (
+            "系统尚未就绪。请点击启动/恢复系统；仍失败时检查 Docker "
+            "Desktop 中的服务状态。已有论文、历史和配置会保留。"
+        ),
+        "deployment_failed": (
+            "启动未完成。检查 Docker 的网络访问、可用空间及服务状态后"
+            "重试。首次构建可能需要 10–30 分钟；已有数据保留，勿清理 "
+            "volumes。"
+        ),
+        "configuration_invalid": (
+            "配置格式无效。检查配对哈希或密钥输入，不能包含换行；原配置不会因此清空。"
+        ),
+        "secret_permissions": (
+            "无法限制私有文件权限。将部署 ZIP 解压到你自己的本机可写目录，避免共享目录，然后重试。"
+        ),
+        "gui_unavailable": (
+            "此环境没有可用的图形界面。请使用 RAGSystem-Setup"
+            " --console 或原有命令行操作；数据未修改。"
+        ),
+    }
+)
 
 
 class DeployError(Exception):
@@ -173,10 +230,18 @@ def update_env(path: Path, name: str, value: str) -> None:
 
 
 class Deployment:
-    def __init__(self, root: Path, *, overlay: Path | None = None, project: str = PROJECT):
+    def __init__(
+        self,
+        root: Path,
+        *,
+        overlay: Path | None = None,
+        project: str = PROJECT,
+        progress: Callable[[str], None] | None = None,
+    ):
         if not re.fullmatch(r"scientific-ragagent(?:-[a-z0-9-]+)?", project):
             raise DeployError("configuration_invalid")
         self.project = project
+        self.progress = progress or (lambda message: None)
         self.root = root.resolve()
         self.compose = [
             "docker",
@@ -202,19 +267,24 @@ class Deployment:
         output: Path | None = None,
         input_file: Path | None = None,
         code: str = "deployment_failed",
+        timeout: int = 2700,
     ) -> bytes:
         if output:
             private_write(output, "")
         with open(output, "wb") if output else open(os.devnull, "wb") as target:
             with open(input_file, "rb") if input_file else open(os.devnull, "rb") as source:
-                result = subprocess.run(
-                    args,
-                    cwd=self.root,
-                    env=self.env,
-                    stdin=source,
-                    stdout=target if output else subprocess.PIPE,
-                    stderr=subprocess.DEVNULL,
-                )
+                try:
+                    result = subprocess.run(
+                        args,
+                        cwd=self.root,
+                        env=self.env,
+                        stdin=source,
+                        stdout=target if output else subprocess.PIPE,
+                        stderr=subprocess.DEVNULL,
+                        timeout=timeout,
+                    )
+                except (OSError, subprocess.TimeoutExpired):
+                    raise DeployError(code) from None
         if result.returncode:
             raise DeployError(code)
         return result.stdout or b""
@@ -227,19 +297,58 @@ class Deployment:
             raise DeployError("operating_system_unsupported")
         if not shutil.which("docker"):
             raise DeployError("docker_missing")
-        if (
-            self.call(
-                ["docker", "info", "--format", "{{.OSType}}"], code="docker_not_running"
+        self.progress("正在检查 Docker 是否运行…")
+        try:
+            container_type = self.call(
+                ["docker", "info", "--format", "{{.OSType}}"],
+                code="docker_not_running",
+                timeout=15,
             ).strip()
-            != b"linux"
-        ):
-            raise DeployError("docker_not_running")
-        version = self.dc("version", "--short").decode().strip().lstrip("v")
+        except DeployError:
+            if platform.system() == "Windows":
+                try:
+                    self.call(["wsl", "--status"], code="wsl_not_ready", timeout=15)
+                except DeployError:
+                    raise DeployError("wsl_not_ready") from None
+            raise
+        if container_type != b"linux":
+            raise DeployError("docker_linux_containers_required")
+        self.progress("正在检查 Docker Compose 版本与磁盘空间…")
+        version = (
+            self.dc("version", "--short", code="compose_too_old", timeout=15)
+            .decode()
+            .strip()
+            .lstrip("v")
+        )
         match = re.match(r"(\d+)\.(\d+)", version)
         if not match or tuple(map(int, match.groups())) < (2, 24):
             raise DeployError("compose_too_old")
         if shutil.disk_usage(self.root).free < 5 * 1024**3:
             raise DeployError("disk_space_low")
+
+    def configuration_status(self) -> dict[str, object]:
+        """Read presence only. Never return hashes, key values or dotenv contents."""
+        settings: dict[str, str] = {}
+        for name in (".env", ".runtime-secrets.env"):
+            path = self.root / name
+            if path.exists():
+                for line in path.read_text(encoding="utf-8").splitlines():
+                    key, separator, value = line.partition("=")
+                    if separator:
+                        settings[key] = value.strip().strip("'\"")
+        return {
+            "existing": (self.root / ".env").exists(),
+            "paired": bool(
+                re.fullmatch(r"[a-f0-9]{64}", settings.get("LOCAL_AUTH_TOKEN_HASH", ""))
+            ),
+            "keys": {name: bool(settings.get(name)) for name in sorted(KEY_NAMES)},
+        }
+
+    def save_key(self, name: str, value: str) -> None:
+        if name not in KEY_NAMES or not value.strip():
+            raise DeployError("configuration_invalid")
+        self.initialize()
+        update_env(self.root / ".runtime-secrets.env", name, value.strip())
 
     def initialize(self) -> None:
         path = self.root / ".env"
@@ -277,7 +386,7 @@ class Deployment:
 
     def ports(self) -> None:
         owned: set[int] = set()
-        listing = self.dc("ps", "--format", "json").decode().strip()
+        listing = self.dc("ps", "--format", "json", timeout=15).decode().strip()
         records = (
             json.loads(listing)
             if listing.startswith("[")
@@ -317,7 +426,7 @@ class Deployment:
             try:
                 with client.open("http://127.0.0.1:8000/api/ready", timeout=3) as response:
                     value = json.loads(response.read(65536))
-                containers = self.dc("ps", "--format", "json").decode().strip()
+                containers = self.dc("ps", "--format", "json", timeout=15).decode().strip()
                 records = (
                     json.loads(containers)
                     if containers.startswith("[")
@@ -346,17 +455,19 @@ class Deployment:
             time.sleep(2)
 
     def start(self, *, build: bool = True) -> None:
+        self.progress("检查安装条件；已有数据与配置会保留。")
         self.dependencies()
         self.initialize()
         text = (self.root / ".env").read_text()
         match = re.search(
-            r"^(?:LOCAL_AUTH_TOKEN_HASH|WEB_AUTH_TOKEN_HASH)=['\"]?([a-f0-9]{64})['\"]?\s*$",
+            ("^(?:LOCAL_AUTH_TOKEN_HASH|WEB_AUTH_TOKEN_HASH)=['\\\"]?([a-f0-9]{64})['\\\"]?\\s*$"),
             text,
             re.M,
         )
         if not match:
             raise DeployError("pairing_required")
         self.ports()
+        self.progress("正在下载/构建并启动系统（首次约 10–30 分钟）。请保持 Docker 运行。")
         print(
             "Starting database, migration, API, three workers and Web. First b"
             "uild can take 10–30 minutes."
@@ -367,7 +478,9 @@ class Deployment:
         else:
             args.append("--no-build")
         self.dc(*args)
+        self.progress("正在检查数据库初始化、后台任务与桌面连接…")
         self.ready()
+        self.progress("基础服务已就绪。回到桌面连接授权，再配置模型；尚未调用模型测试。")
         print(
             "PASS: local infrastructure ready. Model inference/real scientific"
             " quality NOT MEASURED."
@@ -547,7 +660,8 @@ def wizard(deployment: Deployment) -> None:
     while True:
         choice = input(
             "1 检查 Check  2 配对并启动 Pair/Start  3 启动 Start  4 停止 Stop  5 API密钥 Se"
-            "cret  6 备份 Backup  7 升级 Upgrade  8 卸载容器(保留数据) Uninstall  0 Exit\n>"
+            "cret  6 备份 Backup  7 升级 Upgrade  8 卸载容器(保留数据) Uninstall  "
+            "9 Web配对  0 Exit\n>"
             " "
         ).strip()
         if choice == "0":
@@ -613,6 +727,8 @@ def wizard(deployment: Deployment) -> None:
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "action",
@@ -638,6 +754,15 @@ def main() -> int:
     parser.add_argument("--verifier")
     parser.add_argument("--backup-directory", type=Path)
     parser.add_argument("--confirm-empty-restore", action="store_true")
+    parser.add_argument("--console", action="store_true", help="Use the original console wizard")
+    parser.add_argument(
+        "--gui", action="store_true", help="Open graphical setup (Windows supported)"
+    )
+    parser.add_argument(
+        "--gui-smoke",
+        action="store_true",
+        help="Native CI GUI startup check; no Docker/model calls",
+    )
     args = parser.parse_args()
     root = args.directory or (
         Path(sys.executable).parent
@@ -661,7 +786,13 @@ def main() -> int:
                 )
             )
         elif not args.action:
-            wizard(deployment)
+            if args.gui or args.gui_smoke or (platform.system() == "Windows" and not args.console):
+                from setup_gui import launch
+
+                if not launch(deployment, smoke=args.gui_smoke):
+                    raise DeployError("gui_unavailable")
+            else:
+                wizard(deployment)
         elif args.action == "check":
             deployment.dependencies()
             deployment.ready(timeout=0)

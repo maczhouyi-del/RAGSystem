@@ -14,51 +14,153 @@ This copy retains the original commit history and MIT license. The
 the migration starts from its `fix/engineering-hardening` commit `df75bdd`.
 Historical CI and installer evidence links still refer to runs in that repository.
 
-## Install the beta
+## Download, install and first use
 
-Download **[v0.2.0-beta.1](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.1)** from GitHub Releases. The native application version is **0.2.0**.
-Choose a desktop installer **and the deployment ZIP for the same platform**. The installer is the client;
-the native setup assistant starts PostgreSQL/pgvector, Redis, API, three workers and Web through Docker.
-**Docker is required. Host Python, Node.js, Rust and Git are not required for packaged installation.**
+Download **[v0.2.0-beta.2 from GitHub Releases](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2)**.
+The application version is **0.2.0**. This beta includes the Windows graphical deployment assistant and first-model wizard;
+previous beta1 retains its console assistant. Use the client and deployment ZIP from the same Release.
 
-| Platform | Desktop installer | Matching deployment package |
+**Install both the desktop client and its backend.** The desktop installer contains the client. The deployment assistant
+uses Docker to start PostgreSQL/pgvector, Redis, API, three workers and Web. Packaged users need no host Python, Node.js,
+Rust or Git and do not edit `.env`, run Compose commands or edit Agent YAML. **Docker and Internet access for initial downloads remain required.**
+
+### 1. Download matching files
+
+| Platform | Desktop installer (choose one) | Required deployment ZIP |
 | --- | --- | --- |
-| Windows 11 x64 | MSI or EXE (choose one) | `RAGSystem-deployment-windows-x86_64.zip` |
+| Windows 11 x64 | MSI or installer EXE | `RAGSystem-deployment-windows-x86_64.zip` |
 | macOS Apple Silicon | aarch64 DMG | `RAGSystem-deployment-macos-aarch64.zip` |
 | macOS Intel | x64 DMG | `RAGSystem-deployment-macos-x86_64.zip` |
 | Linux x64 (Ubuntu 24.04) | deb or AppImage | `RAGSystem-deployment-linux-x86_64.zip` |
 
-1. Download the matching files and compare their SHA256 with the Release's `SHA256SUMS.txt`.
-   `release-manifest.json` records the actual build SHA, platform, version and checksums.
-2. Install Docker Desktop on Windows/macOS, or Docker Engine with Compose ≥2.24 on Linux.
-   Start Docker; Windows requires Linux containers and the prerequisites in Docker's official guide.
-3. Install the desktop client. Unpack the deployment ZIP into a permanent, user-writable directory.
-4. Open the desktop's Connection authorization panel and copy its nonsecret pairing hash.
-   Run `RAGSystem-Setup.exe` (Windows) or `./RAGSystem-Setup` (macOS/Linux), select **2 Pair and start**,
-   and paste the hash. The assistant checks prerequisites and initializes the complete local backend.
-5. Use the assistant's hidden **API key** input, restart services, then configure provider/model roles
-   in Settings. Import PDF files, wait for `indexed`, and use RAG or Research; export reports from results.
-   Real model calls may incur fees. Local embedding/reranker weights download on first use.
+Expand **Assets** on the Release and download both files, `SHA256SUMS.txt` and `release-manifest.json`.
+Public Release assets do not require Actions Artifact login or depend on its retention period.
+The manifest records the actual source SHA, version, platform, size and SHA256. Installer filename spaces become underscores; bytes remain unchanged.
+Compare hashes; Windows PowerShell supports `Get-FileHash file-path -Algorithm SHA256`.
+`installation-guides.zip` contains both READMEs, detailed guides, evidence and third-party licenses for offline reading.
 
-[Complete installation and first-use guide](docs/installation/README.md) ·
-[Backup, upgrade, restore and uninstall](docs/installation/data-and-upgrades.md) ·
-[Troubleshooting](docs/installation/troubleshooting.md) ·
-[Local scientific evaluation after installation](docs/installation/local-evaluation.md)
+Recommended: **16 GB RAM and at least 20 GB free disk**, with extra space for papers/models.
+The assistant checks at least 5 GiB on the deployment drive; also check Docker's virtual disk.
+Initial backend construction normally takes 10–30 minutes depending on your network/computer.
+Packages are unsigned and not macOS-notarized. Verify their source/hashes and follow OS/organisation policy; do not disable security protections.
 
-Recommended: **16 GB RAM and at least 20 GB free disk**, plus model/paper storage.
-First backend construction requires Internet access. Web remains available at `http://127.0.0.1:8080`;
-use the assistant's separate **9 Web pairing** option. Closing the desktop does not stop the backend;
-stop it with the assistant. Uninstalling containers retains all five data volumes. Never use volume deletion to repair an installation.
-API keys are saved in private runtime files; pairing credentials use the OS vault. Do not put keys in reports or backups.
+### 2. Install on Windows 11
 
-This is an **unsigned pre-release**, without macOS notarization. Native Windows/macOS ARM64/Intel/Linux builds
-and automated engineering checks are recorded in CI; **human Windows 11/macOS/Linux installation is NOT EXECUTED**.
-Engineering end-to-end tests use **MOCK models**, real PostgreSQL/Redis and real Docling Native PDF parsing.
-**Real scientific quality is NOT MEASURED**; TASK-17 and TASK-19 scientific acceptance remain blocked pending user papers,
-human gold and approved models/budgets. MOCK results do not establish Research superiority over RAG.
-Windows/Linux ARM64 and other Linux distributions are NOT EXECUTED. See the Release notes and
-[engineering evidence](docs/product-improvement/task-19-evidence.json) for actual results and limits;
-[earlier CI artifact delivery](docs/product-improvement/task-18-delivery.md) retains its original build SHA/checksums.
+1. Follow the [official Docker Windows guide](https://docs.docker.com/desktop/setup/install/windows-install/).
+   Complete required administrator actions, WSL2/virtualisation setup and reboots. Check Docker licensing/subscription terms.
+   Open Docker Desktop, wait until ready and use **Linux containers**. A working Hyper-V/Linux Docker setup need not switch to WSL.
+2. Double-click the MSI or installer EXE to install **Scientific RAGAgent**. Install missing WebView2 using installer/Microsoft guidance.
+3. Unpack the deployment ZIP's complete `RAGSystem` folder into a permanent private writable location,
+   such as `C:\Users\your-name\RAGSystem`. Avoid Program Files, shared drives and temporary caches; retain hidden files.
+4. Open the desktop client and double-click **`RAGSystem-Setup.exe`** in that folder. Windows opens the five-step graphical wizard.
+
+### 3. Complete the five deployment steps
+
+1. **Check prerequisites**: check Docker/WSL when applicable, container mode, Compose, disk and ports.
+   Follow the explanation and check again after repair. The assistant does not install Docker or kill conflicting processes.
+2. **Pair local authorization**: open the desktop's Connection authorization panel, copy its pairing hash and save it in the assistant.
+   Copy manually if clipboard access fails. This is not your model API key; the desktop bearer stays in Windows Credential Manager.
+   Keep existing pairing unless explicitly replacing it.
+3. **Save a private key**: select OpenAI, DeepSeek or Anthropic and enter your key in the masked native field.
+   Saving clears the field and exposes presence only. Existing keys require replacement confirmation; local/later configuration can skip.
+   For OpenAI-compatible services choose OpenAI in the assistant (`OPENAI_API_KEY`).
+4. **Start/recover the system**: acknowledge that startup may resume existing queued jobs and their previously authorised costs.
+   The assistant starts the database/Redis, applies migrations, starts API/three workers/Web and checks readiness.
+   Keep the window open during initial construction. Retry after following a safe error message; never reset data to recover startup.
+5. **Begin using the desktop**: connect and check authorization, then follow the first-use progress and Next button.
+   Infrastructure readiness does not prove model inference. A new installation does not automatically submit model tests.
+
+On later launches start Docker and use the assistant's **existing configuration/start/recover** shortcut.
+Pairing and private keys need not be entered again.
+
+### 4. Configure your first model
+
+1. Open **Settings → first-model configuration** and choose a provider, an account-accessible chat model and any required API base.
+   Preset names are suggestions, not entitlement checks. Do not enter API keys into this desktop/web form.
+2. Save and explicitly confirm the same default model for Supervisor, Retriever, Analyst and Reviewer.
+   Advanced settings retain independent role editing. Existing mappings are read first and never overwritten automatically;
+   the shortcut does not change embedding/reranker or old vector indexes.
+3. After saving a key in the native assistant, start/recover to reload it into containers, then refresh configuration/key presence.
+   Refresh does not test models.
+4. Choose directory connection or actual inference testing and confirm its content/cost notice before sending any request.
+   Directory tests generate no answer. Inference tests send a fixed instruction, not papers/chats, and may incur fees.
+   Failures never automatically retry paid requests; reopening settings never tests automatically.
+
+| State | What it proves |
+| --- | --- |
+| Configuration saved | Server saved role/provider/model mapping, not account availability |
+| Key present | Private runtime variable exists, not key validity; local models may need no key |
+| Connection succeeded | Model directory responds, not successful inference |
+| Actual inference passed | This fixed instruction passed, not scientific answer quality |
+
+Some compatible services lack a model directory. You may explicitly confirm a separate inference test.
+Replace rejected keys in the native assistant and start to reload them; change unavailable model names/providers in Settings.
+Test advanced roles separately when they use different models.
+Ollama needs separate installation/model loading. Docker Desktop may access the host at `http://host.docker.internal:11434`;
+container `localhost` refers to the container. Linux host routing needs separate setup. Do not expose models/databases publicly.
+
+### 5. Import your first paper and ask a question
+
+1. Follow Next to **Knowledge Base** and upload a PDF you are entitled to use.
+2. Watch parsing/indexing and wait for **indexed**. Default local embedding/reranker weights download on first use.
+   Repair network/disk/cache issues and retry without deleting volumes or mixing index dimensions.
+3. Ask in **RAG**, or choose **Research**. Real calls may cost money; inspect citations, paper locations and evidence.
+4. Export reports from results. Reopen and connect to the same local system to retrieve papers and chat history.
+
+### 6. macOS, Linux and Web
+
+On macOS choose matching CPU DMG/ZIP and follow the [Docker macOS guide](https://docs.docker.com/desktop/setup/install/mac-install/).
+Linux x64 needs Docker Engine + Compose ≥2.24, its desktop WebView/Secret Service prerequisites, and deb or AppImage installation;
+AppImage may require distribution-specific FUSE compatibility. Follow local policy for unsigned/notarized-app warnings.
+
+Unpack into a permanent private writable folder and run the native `./RAGSystem-Setup` there (no host Python required).
+macOS/Linux retain console menus: **2 Pair and start** with the desktop hash, **5 hidden API-key input**, then **3 Start** to reload keys.
+Use the same model wizard and PDF/question flow. Windows GUI support does not establish GUI support on these platforms.
+
+Web remains at `http://127.0.0.1:8080`. Use **9 Web pairing** in the console helper to set a separate credential, then authorize Web.
+On Windows open a terminal in the deployment folder and run `.\RAGSystem-Setup.exe --console` for these menus.
+Web authentication remains required; a model API key is not a pairing credential.
+
+### 7. Recover from common failures
+
+| Problem | Next action |
+| --- | --- |
+| Docker missing/stopped | Install/open Docker, wait for readiness, check again |
+| WSL/container mode | Follow official virtualisation/WSL/reboot instructions; switch to Linux containers |
+| Ports 8000/8080 occupied | Stop only a conflicting application you own; the assistant does not kill processes or connect to unfamiliar APIs |
+| Low disk/download failure | Check both deployment drive and Docker virtual disk plus approved network/proxy settings; retain volumes and TLS verification |
+| API/database/worker unavailable | Inspect Diagnostics/safe helper error codes, repair Docker service and start/recover without resetting data |
+| Key rejected/model unavailable | Replace key in native helper and start, or change model in Settings; refresh and explicitly confirm a new test |
+| Model loading/PDF indexing fails | Check model source, cache permissions, space and PDF encryption/corruption; scanned PDFs may require OCR/layout models |
+
+Report only version, build SHA, safe error codes and redacted symptoms, not keys/private env/raw Docker/provider logs or paper contents.
+See [troubleshooting](docs/installation/troubleshooting.md) for detail.
+
+### 8. Stop, back up, upgrade and uninstall
+
+Closing the desktop keeps the backend running. Stop through the GUI or console **4 Stop**; data remains.
+Five Docker named-volume categories store papers, vectors/metadata/chats, configuration, queues and model cache.
+OS vaults hold pairing credentials; `.env` and `.runtime-secrets.env` remain in the original deployment folder.
+Keys stay private and do not enter frontend storage, reports or backups.
+
+- **Back up** after all imports/questions/Research finish using **6 Backup**, retaining its complete manifest.
+  Backups include database/PDF/nonsecret settings, not keys/queue/model weights; protect private scientific data.
+- **Upgrade** only after backup. Unpack a new ZIP into a temporary folder, verify it, then update program files in the original folder.
+  Preserve private env files, project name and all five volumes. **7 Upgrade** builds/migrates only after a successful backup;
+  failure retains data, without automatic DB downgrade. DB major-version upgrades need separate planning.
+- **Uninstall**: the desktop uninstaller removes the client. **8 Uninstall containers** requires explicit `KEEP DATA` and retains volumes/private files.
+  Reinstall using the same project to recover history. Do not use Docker Delete volumes/Clean/Purge to repair an installation.
+- **Restore on another computer** only into a separate empty environment from your own complete backup; re-pair and re-enter keys.
+  See [data, backup, upgrade, restore and uninstall](docs/installation/data-and-upgrades.md).
+
+### Verification scope
+
+See [installation engineering evidence](docs/installation/first-use-evidence.json).
+Automated engineering uses **MOCK models**, real PostgreSQL/Redis and Docling Native PDF parsing.
+**Human Windows11/macOS/Linux installation and real user models/weight downloads are NOT EXECUTED; scientific quality is NOT MEASURED.**
+Windows/Linux ARM64 and other Linux distributions are unverified. No Research-over-RAG superiority is assumed.
+Complete the [Windows11 manual checklist](docs/installation/windows-11-checklist.md) and reuse
+[existing local scientific evaluation tools](docs/installation/local-evaluation.md) with your own approved papers/models.
 
 ## Developer source setup
 

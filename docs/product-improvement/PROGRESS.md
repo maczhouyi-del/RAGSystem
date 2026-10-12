@@ -345,6 +345,8 @@
 
 ## 测试版 Release 与 main 合并实录（2026-10-10）
 
+
+
 - 用户明确授权发布测试版本和合并 main，覆盖此前限制；未启动真实科研评测。
 - README 同步提交 `2fe9abfa9be832910411e1acb370e999a625dd21`：Push CI38057271660、PR CI38057275005、Push Desktop38057271698、PR Desktop38057275002、PR Installer verification38057275029 全部SUCCESS，15/15实际job通过。
 - [PR#1](https://github.com/maczhouyi-del/RAGSystem/pull/1) 正常merge，main安装源 `717ac44d2105ef152371a0ead4f4ea6a49c3177e`。Push CI38057950840、Desktop38057950832、Installer verification38057950816全部SUCCESS，8/8实际job通过。后者校验原817交付物，发布流程另行校验717新产物，不混用哈希。
@@ -353,3 +355,39 @@
 - 人工恢复使用GitHub标准REST实际Release ID408997976；先实际下载全部17附件，逐一核对server digest/size、16条SHA256SUMS、6安装器和4部署ZIP的manifest/source身份，再按ID公开Pre-release，并核查tag准确指向717。没有修改安装文件/哈希或移动tag。
 - 发布自动化修复为分页列出草稿并按唯一tag定位实际ID，再按ID核查/公开；保留所有source/CI/hash门禁。修复的完整发布工作流未再次执行，以免重复创建既有beta；实际接口定位与附件校验已验证。
 - Docker必需、未签名/未notarize；人工操作系统安装NOT EXECUTED，TASK-17和19科研仍BLOCKED/NOT MEASURED。交付后暂停等待本地反馈，不自动发起付费科研测试。
+
+## 安装与首次配置体验改造（2026-10-11，独立于原 TASK 验收）
+
+- 用户要求不创建新分支；复用 `codex/research-product-improvement`，基线 main `48088d2`，PR #3。
+- 阶段提交：审计 `79f15ab`、Windows 图形部署 `d5967c4`、模型/首次使用 `c68aca7`、用户文档 `780974b`。
+- 已实现：复用原部署助手的五步 Tk 引导、固定安全诊断/重试、已有配置识别；服务商单模型确认映射四角色；
+  配置/密钥/目录连接/固定推理四种状态，快捷及高级测试均需确认费用；首次步骤/下一步/配对哈希复制。
+  API Key 只经原生私有 runtime，不新增 IPC 权限/监听服务，不改核心图/数据库/五卷。
+- 实际本地：1010 后端 PASS（含277真实PG、0失败/跳过），Ruff/mypy PASS；npm ci/lint/check/build PASS、
+  131 Playwright/19 transport PASS。初次目录错误浏览器未启动及可访问名称失败保留并修正，未删除断言。
+- CI：修正实现 `479872cec0742aefbf9d3922954854dc49d07233` 的 Push CI38150671378、PR CI38150674289、
+  Push Desktop38150671420、PR Desktop38150674286 全部 completed/SUCCESS，14/14适用job成功。
+  已读取两份原生日志，Windows 打包 GUI 冒烟明确 PASS；新 Windows 退出码门禁生效。
+  工程状态 PASSED；[证据与四平台实际Artifact/校验值](../installation/first-use-evidence.json)。
+- 原生日志纠偏：780974b Windows job 汇总 SUCCESS，但 packaged GUI 断言实际 FAILED，PowerShell 后续命令掩盖退出码。
+  原日志/作业保留；修复 ComboBox/Entry 继承导致的输入控件计数，并为多命令 Windows 步骤逐条传播退出码。
+  旧 GUI 失败不被改写；修正后实际原生结果成功，才关闭本次验收。
+- 原 TASK-00～19 历史验收及失败保留。已发布 beta1 无新 GUI；新功能按同构建SHA的 PR Artifact 测试。
+  Windows11 人工/真实用户模型与下载 NOT EXECUTED，科研 NOT MEASURED；不自动调用付费模型或重启科研评测。
+
+## 用户追加：Release交付与README完整安装教程（2026-10-12）
+
+- 用户明确要求以Release发布安装包，安装指南写入README；准备新Pre-release v0.2.0-beta.2，保留beta1。
+- 复用现有分支/PR#3，README中英文完整步骤、平台/费用/密钥/恢复/数据保护和人工未验证范围同步。
+- 发布复用现有workflow，限定可信仓库main或现有research分支；必须精确SHA成功CI/Desktop及独立下载/成员hash/上传digest验收。
+- 不改核心/测试/用户数据，不自动合并main。新提交CI和发布结果待实际执行，状态 IN_PROGRESS。
+
+### beta2发布验收闭环
+
+- 状态 PASSED（工程发布）；源码/二进制源 `bd896e26c6789afa1b181fbe04740500d504360a`，应用0.2.0。
+- 精确实现四workflow/14job SUCCESS；发布workflow38258916327及独立安装/成员/服务端digest验收SUCCESS。
+- [v0.2.0-beta.2](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2)已公开，17附件；
+  实际云重新下载全部附件，server digest/size、16条SHA256SUMS、四平台manifest、所有ZIP成员与README/许可证全部PASS。
+- 中英文README完整安装流程位于Release对应源码，离线installation-guides.zip也包含；[实际证据](../installation/beta2-release-evidence.json)。
+- beta1/main/历史失败保留，不自动合并main；人工OS/真实模型 NOT EXECUTED，科研 NOT MEASURED，0付费模型调用。
+- 后续验收记录提交只有文档，不把它的SHA当成已发布bd896e2二进制来源。

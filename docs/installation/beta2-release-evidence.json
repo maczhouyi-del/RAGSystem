@@ -1,0 +1,100 @@
+{
+  "status": "PASSED_RELEASE_ENGINEERING",
+  "release_tag": "v0.2.0-beta.2",
+  "release_url": "https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2",
+  "release_id": 410659433,
+  "published_at_utc": "2026-10-12T13:54:07Z",
+  "source_commit": "bd896e26c6789afa1b181fbe04740500d504360a",
+  "application_version": "0.2.0",
+  "source_branch": "codex/research-product-improvement",
+  "pr_url": "https://github.com/maczhouyi-del/RAGSystem/pull/3",
+  "workflows": [
+    {
+      "id": 38257610512,
+      "name": "CI",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "job_count": 3,
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38257610512"
+    },
+    {
+      "id": 38257621903,
+      "name": "CI",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "job_count": 3,
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38257621903"
+    },
+    {
+      "id": 38257610539,
+      "name": "Desktop",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "success",
+      "job_count": 4,
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38257610539"
+    },
+    {
+      "id": 38257621935,
+      "name": "Desktop",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "job_count": 4,
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38257621935"
+    },
+    {
+      "id": 38258916327,
+      "name": "Publish verified beta",
+      "event": "workflow_dispatch",
+      "status": "completed",
+      "conclusion": "success",
+      "job_count": 1,
+      "url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38258916327"
+    }
+  ],
+  "public_asset_download_verification": {
+    "verification": "PASS",
+    "release_url": "https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2",
+    "release_id": 410659433,
+    "source": "bd896e26c6789afa1b181fbe04740500d504360a",
+    "assets_downloaded": 17,
+    "checksum_lines": 16,
+    "all_native_and_deployment_files": true,
+    "all_deployment_member_hashes": true,
+    "private_test_files_excluded": true,
+    "readme_installation_guides_and_licenses": true,
+    "environment": "Actual cloud downloads of public Release assets, no native installer execution",
+    "manual_windows11": "NOT EXECUTED",
+    "scientific_quality": "NOT MEASURED",
+    "sha256": {
+      "RAGSystem-deployment-macos-x86_64.zip.sha256": "d714db098a259f7897fec61727e74d83554441a7c832874402b2bce3aade3948",
+      "Scientific_RAGAgent_0.2.0_x64.dmg": "75c41cfec36d1ca255216405a32ad0469c66856f84577ec46aa2692539377d7e",
+      "RAGSystem-deployment-windows-x86_64.zip": "5e6f6d25db5c2babc93f4d651c327469865dc3328caa534ea0b1c0f146b79d12",
+      "RAGSystem-deployment-linux-x86_64.zip.sha256": "86600ea9e7f65514717bc0b92ca4b34d282f30384656bfe1c4e36cd92924631d",
+      "Scientific_RAGAgent_0.2.0_x64_en-US.msi": "e7fb8e38904821afd21e7b2692a5e4e84c8e6db404dd4138eae0de9814b5873b",
+      "RAGSystem-deployment-linux-x86_64.zip": "62d30fff3923a5bc2a149c7f15d28089def41aad915f25ddd3136dd14a2c1716",
+      "Scientific_RAGAgent_0.2.0_aarch64.dmg": "e23a7805f533a982549611db921949086784f90a0171bb19f74853dd9f4676da",
+      "SHA256SUMS.txt": "83a6adac8035c016716ad371a505b3e9d5f079a0d50c9614cdc62d63efb40575",
+      "Scientific_RAGAgent_0.2.0_amd64.deb": "cb53d9d9664204954499b32220d5e156cceb6cb8ab670a298fb3d097d5f59761",
+      "Scientific_RAGAgent_0.2.0_amd64.AppImage": "b917c3eb581601f80b97dfa6cc9249a8187f8afb697fb42949941cd526627ae5",
+      "installation-guides.zip": "c64e564696f6b16ff853b083be16cd95ab5154bbca4011064a76c943a78a4ac7",
+      "RAGSystem-deployment-macos-aarch64.zip.sha256": "b9e6a30793076bd3f3e7ec1166bab45681465549002b359b9e9791e43cf35b6e",
+      "release-manifest.json": "7e93958ae51f1ea0838ac73a0d4d0c002f75e98817c0a14aefdb59a5675862bb",
+      "RAGSystem-deployment-macos-x86_64.zip": "894d1490b474117cf4c525a21fea4bd2ff5d2018ee792f20a7a7a8c3ed7c56da",
+      "Scientific_RAGAgent_0.2.0_x64-setup.exe": "ba401476f0b30cbe335a14429e3bf218789f54a65a6fcf3d093a43b29941d259",
+      "RAGSystem-deployment-windows-x86_64.zip.sha256": "8917400c7a34e963c5784432b02f8856238f928c7f78b30e6edb2785439fedf2",
+      "RAGSystem-deployment-macos-aarch64.zip": "9cee2a4a6b77f4ceb22b9712a202da2bfb983e58f1c104fee0969fc8d4e011d2"
+    }
+  },
+  "publication_log_sha256": "faea571b750349e352b28fd5307eca5673641e60988d8c050c8a356e80ccba6e",
+  "readme_cn": "https://github.com/maczhouyi-del/RAGSystem/blob/v0.2.0-beta.2/README.zh-CN.md#下载安装与首次使用",
+  "readme_en": "https://github.com/maczhouyi-del/RAGSystem/blob/v0.2.0-beta.2/README.md#download-install-and-first-use",
+  "old_beta1_preserved": true,
+  "main_merged": false,
+  "human_installation": "NOT EXECUTED",
+  "scientific_quality": "NOT MEASURED",
+  "paid_model_calls": 0
+}

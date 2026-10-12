@@ -62,7 +62,8 @@ function BackendStatus() {
   }, [check]);
   const text = {
     checking: "正在检查本机后端…",
-    offline: "本机后端不可用，请先启动 FastAPI、数据库与任务服务。",
+    offline:
+      "本机后端不可用，请打开部署助手按引导启动系统；失败时按助手提示恢复。",
     live: "后端在线，授权、数据库或任务服务尚未就绪。",
     ready: "本机后端与任务服务就绪 · 模型配置与推理需另行验证",
   }[state];

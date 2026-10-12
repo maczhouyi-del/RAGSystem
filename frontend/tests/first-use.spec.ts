@@ -180,7 +180,7 @@ test("blank user follows authorization, model check, upload, index and first que
   await expect(
     guide.getByRole("button", { name: "打开首次问答" }),
   ).toBeDisabled();
-  await guide.getByRole("button", { name: "前往本机授权" }).click();
+  await guide.getByRole("button", { name: "下一步：连接本机授权" }).click();
   await page.getByLabel("Web 本机凭据").fill(token);
   await page.getByRole("button", { name: "连接并检查授权" }).click();
   await expect(guide.getByText("本机授权已通过")).toBeVisible();
@@ -192,7 +192,7 @@ test("blank user follows authorization, model check, upload, index and first que
     page.getByRole("heading", { name: "Provider Settings" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("button", { name: "连接测试（可能产生少量费用）" }),
+    page.getByRole("button", { name: "推理测试（可能产生少量费用）" }),
   ).toHaveCount(4);
   // Simulates runtime credential configuration, never claims the UI saved keys.
   fixture.modelsConfigured = true;
@@ -315,6 +315,13 @@ test("offline backend shows recovery and then recovers without resetting data", 
   await expect(
     guide.getByRole("button", { name: "打开首次问答" }),
   ).toBeDisabled();
+  await guide
+    .getByRole("button", { name: "下一步：查看安装与启动步骤" })
+    .click();
+  await expect(
+    guide.getByRole("region", { name: "安装与启动步骤" }),
+  ).toContainText("RAGSystem-Setup.exe");
+  expect(fixture.writes).toEqual([]);
   fixture.offline = false;
   await guide.getByRole("button", { name: "刷新引导状态" }).click();
   await expect(

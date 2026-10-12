@@ -1,5 +1,18 @@
 /** Recovery guidance. Unrecognized remote text is never echoed. */
 const guidance: Record<string, string> = {
+  provider_credential_rejected:
+    "服务商拒绝了密钥。核对服务商和账户权限，在部署助手重新保存密钥并启动，再主动测试。",
+  provider_network_failed:
+    "无法连接模型服务。检查网络、代理、防火墙及服务地址；恢复后主动重试，不会自动收费重试。",
+  provider_rate_limited:
+    "服务商限制了请求。检查账户额度与限流，稍后再主动测试。",
+  provider_catalog_unavailable:
+    "此服务地址不支持模型目录。核对 /v1 地址；连接状态不能据此验证，可由你确认后进行少量付费推理测试。",
+  provider_catalog_invalid:
+    "模型目录格式无法读取。核对服务商兼容性；没有执行推理，请检查服务地址。",
+  provider_connection_failed:
+    "服务没有正常响应。检查服务状态、地址和网络后重试；目录连接失败不等于模型已推理失败。",
+
   local_export_not_allowed: "导出格式或任务位置不合法，请重新读取任务。",
   local_export_unavailable: "报告暂不可导出，请读取最新状态并检查后端。",
   local_export_write_failed:
@@ -44,8 +57,10 @@ const guidance: Record<string, string> = {
     "模型请求或响应格式失败，请检查服务商连通性与模型配置。",
   embedding_key_missing: "嵌入服务缺少凭据，请检查后端环境。",
   embedding_failed: "嵌入请求失败，请检查嵌入模型服务。",
-  local_embedding_failed: "本地嵌入模型加载或推理失败，请检查权重与资源。",
-  reranking_failed: "本地重排模型加载或推理失败，请检查权重与资源。",
+  local_embedding_failed:
+    "本地嵌入模型加载或推理失败。检查磁盘/内存、模型缓存权限及下载网络，恢复后在文献列表重试索引；不要清空数据卷。",
+  reranking_failed:
+    "本地重排模型加载或推理失败。检查模型缓存、网络和内存；恢复后主动重试问答，不要删除论文或索引。",
   model_revision_resolution_failed:
     "无法解析模型版本，请检查权重可达性与固定 revision。",
   local_model_artifacts_changed:

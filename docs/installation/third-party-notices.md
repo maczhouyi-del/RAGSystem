@@ -4,6 +4,10 @@ Scientific RAGAgent源码为MIT。原生部署助手由未修改的PyInstaller6.
 
 - [PyInstaller许可及bootloader exception](https://pyinstaller.org/en/stable/license.html)
 - [Python许可](https://docs.python.org/3/license.html)
+- 新图形助手随原生包使用 Tcl/Tk。已核查 Tcl/Tk 8.6 上游 `license.terms` 的宽松分发许可，
+  保留完整版权/免责条款：[Tcl](third-party/TCL-LICENSE.txt)、[Tk](third-party/TK-LICENSE.txt)。
+  原文来源：[Tcl](https://github.com/tcltk/tcl/blob/core-8-6-branch/license.terms)、
+  [Tk](https://github.com/tcltk/tk/blob/core-8-6-branch/license.terms)。不将其重新标为本项目 MIT。
 - [OpenSSL许可](https://www.openssl.org/source/license.html)
 - Docker Desktop有单独商业/订阅条款；不包含在客户端/部署助手中。
 - PostgreSQL/pgvector、Redis7.4容器及模型权重由用户Docker/后端从上游下载，不把它们的源码或权重重新标为MIT。Redis7.4与各权重需遵守其独立许可。

@@ -1,11 +1,16 @@
 # 本地测试版安装与使用
 
+新版安装入口为 [v0.2.0-beta.2 Release](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2)。
+完整安装流程直接写在发布源码的 `README.zh-CN.md` / `README.md`；下载附件 `installation-guides.zip` 可离线阅读。
+Windows 新版默认五步图形助手；[详细步骤](first-use-guide.md)、[Windows11人工表](windows-11-checklist.md)和[审计](first-use-audit.md)继续保留。
+旧 beta1 的控制台助手保留，不与新版包/校验值混用。
+
 这套交付由**桌面安装包 + 对应平台的部署 ZIP**组成。桌面安装包本身只有客户端。
 必须安装 Docker Desktop（Windows/macOS），或 Docker Engine + Compose v2（Linux），
 并由部署助手启动 PostgreSQL/pgvector、Redis、API、三个 worker 和 Web。
 不需要在个人电脑安装 Python、Node.js 或 Rust，也不宣称完全免依赖或离线一键安装。
 
-版本：0.2.0 测试构建，对应 [v0.2.0-beta.1 Pre-release](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.1)。
+版本：0.2.0 测试构建，对应 [v0.2.0-beta.2 Pre-release](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2)。
 优先下载 Release 的对应客户端和部署 ZIP，核对同一 Release 的 `SHA256SUMS.txt` 和 `release-manifest.json`；manifest提供实际构建SHA、版本、平台与文件校验值。
 Release 中安装器文件名的空格替换为下划线，内容字节不变。
 [早期CI交付验证记录](../product-improvement/task-18-delivery.md)仍保留817构建的原值，不能用它核对新Release包。
@@ -25,10 +30,10 @@ Release 中安装器文件名的空格替换为下划线，内容字节不变。
 3. 双击 `.msi` 或 NSIS `.exe` 安装 Scientific RAGAgent。二者选一个即可。测试构建未签名，确认 GitHub 仓库、构建 SHA 和校验值后按系统/组织策略处理提示。WebView2 Runtime 若缺失，按安装器/Microsoft 官方引导安装。
 4. 把 `RAGSystem-deployment-windows-x86_64.zip` 中的 `RAGSystem` 文件夹解压到长期保留、当前用户可写的位置，例如 `C:\Users\你的用户名\RAGSystem`。不要放在 Program Files 或临时下载缓存中。不要遗漏隐藏的 `.env.example`。
 5. 启动桌面程序，打开 **Connection authorization / 本机授权**，复制显示的 SHA256 配对哈希。它不是 API 密钥，实际 bearer 只保存在 Windows Credential Manager。
-6. 双击该文件夹的 `RAGSystem-Setup.exe`，选择 **2 配对并启动**，粘贴哈希。助手检查 Docker/Compose、端口、空间，构建锁定依赖镜像，启动 DB/Redis，执行 Alembic 初始化，再启动 API、三个 worker 与 Web。等待 PASS，不要关闭启动中的控制台。
+6. 双击 `RAGSystem-Setup.exe` 进入图形向导：检查→保存配对哈希→隐藏保存密钥→确认启动/恢复→回桌面配置模型。助手检查 Docker/Compose、端口、空间，构建镜像、迁移数据库并启动 API、三个 worker 与 Web。按窗口进度等待；失败按提示重试。控制台兼容入口为 `--console`。
 7. 回到桌面首次使用引导，打开 Settings 的诊断，确认 DB/Redis 与三个 worker 可用；再按下面的使用流程配置模型。
 
-以后只需启动 Docker Desktop，打开部署助手选择 **3 启动**，再打开桌面程序。
+以后先打开 Docker Desktop，图形助手选择已有配置启动/恢复，再打开桌面程序；控制台保留菜单 **3 启动**。
 关闭桌面窗口不会自动停止后端；选择 **4 停止**可以停止后台服务，数据保留。
 电脑重启后先等待 Docker，再选择启动。助手固定使用 `scientific-ragagent` 项目，避免无意换一套数据卷。
 
