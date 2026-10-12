@@ -312,6 +312,7 @@ def queue(root: Path) -> dict[str, object]:
                 "EnableLua": True,
                 "LuaTransactionMode": True,
                 "EnableAOF": True,
+                "EnableStorageTier": True,
                 "Recover": True,
                 "CommitFrequencyMs": 0,
                 "WaitForCommit": True,
