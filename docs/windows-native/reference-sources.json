@@ -1,0 +1,217 @@
+{
+  "review_date": "2026-10-13",
+  "copy_policy": "Design comparison only; no third-party application source copied into RAGSystem",
+  "repositories": [
+    {
+      "repo": "LifeArchiveProject/WeChatDataAnalysis",
+      "sha": "cc919673ab8a213045ba62e17bf4319516ae47c5",
+      "license": null,
+      "pushed_at": "2026-10-11T06:06:53Z",
+      "default_branch": "main",
+      "inspected_files": [
+        {
+          "path": "desktop/package.json",
+          "sha256": "7f7bcdcd1fdffd7af2f789f5942e30a8b2f34bae465516bd16012badc98e4178",
+          "url": "https://github.com/LifeArchiveProject/WeChatDataAnalysis/blob/cc919673ab8a213045ba62e17bf4319516ae47c5/desktop/package.json"
+        },
+        {
+          "path": "desktop/scripts/build-backend.cjs",
+          "sha256": "9da90163f3864e7fb7799b808e46e7512337143b49d0317a4bff47475fba04ec",
+          "url": "https://github.com/LifeArchiveProject/WeChatDataAnalysis/blob/cc919673ab8a213045ba62e17bf4319516ae47c5/desktop/scripts/build-backend.cjs"
+        },
+        {
+          "path": "desktop/scripts/installer-custom.nsh",
+          "sha256": "2ce281c3dedd5fcec0460b9a60992695dcfea25843fc64bd54bab71fc1e98c8d",
+          "url": "https://github.com/LifeArchiveProject/WeChatDataAnalysis/blob/cc919673ab8a213045ba62e17bf4319516ae47c5/desktop/scripts/installer-custom.nsh"
+        },
+        {
+          "path": "desktop/src/backend-startup.cjs",
+          "sha256": "253c6ed654de116421487f3f4448b86cfa62b5f6b978d5fc7bc63b7e1ec416c1",
+          "url": "https://github.com/LifeArchiveProject/WeChatDataAnalysis/blob/cc919673ab8a213045ba62e17bf4319516ae47c5/desktop/src/backend-startup.cjs"
+        }
+      ],
+      "source_license": "No root project license identified; design inspection only, no code reuse"
+    },
+    {
+      "repo": "Mintplex-Labs/anything-llm",
+      "sha": "6100f0c8b995511439402ed36d95c9667cadff57",
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "pushed_at": "2026-10-12T15:45:36Z",
+      "default_branch": "master",
+      "inspected_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "782d2dc18a1ed9028ca992520f42b2e0b6187807da0d14455b8ae608e2e5692e",
+          "url": "https://github.com/Mintplex-Labs/anything-llm/blob/6100f0c8b995511439402ed36d95c9667cadff57/LICENSE"
+        },
+        {
+          "path": "frontend/src/pages/OnboardingFlow/Steps/LLMPreference/index.jsx",
+          "sha256": "5d576f8486e05482c7e84b5bf7d4ece1b099b807a2a313135f2d175da8e7aa87",
+          "url": "https://github.com/Mintplex-Labs/anything-llm/blob/6100f0c8b995511439402ed36d95c9667cadff57/frontend/src/pages/OnboardingFlow/Steps/LLMPreference/index.jsx"
+        },
+        {
+          "path": "frontend/src/pages/OnboardingFlow/index.jsx",
+          "sha256": "b5f0f619f42a2807eea134471dfef1595f5e46bf69d6c800d1a76fda8ee34046",
+          "url": "https://github.com/Mintplex-Labs/anything-llm/blob/6100f0c8b995511439402ed36d95c9667cadff57/frontend/src/pages/OnboardingFlow/index.jsx"
+        },
+        {
+          "path": "server/models/systemSettings.js",
+          "sha256": "ea305a523630b0a6a4e4552228d90de6430e448e79ed3e43108bdf55ec506720",
+          "url": "https://github.com/Mintplex-Labs/anything-llm/blob/6100f0c8b995511439402ed36d95c9667cadff57/server/models/systemSettings.js"
+        }
+      ]
+    },
+    {
+      "repo": "janhq/jan",
+      "sha": "ed97a4707f65b72ec7fdc1cbeabbc959c2ba07d8",
+      "license": {
+        "key": "other",
+        "name": "Other",
+        "spdx_id": "NOASSERTION",
+        "url": null,
+        "node_id": "MDc6TGljZW5zZTA="
+      },
+      "pushed_at": "2026-10-12T15:31:35Z",
+      "default_branch": "main",
+      "inspected_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "240e79d4976dbf1d4c76e0ac1da223df97935a75497eaf8dd045771c3e92de16",
+          "url": "https://github.com/janhq/jan/blob/ed97a4707f65b72ec7fdc1cbeabbc959c2ba07d8/LICENSE"
+        },
+        {
+          "path": "extensions/llamacpp-extension/src/index.ts",
+          "sha256": "6bc3c5ffae3a64d2d1d21f14588e1ce63502ef3f5a3ae6c5d506a6bbcddba7ef",
+          "url": "https://github.com/janhq/jan/blob/ed97a4707f65b72ec7fdc1cbeabbc959c2ba07d8/extensions/llamacpp-extension/src/index.ts"
+        },
+        {
+          "path": "src-tauri/tauri.bundle.windows.nsis.template",
+          "sha256": "296986559145efaf8a62e9bce210beaf1a1cac2ff584402aff9b938126e83fc6",
+          "url": "https://github.com/janhq/jan/blob/ed97a4707f65b72ec7fdc1cbeabbc959c2ba07d8/src-tauri/tauri.bundle.windows.nsis.template"
+        },
+        {
+          "path": "src-tauri/tauri.conf.json",
+          "sha256": "c3741caa2572c2974382ab28d2c2bf36f7328c45e4256c778495d08cade38f05",
+          "url": "https://github.com/janhq/jan/blob/ed97a4707f65b72ec7fdc1cbeabbc959c2ba07d8/src-tauri/tauri.conf.json"
+        }
+      ],
+      "source_license": "Apache-2.0 (actual LICENSE; API metadata NOASSERTION)"
+    },
+    {
+      "repo": "Future-Scholars/paperlib",
+      "sha": "da10c04ab827dc08463e89fe7ca0e51637d827bf",
+      "license": {
+        "key": "gpl-3.0",
+        "name": "GNU General Public License v3.0",
+        "spdx_id": "GPL-3.0",
+        "url": "https://api.github.com/licenses/gpl-3.0",
+        "node_id": "MDc6TGljZW5zZTk="
+      },
+      "pushed_at": "2026-04-01T23:01:59Z",
+      "default_branch": "chore/official-sync",
+      "inspected_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "8b1ba204bb69a0ade2bfcf65ef294a920f6bb361b317dba43c7ef29d96332b9b",
+          "url": "https://github.com/Future-Scholars/paperlib/blob/da10c04ab827dc08463e89fe7ca0e51637d827bf/LICENSE"
+        },
+        {
+          "path": "app/main/services/preference-service.ts",
+          "sha256": "0b25a557394818087ed4f1820e9075d322ab2bc693ceaa7fab35238996abb500",
+          "url": "https://github.com/Future-Scholars/paperlib/blob/da10c04ab827dc08463e89fe7ca0e51637d827bf/app/main/services/preference-service.ts"
+        },
+        {
+          "path": "app/service/repositories/file-repository/local-backend.ts",
+          "sha256": "3adf2e18bb9ad013d97a618adbb48dc9771d4e4f27ec93f12aa5b85e5890ebe0",
+          "url": "https://github.com/Future-Scholars/paperlib/blob/da10c04ab827dc08463e89fe7ca0e51637d827bf/app/service/repositories/file-repository/local-backend.ts"
+        },
+        {
+          "path": "build_configs/electron-builder.win.json5",
+          "sha256": "fdfb07777087c7d66f857382ec77a1801a633721fd8256111fad1afc93c0f548",
+          "url": "https://github.com/Future-Scholars/paperlib/blob/da10c04ab827dc08463e89fe7ca0e51637d827bf/build_configs/electron-builder.win.json5"
+        }
+      ]
+    },
+    {
+      "repo": "nomic-ai/gpt4all",
+      "sha": "b666d16db5aeab8b91aaf7963adcee9c643734d7",
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "pushed_at": "2025-05-27T20:05:19Z",
+      "default_branch": "main",
+      "inspected_files": [
+        {
+          "path": "LICENSE.txt",
+          "sha256": "e06bec576945c1ab4cca000d6b2fe35987c2267a0eaf292bc58bd16a54000e1b",
+          "url": "https://github.com/nomic-ai/gpt4all/blob/b666d16db5aeab8b91aaf7963adcee9c643734d7/LICENSE.txt"
+        },
+        {
+          "path": "gpt4all-chat/CMakeLists.txt",
+          "sha256": "41e790d7a7d4e1b2015fb389ed532ad71c2e59eded99cc2c3c620032e6792832",
+          "url": "https://github.com/nomic-ai/gpt4all/blob/b666d16db5aeab8b91aaf7963adcee9c643734d7/gpt4all-chat/CMakeLists.txt"
+        },
+        {
+          "path": "gpt4all-chat/cmake/installer_control.qs",
+          "sha256": "4744f2a37c5bf0189e8b3b79f0409dcb03fbd7f22077af98386cc1a36352f5ee",
+          "url": "https://github.com/nomic-ai/gpt4all/blob/b666d16db5aeab8b91aaf7963adcee9c643734d7/gpt4all-chat/cmake/installer_control.qs"
+        },
+        {
+          "path": "gpt4all-chat/src/download.cpp",
+          "sha256": "ede437f3691cac7910ee716c33b2a121448789b8d208305d82d2d4d16a69e71f",
+          "url": "https://github.com/nomic-ai/gpt4all/blob/b666d16db5aeab8b91aaf7963adcee9c643734d7/gpt4all-chat/src/download.cpp"
+        },
+        {
+          "path": "gpt4all-chat/src/localdocs.cpp",
+          "sha256": "df0da85f7c02c20fee22b1f85da9f804f93ebbc0e19a96938148ab362ce08035",
+          "url": "https://github.com/nomic-ai/gpt4all/blob/b666d16db5aeab8b91aaf7963adcee9c643734d7/gpt4all-chat/src/localdocs.cpp"
+        }
+      ]
+    },
+    {
+      "repo": "microsoft/garnet",
+      "sha": "664d2af4130baa987d3474ce0296c322908bd6eb",
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      },
+      "pushed_at": "2026-10-12T15:05:01Z",
+      "default_branch": "main",
+      "inspected_files": [
+        {
+          "path": "LICENSE",
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383",
+          "url": "https://github.com/microsoft/garnet/blob/664d2af4130baa987d3474ce0296c322908bd6eb/LICENSE"
+        },
+        {
+          "path": "global.json",
+          "sha256": "334afe7fe8664c32c599319b016522d1344c43da72131ce63213f70a89ea03cf",
+          "url": "https://github.com/microsoft/garnet/blob/664d2af4130baa987d3474ce0296c322908bd6eb/global.json"
+        },
+        {
+          "path": "libs/host/Configuration/Options.cs",
+          "sha256": "39ff8d2b1837437d52699849820f94c4f5d08aa54644cb4bb7db0055b9965c64",
+          "url": "https://github.com/microsoft/garnet/blob/664d2af4130baa987d3474ce0296c322908bd6eb/libs/host/Configuration/Options.cs"
+        },
+        {
+          "path": "libs/resources/RespCommandsInfo.json",
+          "sha256": "048b0aa662fdb6de3e9c7a21dde71d273709e7b9cfa31a0dab7e27f9774b6ca0",
+          "url": "https://github.com/microsoft/garnet/blob/664d2af4130baa987d3474ce0296c322908bd6eb/libs/resources/RespCommandsInfo.json"
+        }
+      ]
+    }
+  ]
+}
