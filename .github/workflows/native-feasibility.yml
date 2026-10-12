@@ -1,0 +1,60 @@
+name: Windows native feasibility
+on:
+  push:
+    paths:
+      - '.github/workflows/native-feasibility.yml'
+      - 'scripts/native_probe/**'
+      - 'docs/windows-native/**'
+  pull_request:
+    paths:
+      - '.github/workflows/native-feasibility.yml'
+      - 'scripts/native_probe/**'
+      - 'docs/windows-native/**'
+permissions:
+  contents: read
+jobs:
+  postgres-queue-native:
+    runs-on: windows-2025
+    timeout-minutes: 25
+    env:
+      # Isolated synthetic workspace; no Docker/WSL/service/global DB mutation.
+      NATIVE_PROBE_ROOT: ${{ runner.temp }}/RAG Native 中文 Path ${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: pgvector/pgvector
+          ref: cab9da72c04353f143bb06b42ab70a403daac64a
+          path: native-probe-source/pgvector
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.19'
+          python-version: '3.11'
+      - name: Install locked development dependencies (not a consumer installer)
+        run: uv sync --locked
+      - name: Prepare copied PostgreSQL17 and checksum-verified official Garnet binary
+        run: |
+          uv run python scripts/native_probe/probe.py --prepare --workspace "$env:NATIVE_PROBE_ROOT" --pg-source 'C:\Program Files\PostgreSQL\17'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Build pgvector0.8.2 against the private PostgreSQL copy
+        working-directory: native-probe-source/pgvector
+        run: |
+          $env:PGROOT = Join-Path $env:NATIVE_PROBE_ROOT 'postgres'
+          nmake /F Makefile.win
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          nmake /F Makefile.win install
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Real native DB and queue gate (NO-GO is a failing gate, never a passing installer)
+        run: |
+          uv run python scripts/native_probe/probe.py --workspace "$env:NATIVE_PROBE_ROOT" --output native-probe-report.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-native-feasibility-${{ github.sha }}
+          path: native-probe-report.json
+          if-no-files-found: warn
+      # Raw server/worker logs, passwords, databases and dumps are never uploaded.
