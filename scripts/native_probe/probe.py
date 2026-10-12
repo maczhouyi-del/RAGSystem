@@ -46,7 +46,8 @@ def call(args: list[str], *, env: dict[str, str] | None = None, timeout: int = 1
     except (OSError, subprocess.TimeoutExpired):
         raise ProbeError("native_process_unavailable") from None
     if result.returncode:
-        raise ProbeError("native_command_failed")
+        # Executable basename and numeric OS exit only, never args/environment.
+        raise ProbeError(f"native_command_failed_{Path(args[0]).stem}_{result.returncode}")
     return result.stdout
 
 
@@ -66,6 +67,8 @@ def prepare(root: Path, pg_source: Path) -> None:
     if platform.system() != "Windows" or root.exists():
         raise ProbeError("isolated_new_windows_workspace_required")
     root.mkdir(parents=True)
+    original_version = call([str(pg_source / "bin" / "pg_config.exe"), "--version"])
+    print("Original PostgreSQL installation executable starts:", original_version.decode().strip())
     # Build only into a copy, never modify the runner's installed PG/service/data.
     for name in ("bin", "lib", "share", "include"):
         shutil.copytree(pg_source / name, root / "postgres" / name)
