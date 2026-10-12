@@ -16,9 +16,6 @@ jobs:
   postgres-queue-native:
     runs-on: windows-2025
     timeout-minutes: 25
-    env:
-      # Isolated synthetic workspace; no Docker/WSL/service/global DB mutation.
-      NATIVE_PROBE_ROOT: ${{ runner.temp }}/RAG Native 中文 Path ${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -33,6 +30,10 @@ jobs:
         with:
           version: '0.12.19'
           python-version: '3.11'
+      - name: Select an isolated Unicode workspace after runner allocation
+        run: |
+          $probeRoot = Join-Path $env:RUNNER_TEMP "RAG Native 中文 Path $env:GITHUB_RUN_ID"
+          "NATIVE_PROBE_ROOT=$probeRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: Install locked development dependencies (not a consumer installer)
         run: uv sync --locked
       - name: Prepare copied PostgreSQL17 and checksum-verified official Garnet binary
