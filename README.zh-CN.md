@@ -14,6 +14,9 @@ Tauri 桌面入口。它保留了现有的基于证据的知识库和 Supervisor
 迁移基于原仓库 `fix/engineering-hardening` 分支的 `df75bdd` 提交。
 历史 CI 和安装包验证证据仍链接到原仓库中的实际运行记录。
 
+> Windows 免 Docker/WSL 原生部署仍在可行性阶段，当前结论 **NO-GO**：现有 RQ Worker 与中文数据库路径未通过。
+> [审计、实际原型结果与后续设计](docs/windows-native/results.md)。下列 beta2 仍要求 Docker，不是新的免依赖安装器。
+
 ## 下载、安装与首次使用
 
 从 **[v0.2.0-beta.2 测试版 Release](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2)** 下载。

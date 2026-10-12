@@ -1,0 +1,19 @@
+{
+  "run_id": 38282864644,
+  "event": "pr",
+  "run_url": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38282864644",
+  "implementation_sha": "11e933bef82f1f71408447465c7dcd6a4d846157",
+  "checkout_sha": "4f3e2bc98c9e88a1b32b412ed470c7012b339106",
+  "conclusion": "failure",
+  "decision": "NO_GO_PRODUCTION",
+  "report_origin": "JSON printed by probe in completed workflow log; artifact independently re-downloaded: NOT EXECUTED",
+  "downloaded_workflow_log_sha256": "22da4dcbef4318343fbf0f6aa08676e58fb05e1e71109dc234eff9232e0071fa",
+  "artifacts": [
+    {
+      "id": 11761887687,
+      "name": "windows-native-feasibility-4f3e2bc98c9e88a1b32b412ed470c7012b339106",
+      "server_archive_digest": "sha256:d3cfd7a7f0c97a032c143dc147b704c7b651beb1e896474a315edec7fb47fb1b",
+      "link": "https://github.com/maczhouyi-del/RAGSystem/actions/runs/38282864644/artifacts/11761887687"
+    }
+  ]
+}

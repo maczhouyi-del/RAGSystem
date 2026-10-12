@@ -14,6 +14,9 @@ This copy retains the original commit history and MIT license. The
 the migration starts from its `fix/engineering-hardening` commit `df75bdd`.
 Historical CI and installer evidence links still refer to runs in that repository.
 
+> Docker/WSL-free Windows deployment is currently **NO-GO**: the existing RQ worker and Unicode PostgreSQL paths failed the native feasibility gate.
+> See the [audit, actual prototype results and next design](docs/windows-native/results.md). The beta2 instructions below still require Docker.
+
 ## Download, install and first use
 
 Download **[v0.2.0-beta.2 from GitHub Releases](https://github.com/maczhouyi-del/RAGSystem/releases/tag/v0.2.0-beta.2)**.
